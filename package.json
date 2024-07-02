@@ -17,7 +17,8 @@
   },
   "scripts": {
     "start": "bun index.ts",
-    "start:dev": "bun --hot index.ts"
+    "start:dev": "bun --hot index.ts",
+    "generate-admin-user": "bun run scripts.ts generate-admin-user"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

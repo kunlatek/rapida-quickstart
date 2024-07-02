@@ -5,12 +5,17 @@ export const create = async (data: any): Promise<void> => {
   await module.save();
 };
 
-export const findAll = async (
-  limit?: number,
-  page?: number
-): Promise<ModuleR[]> => {
+export const findAll = async ({
+  filter,
+  limit,
+  page,
+}: {
+  filter?: any;
+  limit?: number;
+  page?: number;
+}): Promise<ModuleR[]> => {
   return (
-    await ModuleRModel.find()
+    await ModuleRModel.find({ ...(filter ?? {}) })
       .limit(limit ?? 100)
       .skip((page ?? 0) * (limit ?? 100))
   ).map((el: any) => new ModuleR(el));

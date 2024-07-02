@@ -5,12 +5,17 @@ export const create = async (data: any): Promise<void> => {
   await invitation.save();
 };
 
-export const findAll = async (
-  limit?: number,
-  page?: number
-): Promise<InvitationR[]> => {
+export const findAll = async ({
+  filter,
+  limit,
+  page,
+}: {
+  filter?: any;
+  limit?: number;
+  page?: number;
+}): Promise<InvitationR[]> => {
   return (
-    await InvitationRModel.find()
+    await InvitationRModel.find({ ...(filter ?? {}) })
       .limit(limit ?? 100)
       .skip((page ?? 0) * (limit ?? 100))
   ).map((el: any) => new InvitationR(el));

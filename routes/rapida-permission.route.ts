@@ -143,6 +143,10 @@ router.post("/", async (req, res) => {
  *     tags: [Permissions]
  *     parameters:
  *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: object
+ *       - in: query
  *         name: limit
  *         schema:
  *           type: number
@@ -172,10 +176,11 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const [result, total] = await Promise.all([
-      permissionController.findAll(
-        parseInt(req.query.limit as string),
-        parseInt(req.query.page as string)
-      ),
+      permissionController.findAll({
+        filter: req.query.filter,
+        limit: parseInt(req.query.limit as string),
+        page: parseInt(req.query.page as string),
+      }),
       permissionController.count(),
     ]);
 

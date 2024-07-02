@@ -5,12 +5,17 @@ export const create = async (data: any): Promise<void> => {
   await permission.save();
 };
 
-export const findAll = async (
-  limit?: number,
-  page?: number
-): Promise<PermissionR[]> => {
+export const findAll = async ({
+  filter,
+  limit,
+  page,
+}: {
+  filter?: any;
+  limit?: number;
+  page?: number;
+}): Promise<PermissionR[]> => {
   return (
-    await PermissionModelR.find()
+    await PermissionModelR.find({ ...(filter ?? {}) })
       .limit(limit ?? 100)
       .skip((page ?? 0) * (limit ?? 100))
       .populate("modulePermissions.module")

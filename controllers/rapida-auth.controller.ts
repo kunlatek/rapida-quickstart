@@ -37,10 +37,13 @@ export const signup = async (
 
   const user = await userController.findByEmail(email);
 
-  await roleController.create({
-    user: user?._id?.toString(),
-    permission: invitationFound.permission,
-  });
+  await Promise.all([
+    roleController.create({
+      user: user?._id?.toString(),
+      permission: invitationFound.permission,
+    }),
+    invitationController.update(invitationFound._id!, { accepted: true }),
+  ]);
 
   return sign({ user: user?._id?.toString() }, process.env.JWT_SECRET!, {
     expiresIn: "1d",
