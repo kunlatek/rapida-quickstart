@@ -1,6 +1,7 @@
 import * as userController from "./rapida-user.controller";
 import * as invitationController from "./rapida-invitation.controller";
 import * as roleController from "./rapida-role.controller";
+import * as profileController from "./rapida-profile.controller";
 
 import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
@@ -43,6 +44,7 @@ export const signup = async (
       permission: invitationFound.permission,
     }),
     invitationController.update(invitationFound._id!, { accepted: true }),
+    profileController.create({ user: user?._id }),
   ]);
 
   return sign({ user: user?._id?.toString() }, process.env.JWT_SECRET!, {
