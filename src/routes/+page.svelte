@@ -1,21 +1,29 @@
 <script lang="ts">
-  import { Input, Label, Button } from 'flowbite-svelte';
+  import { Input, Label, Button, Spinner, Alert } from 'flowbite-svelte';
   import { login } from '$lib/services/authService';
   import { writable } from 'svelte/store';
+  import { handleApiError } from '../utils/errorHandler';
+
+  // Inicializar a i18n
+  import '$lib/i18n';
 
   const email = writable('');
   const password = writable('');
   const errorMessage = writable('');
+  const isLoading = writable(false);
 
   async function handleSubmit(event: Event) {
     event.preventDefault();
+    isLoading.set(true);
 
     try {
       const response = await login($email, $password);
       console.log('Login successful:', response);
       // Redirecionar ou atualizar a interface conforme necessário
     } catch (error) {
-      errorMessage.set('Login failed. Please check your credentials.');
+      errorMessage.set(handleApiError(error));
+    } finally {
+      isLoading.set(false);
     }
   }
 </script>
@@ -35,9 +43,16 @@
       <Label for="password" class="mb-2">Senha</Label>
       <Input type="password" id="password" bind:value={$password} placeholder="•••••••••" required />
     </div>
+    <Button type="submit" outline disabled={$isLoading}>
+      {#if $isLoading}
+        <Spinner class="mr-2" />
+      {/if}
+      Entrar
+    </Button>
+
+
     {#if $errorMessage}
-      <p class="text-red-500">{$errorMessage}</p>
+      <Alert color="red" class="mb-6">{$errorMessage}</Alert>
     {/if}
-    <Button type="submit" outline>Entrar</Button>
   </form>
 </div>

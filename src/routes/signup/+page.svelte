@@ -5,6 +5,7 @@
   import { writable } from 'svelte/store';
   import { goto } from '$app/navigation';
 	import type { IRequestErrorResponse } from '../../types/rest';
+	import { handleApiError } from '../../utils/errorHandler';
 
   const email = writable('');
   const password = writable('');
@@ -33,7 +34,7 @@
       // Redirecionar para a página de login ou outra página após o registro
       goto('/login');
     } catch (error: IRequestErrorResponse | any) {
-      errorMessage.set(error.message);
+      errorMessage.set(handleApiError(error));
     }
   }
 </script>

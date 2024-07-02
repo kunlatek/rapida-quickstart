@@ -1,0 +1,7 @@
+{
+    "errors": {
+        "login_failed": "Falha no login. Por favor, verifique suas credenciais.",
+        "signup_failed": "Falha no cadastro. Por favor, tente novamente mais tarde.",
+        "passwords_match": "As senhas não combinam. Escreva-as novamente, por favor."
+    }
+}

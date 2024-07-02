@@ -2,13 +2,13 @@
   import { onMount } from 'svelte';
   import { Toggle } from 'flowbite-svelte';
 
-  let theme = 'light';
+  let theme = 'dark';
 
   const toggleTheme = () => {
-    theme = theme === 'light' ? 'dark' : 'light';
+    theme = theme === 'dark' ? 'light' : 'dark';
     if (typeof window !== 'undefined') {
       localStorage.setItem('theme', theme);
-      document.documentElement.classList.toggle('dark', theme === 'dark');
+      document.documentElement.classList.toggle('light', theme === 'light');
     }
   };
 

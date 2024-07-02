@@ -1,0 +1,8 @@
+{
+    "errors": {
+        "login_failed": "Login failed. Please check your credentials.",
+        "signup_failed": "Signup failed. Please try again later.",
+        "password": "Wrong password. Please write it again.",
+        "passwords_match": "Passwords don't match. Please write it again."
+    }
+}
