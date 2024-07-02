@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+
+<body>
+  <h1>Login</h1>
+  <div>
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" required>
+  </div>
+  <div>
+    <label for="password">Senha:</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+  <button onclick="login()">Entrar</button>
+</body>
+
+</html>
+
+<script>
+  const login = async () => {
+    const email = document.getElementById('email').value;
+    const password= document.getElementById('password').value;
+
+    const response = await fetch('/v1/auth/login', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if(response.status >= 400) alert(data.message);
+    else {
+      sessionStorage.setItem('authToken', `Bearer ${data.authToken}`);
+      window.location.href='/app/home';
+    }
+  }
+</script>
