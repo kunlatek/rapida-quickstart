@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { Toggle } from 'flowbite-svelte';
 
@@ -14,7 +14,7 @@
 		localStorage.setItem('theme', theme);
 	};
 
-	const capitalizeFirstLetter = (/** @type {string} */ term) => {
+	const capitalizeFirstLetter = (term: string) => {
 		return term.charAt(0).toUpperCase() + term.slice(1);
 	};
 
