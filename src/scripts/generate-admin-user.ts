@@ -51,7 +51,7 @@ export const generateAdminUser = async () => {
     // Create invitation
     await database.collection('invitation').insertOne({
       email,
-      permission,
+      permission: permission.toString(),
       accepted: true,
     });
 
@@ -64,8 +64,8 @@ export const generateAdminUser = async () => {
 
     // Create role
     await database.collection('role').insertOne({
-      userId: insertedUser.insertedId,
-      permission,
+      userId: insertedUser.insertedId.toString(),
+      permissionId: permission.toString,
     });
     console.info(`Admin user ${email} generate!`);
 

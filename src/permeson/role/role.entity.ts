@@ -4,8 +4,8 @@ import { Column, Entity } from 'typeorm';
 @Entity()
 export class Role extends BaseEntity {
   @Column()
-  userId: string;
+  userId: string | any;
 
   @Column()
-  permissionId: string;
+  permissionId: string | any;
 }

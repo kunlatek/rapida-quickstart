@@ -60,6 +60,9 @@ export class AuthService {
       throw new HttpException('Invalid password', 401);
     }
 
-    return this.jwtService.sign({ email }, { secret: process.env.JWT_SECRET });
+    return this.jwtService.sign(
+      { user: userFound._id },
+      { secret: process.env.JWT_SECRET },
+    );
   }
 }

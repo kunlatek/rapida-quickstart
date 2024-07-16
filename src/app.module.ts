@@ -11,6 +11,7 @@ import { Permission } from './permeson/permission/permission.entity';
 import { Invitation } from './permeson/invitation/invitation.entity';
 
 import 'dotenv/config.js';
+import { Role } from './permeson/role/role.entity';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import 'dotenv/config.js';
       type: 'mongodb',
       url: process.env.MONGO_URI,
       database: process.env.DB_NAME,
-      entities: [User, ModuleEntity, Permission, Invitation],
+      entities: [User, ModuleEntity, Permission, Invitation, Role],
     }),
     AutentikigoModule,
     PermesonModule,
