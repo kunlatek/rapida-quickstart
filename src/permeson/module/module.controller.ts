@@ -11,6 +11,7 @@ import {
   Query,
   ParseIntPipe,
   DefaultValuePipe,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -25,9 +26,11 @@ import {
 import { ModuleDto, FormModuleDto } from './module.dto';
 import { ObjectId } from 'mongodb';
 import { HttpArrayResponseDto } from 'src/base/base.dto';
+import { AuthGuard } from 'src/auth.guard';
 
 @ApiTags('Permeson/Module')
 @Controller('modules')
+@UseGuards(AuthGuard)
 export class ModuleController {
   constructor(
     @InjectRepository(Module)
