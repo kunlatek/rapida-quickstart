@@ -11,21 +11,17 @@
 		Button
 	} from 'flowbite-svelte';
 	import NavBar from '../../../components/NavBar.svelte';
-	import {
-		fetchInvitations,
-		type IInvitation,
-		deleteInvitation
-	} from '$lib/services/permeson/invitationService';
+	import { fetchModules, type IModule, deleteModule } from '$lib/services/permeson/moduleService';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
 	import DeleteModal from '../../../components/DeleteModal.svelte';
 
 	const searchTerm = writable('');
-	const items = writable<IInvitation[]>([]);
+	const items = writable<IModule[]>([]);
 
 	async function fetchData() {
-		const invitations = await fetchInvitations($searchTerm);
-		items.set(invitations);
+		const modules = await fetchModules($searchTerm);
+		items.set(modules);
 	}
 
 	onMount(() => fetchData());
@@ -34,7 +30,6 @@
 <NavBar />
 
 <div class="p-8">
-	<!-- <TableSearch placeholder="Burcar por e-mail" hoverable={true} bind:inputValue={$searchTerm}> -->
 	<Table hoverable={true}>
 		<caption
 			class="bg-white p-5 text-left text-lg font-semibold text-gray-900 dark:bg-gray-800 dark:text-white"
@@ -42,12 +37,13 @@
 			Convites
 			<p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">Lista de convites.</p>
 			<br />
-			<Button href="/permeson/invitations/new" color="light">Adicionar</Button>
+			<Button href="/permeson/modules/new" color="light">Adicionar</Button>
 		</caption>
 
 		<TableHead>
-			<TableHeadCell>E-mail</TableHeadCell>
-			<TableHeadCell>Status</TableHeadCell>
+			<TableHeadCell>Nome</TableHeadCell>
+			<TableHeadCell>Descrição</TableHeadCell>
+			<TableHeadCell>Rota</TableHeadCell>
 			<TableHeadCell class="w-[200px]">
 				<span class="sr-only">Edit</span>
 			</TableHeadCell>
@@ -55,28 +51,26 @@
 		<TableBody tableBodyClass="divide-y">
 			{#each $items as item}
 				<TableBodyRow>
-					<TableBodyCell>{item.email}</TableBodyCell>
-					<TableBodyCell>{item.accepted ? 'Aceito' : 'Pendente'}</TableBodyCell>
+					<TableBodyCell>{item.name}</TableBodyCell>
+					<TableBodyCell>{item.description}</TableBodyCell>
+					<TableBodyCell>{item.route}</TableBodyCell>
 					<TableBodyCell>
-						{#if !item.accepted}
-							<a
-								href={'/permeson/invitations/' + item._id}
-								class="text-primary-600 dark:text-primary-500 font-medium text-blue-500 hover:underline"
-							>
-								Editar
-							</a>
-							|
-							<DeleteModal
-								deleteFunction={async () => {
-									await deleteInvitation(item._id);
-									await fetchData();
-								}}
-							/>
-						{/if}
+						<a
+							href={'/permeson/modules/' + item._id}
+							class="text-primary-600 dark:text-primary-500 font-medium text-blue-500 hover:underline"
+						>
+							Editar
+						</a>
+						|
+						<DeleteModal
+							deleteFunction={async () => {
+								await deleteModule(item._id);
+								await fetchData();
+							}}
+						/>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 		</TableBody>
 	</Table>
-	<!-- </TableSearch> -->
 </div>

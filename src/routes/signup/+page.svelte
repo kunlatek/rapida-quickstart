@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Input, Label, Button } from 'flowbite-svelte';
-	import { signup } from '$lib/services/authService';
+	import { signup } from '$lib/services/autentikigo/authService';
 	import { writable } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import type { IRequestErrorResponse } from '../../types/rest';
