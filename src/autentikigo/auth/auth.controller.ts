@@ -11,6 +11,7 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FormUserDto } from '../user/user.dto';
+import { HttpAuthResponseDto } from './auth.dto';
 
 @ApiTags('Autentikigo/Auth')
 @Controller('auth')
@@ -34,23 +35,13 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Login successful',
+    type: HttpAuthResponseDto,
   })
   @Post('login')
   async login(
     @Body() user: FormUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.login(user);
-    res.cookie('token', token, { httpOnly: true });
-  }
-
-  @ApiOperation({ summary: 'Logout a user' })
-  @ApiResponse({
-    status: 200,
-    description: 'Logout successful',
-  })
-  @Get('logout')
-  async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('token');
+    return { token: await this.authService.login(user) };
   }
 }
