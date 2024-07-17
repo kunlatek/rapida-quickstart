@@ -96,7 +96,7 @@ export class PermissionController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: FormPermissionDto) {
-    return this.permissionRepository.save({ _id: new ObjectId(id), ...data });
+    return this.permissionRepository.update({ _id: new ObjectId(id) }, data);
   }
 
   @ApiOperation({ summary: 'Delete a specifique permission by id' })

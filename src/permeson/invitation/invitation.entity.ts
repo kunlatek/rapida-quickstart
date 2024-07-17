@@ -7,7 +7,7 @@ export class Invitation extends BaseEntity {
   email: string;
 
   @Column()
-  permissionId: string;
+  permission: string;
 
   @Column({ default: false })
   accepted: boolean;

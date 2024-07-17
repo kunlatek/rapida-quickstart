@@ -96,7 +96,7 @@ export class InvitationController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: FormInvitationDto) {
-    return this.invitationRepository.save({ _id: new ObjectId(id), ...data });
+    return this.invitationRepository.update({ _id: new ObjectId(id) }, data);
   }
 
   @ApiOperation({ summary: 'Delete a specifique invitation by id' })

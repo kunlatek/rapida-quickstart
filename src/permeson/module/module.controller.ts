@@ -96,7 +96,7 @@ export class ModuleController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: FormModuleDto) {
-    return this.moduleRepository.save({ _id: new ObjectId(id), ...data });
+    return this.moduleRepository.update({ _id: new ObjectId(id) }, data);
   }
 
   @ApiOperation({ summary: 'Delete a specifique module by id' })
