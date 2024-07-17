@@ -38,7 +38,7 @@ export class AuthService {
     await Promise.all([
       this.roleRepository.save({
         userId: userCreated._id.toString(),
-        permissionId: invitation.permissionId,
+        permissionId: invitation.permission,
       }),
       this.invitationRepository.update(invitation._id.toString(), {
         accepted: true,
