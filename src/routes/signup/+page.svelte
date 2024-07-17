@@ -20,10 +20,8 @@
 		}
 
 		try {
-			const response = await signup($email, $password);
-			console.log('Signup successful:', response);
-			// Redirecionar para a página de login ou outra página após o registro
-			goto('/login');
+			await signup($email, $password);
+			goto('/');
 		} catch (error: IRequestErrorResponse | any) {
 			errorMessage.set(handleApiError(error));
 		}
