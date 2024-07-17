@@ -5,6 +5,7 @@ import {
   Res,
   HttpStatus,
   HttpCode,
+  Get,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -41,5 +42,15 @@ export class AuthController {
   ) {
     const token = await this.authService.login(user);
     res.cookie('token', token, { httpOnly: true });
+  }
+
+  @ApiOperation({ summary: 'Logout a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful',
+  })
+  @Get('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('token');
   }
 }
