@@ -7,9 +7,7 @@
 		TableBodyRow,
 		TableHead,
 		TableHeadCell,
-		TableSearch
 	} from 'flowbite-svelte';
-	import NavBar from '../../../components/NavBar.svelte';
 	import {
 		deletePermission,
 		fetchPermissions,
@@ -28,8 +26,6 @@
 
 	onMount(() => fetchData());
 </script>
-
-<NavBar />
 
 <div class="p-8">
 	<Table hoverable={true}>

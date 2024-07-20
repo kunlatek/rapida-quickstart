@@ -10,7 +10,6 @@
 		Modal,
 		Button
 	} from 'flowbite-svelte';
-	import NavBar from '../../../components/NavBar.svelte';
 	import {
 		fetchInvitations,
 		type IInvitation,
@@ -30,8 +29,6 @@
 
 	onMount(() => fetchData());
 </script>
-
-<NavBar />
 
 <div class="p-8">
 	<!-- <TableSearch placeholder="Burcar por e-mail" hoverable={true} bind:inputValue={$searchTerm}> -->

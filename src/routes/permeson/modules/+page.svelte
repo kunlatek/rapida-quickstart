@@ -6,11 +6,8 @@
 		TableBodyRow,
 		TableHead,
 		TableHeadCell,
-		TableSearch,
-		Modal,
 		Button
 	} from 'flowbite-svelte';
-	import NavBar from '../../../components/NavBar.svelte';
 	import { fetchModules, type IModule, deleteModule } from '$lib/services/permeson/moduleService';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
@@ -26,8 +23,6 @@
 
 	onMount(() => fetchData());
 </script>
-
-<NavBar />
 
 <div class="p-8">
 	<Table hoverable={true}>
