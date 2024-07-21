@@ -76,7 +76,7 @@ export const generateAdminUser = async () => {
     // Create role
     await database.collection('role').insertOne({
       userId: insertedUser.insertedId.toString(),
-      permissionId: permission.toString,
+      permissionId: permission.toString(),
     });
     console.info(`Admin user ${email} generate!`);
 
