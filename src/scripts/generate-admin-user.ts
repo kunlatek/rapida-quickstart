@@ -37,16 +37,27 @@ export const generateAdminUser = async () => {
     }
 
     // Create new admin permission
-    const permissionName = `Admin permission ${Date.now()}`;
-    const insertedPermission = await database
-      .collection('permission')
-      .insertOne({
-        name: permissionName,
-        description: `Admin permission`,
-        isAdminPermission: true,
-        modulePermissions: [],
-      });
-    const permission = insertedPermission.insertedId;
+    const permissionName = `Default Admin permission`;
+    const result = await database.collection('permission').updateOne(
+      { name: permissionName },
+      {
+        $set: {
+          name: permissionName,
+          description: 'Admin permission',
+          isAdminPermission: true,
+          modulePermissions: [],
+        },
+      },
+      { upsert: true },
+    );
+
+    const permission =
+      result.upsertedId ||
+      (
+        await database
+          .collection('permission')
+          .findOne({ name: permissionName })
+      )._id;
 
     // Create invitation
     await database.collection('invitation').insertOne({
