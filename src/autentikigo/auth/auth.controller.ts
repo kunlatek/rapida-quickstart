@@ -5,13 +5,12 @@ import {
   Res,
   HttpStatus,
   HttpCode,
-  Get,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FormUserDto } from '../user/user.dto';
-import { HttpAuthResponseDto } from './auth.dto';
+import { FormSignupDto, HttpAuthResponseDto } from './auth.dto';
 
 @ApiTags('Autentikigo/Auth')
 @Controller('auth')
@@ -19,14 +18,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Register a user' })
-  @ApiBody({ type: FormUserDto })
+  @ApiBody({ type: FormSignupDto })
   @ApiResponse({
     status: 204,
     description: 'User registered',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('register')
-  async register(@Body() user: FormUserDto) {
+  async register(@Body() user: FormSignupDto) {
     await this.authService.registerWithInvitation(user);
   }
 
@@ -42,6 +41,6 @@ export class AuthController {
     @Body() user: FormUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return { token: await this.authService.login(user) };
+    return this.authService.login(user);
   }
 }

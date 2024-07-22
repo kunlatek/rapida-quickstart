@@ -78,6 +78,12 @@ export const generateAdminUser = async () => {
       userId: insertedUser.insertedId.toString(),
       permissionId: permission.toString(),
     });
+
+    // Create profile
+    await database.collection('profile').insertOne({
+      user: insertedUser.insertedId.toString(),
+      name: 'Admin',
+    });
     console.info(`Admin user ${email} generate!`);
 
     await disconnectDB(client);

@@ -7,6 +7,7 @@ import { User } from './user/user.entity';
 import { UserService } from './user/user.service';
 import { Invitation } from 'src/permeson/invitation/invitation.entity';
 import { Role } from 'src/permeson/role/role.entity';
+import { Profile } from 'src/permeson/profile/profile.entity';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { Role } from 'src/permeson/role/role.entity';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
     }),
-    TypeOrmModule.forFeature([User, Invitation, Role]),
+    TypeOrmModule.forFeature([User, Invitation, Role, Profile]),
   ],
   controllers: [AuthController],
   providers: [UserService, AuthService],

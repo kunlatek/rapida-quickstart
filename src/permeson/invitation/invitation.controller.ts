@@ -17,6 +17,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invitation } from './invitation.entity';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiQuery,
@@ -31,6 +32,7 @@ import { AuthGuard } from 'src/auth.guard';
 @ApiTags('Permeson/Invitation')
 @Controller('invitations')
 @UseGuards(AuthGuard)
+@ApiBearerAuth()
 export class InvitationController {
   constructor(
     @InjectRepository(Invitation)

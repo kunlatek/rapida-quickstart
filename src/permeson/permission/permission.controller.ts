@@ -17,6 +17,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from './permission.entity';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiQuery,
@@ -31,6 +32,7 @@ import { AuthGuard } from 'src/auth.guard';
 @ApiTags('Permeson/Permission')
 @Controller('permissions')
 @UseGuards(AuthGuard)
+@ApiBearerAuth()
 export class PermissionController {
   constructor(
     @InjectRepository(Permission)

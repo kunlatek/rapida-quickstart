@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Invitation } from 'src/permeson/invitation/invitation.entity';
 import { Repository } from 'typeorm';
 import { Role } from 'src/permeson/role/role.entity';
+import { FormSignupDto, HttpAuthResponseDto } from './auth.dto';
+import { Profile } from 'src/permeson/profile/profile.entity';
 
 @Injectable()
 export class AuthService {
@@ -19,13 +21,16 @@ export class AuthService {
 
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+
+    @InjectRepository(Profile)
+    private readonly profileRepository: Repository<Profile>,
   ) {}
 
-  async register(user: FormUserDto): Promise<void> {
+  async register(user: FormSignupDto): Promise<void> {
     await this.usersService.create(user);
   }
 
-  async registerWithInvitation(user: FormUserDto): Promise<void> {
+  async registerWithInvitation(user: FormSignupDto): Promise<void> {
     const invitation = await this.invitationRepository.findOneBy({
       email: user.email,
     });
@@ -43,10 +48,15 @@ export class AuthService {
       this.invitationRepository.update(invitation._id.toString(), {
         accepted: true,
       }),
+      this.profileRepository.save({
+        userId: userCreated._id.toString(),
+        picture: user.pictureProfile,
+        name: user.name,
+      }),
     ]);
   }
 
-  async login(user: FormUserDto): Promise<string> {
+  async login(user: FormUserDto): Promise<HttpAuthResponseDto> {
     const { email, password } = user;
     const userFound = await this.usersService.findByEmail(email);
 
@@ -60,9 +70,12 @@ export class AuthService {
       throw new HttpException('Invalid password', 401);
     }
 
-    return this.jwtService.sign(
-      { user: userFound._id },
-      { secret: process.env.JWT_SECRET },
-    );
+    return {
+      token: this.jwtService.sign(
+        { user: userFound._id },
+        { secret: process.env.JWT_SECRET },
+      ),
+      userId: userFound._id.toString(),
+    };
   }
 }
