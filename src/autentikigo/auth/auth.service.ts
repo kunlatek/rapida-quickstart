@@ -31,11 +31,17 @@ export class AuthService {
   }
 
   async registerWithInvitation(user: FormSignupDto): Promise<void> {
+    const decodedToken = this.jwtService.verify(user.invitationToken);
+    if (!decodedToken) throw new HttpException('Invalid invitation token', 400);
+
+    const invitationId = decodedToken.invitationId;
     const invitation = await this.invitationRepository.findOneBy({
       email: user.email,
     });
-    if (!invitation)
-      throw new HttpException('Only invited users can log in', 401);
+
+    if (!invitation || invitation?._id.toString() !== invitationId) {
+      throw new HttpException('Invalid invitation', 400);
+    }
 
     await this.usersService.create(user);
     const userCreated = await this.usersService.findByEmail(user.email);

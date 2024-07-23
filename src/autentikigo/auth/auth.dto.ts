@@ -9,6 +9,9 @@ export class FormSignupDto {
   password: string;
 
   @ApiProperty({ required: true })
+  invitationToken: string;
+
+  @ApiProperty({ required: true })
   name: string;
 
   @ApiProperty({ required: false })
