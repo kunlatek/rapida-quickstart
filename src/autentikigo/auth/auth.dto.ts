@@ -18,6 +18,19 @@ export class FormSignupDto {
   pictureProfile: string;
 }
 
+export class ForgotPasswordDto {
+  @ApiProperty({ required: true })
+  email: string;
+}
+
+export class ChangePasswordDto {
+  @ApiProperty({ required: true })
+  changePasswordToken: string;
+
+  @ApiProperty({ required: true })
+  newPassword: string;
+}
+
 export class HttpAuthResponseDto {
   @ApiProperty()
   token: string;

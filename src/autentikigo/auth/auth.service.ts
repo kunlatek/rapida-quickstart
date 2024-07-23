@@ -7,8 +7,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Invitation } from 'src/permeson/invitation/invitation.entity';
 import { Repository } from 'typeorm';
 import { Role } from 'src/permeson/role/role.entity';
-import { FormSignupDto, HttpAuthResponseDto } from './auth.dto';
+import {
+  ChangePasswordDto,
+  ForgotPasswordDto,
+  FormSignupDto,
+  HttpAuthResponseDto,
+} from './auth.dto';
 import { Profile } from 'src/permeson/profile/profile.entity';
+import {
+  generateMailTemplate,
+  sendEmail,
+} from 'src/services/email-service/email.service';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +39,9 @@ export class AuthService {
     await this.usersService.create(user);
   }
 
-  async registerWithInvitation(user: FormSignupDto): Promise<void> {
+  async registerWithInvitation(
+    user: FormSignupDto,
+  ): Promise<HttpAuthResponseDto> {
     const decodedToken = this.jwtService.verify(user.invitationToken);
     if (!decodedToken) throw new HttpException('Invalid invitation token', 400);
 
@@ -60,6 +71,14 @@ export class AuthService {
         name: user.name,
       }),
     ]);
+
+    return {
+      token: this.jwtService.sign(
+        { user: userCreated._id },
+        { secret: process.env.JWT_SECRET },
+      ),
+      userId: userCreated._id.toString(),
+    };
   }
 
   async login(user: FormUserDto): Promise<HttpAuthResponseDto> {
@@ -83,5 +102,42 @@ export class AuthService {
       ),
       userId: userFound._id.toString(),
     };
+  }
+
+  async sendForgotPasswordEmail(
+    forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<void> {
+    const user = await this.usersService.findByEmail(forgotPasswordDto.email);
+    if (!user) throw new HttpException('User not found', 404);
+
+    const token = this.jwtService.sign(
+      { user: user._id },
+      { secret: process.env.JWT_SECRET, expiresIn: '1h' },
+    );
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Forgot Password',
+      html: generateMailTemplate('forgot-pass-email', {
+        app: process.env.APP_NAME,
+        baseUrl: process.env.FRONTEND_URL,
+        changePasswordToken: token,
+      }),
+    });
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+    const decodedToken = this.jwtService.verify(
+      changePasswordDto.changePasswordToken,
+    );
+    if (!decodedToken) throw new HttpException('Invalid token', 400);
+
+    const user = await this.usersService.findById(decodedToken.user);
+    if (!user) throw new HttpException('User not found', 404);
+
+    await this.usersService.updatePassword(
+      user._id.toString(),
+      changePasswordDto.newPassword,
+    );
   }
 }
