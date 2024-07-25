@@ -129,6 +129,7 @@ export class AuthService {
   async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
     const decodedToken = this.jwtService.verify(
       changePasswordDto.changePasswordToken,
+      { secret: process.env.JWT_SECRET },
     );
     if (!decodedToken) throw new HttpException('Invalid token', 400);
 
