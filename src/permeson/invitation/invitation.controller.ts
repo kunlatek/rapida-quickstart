@@ -13,6 +13,7 @@ import {
   DefaultValuePipe,
   UseGuards,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -37,8 +38,8 @@ import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Permeson/Invitation')
 @Controller('invitations')
-// @UseGuards(AuthGuard)
-// @ApiBearerAuth()
+@UseGuards(AuthGuard)
+@ApiBearerAuth()
 export class InvitationController {
   constructor(
     @InjectRepository(Invitation)
@@ -57,21 +58,28 @@ export class InvitationController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   create(@Body() data: FormInvitationDto) {
-    return this.invitationRepository.save(data).then((result) =>
-      sendEmail({
-        to: result.email,
-        subject: `Convite para o ${process.env.APP_NAME}`,
-        html: generateMailTemplate('invitation-email', {
-          app: process.env.APP_NAME,
-          baseUrl: process.env.FRONTEND_URL,
-          email: result.email,
-          invitationToken: this.jwtService.sign(
-            { invitationId: result._id.toString() },
-            { secret: process.env.JWT_SECRET, expiresIn: '1h' },
-          ),
-        }),
-      }),
-    );
+    return this.invitationRepository
+      .findOneBy({ email: data.email })
+      .then((existingInvitation) => {
+        if (existingInvitation)
+          throw new ConflictException('Invitation already exists');
+
+        return this.invitationRepository.save(data).then((result) =>
+          sendEmail({
+            to: result.email,
+            subject: `Convite para o ${process.env.APP_NAME}`,
+            html: generateMailTemplate('invitation-email', {
+              app: process.env.APP_NAME,
+              baseUrl: process.env.FRONTEND_URL,
+              email: result.email,
+              invitationToken: this.jwtService.sign(
+                { invitationId: result._id.toString() },
+                { secret: process.env.JWT_SECRET, expiresIn: '1h' },
+              ),
+            }),
+          }),
+        );
+      });
   }
 
   @ApiOperation({ summary: 'Get all invitations' })
