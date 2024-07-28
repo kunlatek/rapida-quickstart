@@ -42,7 +42,9 @@ export class AuthService {
   async registerWithInvitation(
     user: FormSignupDto,
   ): Promise<HttpAuthResponseDto> {
-    const decodedToken = this.jwtService.verify(user.invitationToken);
+    const decodedToken = this.jwtService.verify(user.invitationToken, {
+      secret: process.env.JWT_SECRET,
+    });
     if (!decodedToken) throw new HttpException('Invalid invitation token', 400);
 
     const invitationId = decodedToken.invitationId;
@@ -60,7 +62,7 @@ export class AuthService {
     await Promise.all([
       this.roleRepository.save({
         userId: userCreated._id.toString(),
-        permissionId: invitation.permission,
+        permissionId: invitation.permissionId,
       }),
       this.invitationRepository.update(invitation._id.toString(), {
         accepted: true,

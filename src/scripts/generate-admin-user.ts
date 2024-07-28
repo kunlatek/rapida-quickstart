@@ -62,7 +62,7 @@ export const generateAdminUser = async () => {
     // Create invitation
     await database.collection('invitation').insertOne({
       email,
-      permission: permission.toString(),
+      permissionId: permission.toString(),
       accepted: true,
     });
 
