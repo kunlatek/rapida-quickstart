@@ -16,88 +16,88 @@
         <a-tab-pane key="mainTab" tab="Dados principais">
       <a-form-item
         label="Usuário"
-        name="userId"
-        
+        name="_id"
+
       >
         <a-input
           :disabled="permission === 'read'"
-          v-model:value="companyProfileDynamicValidateForm.userId"
+          v-model:value="companyProfileDynamicValidateForm._id"
           id="input-user_id"
-          
+
           disabled
-          
+
         />
       </a-form-item>
       <a-form-item
         label="CNPJ"
         name="cnpj"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="companyProfileDynamicValidateForm.cnpj"
           id="input-cnpj"
-          
-          
-          
+
+
+
         />
       </a-form-item>
       <a-form-item
         label="Razão social da empresa"
         name="companyName"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="companyProfileDynamicValidateForm.companyName"
           id="input-company_name"
-          
-          
-          
+
+
+
         />
       </a-form-item>
       <a-form-item
         label="Nome fantasia da empresa"
         name="businessName"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="companyProfileDynamicValidateForm.businessName"
           id="input-business_name"
-          
-          
-          
+
+
+
         />
       </a-form-item>
       <a-form-item
         label="Data de abertura"
         name="birthday"
-        
+
       >
         <a-date-picker class="full-width"
           :disabled="permission === 'read'"
           v-model:value="companyProfileDynamicValidateForm.birthday"
           id="input-birthday"
           valueFormat="YYYY-MM-DD"
-          
-          
+
+
         />
       </a-form-item>
   <a-form-item
     label="Natureza legal"
     name="legalNature"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="companyProfileDynamicValidateForm.legalNature"
         id="select-legal_nature"
         placeholder="Natureza legal"
-        
-        
-        
-        
+
+
+
+
         :options="legalNatureOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -105,13 +105,13 @@
       <a-form-item
         label="Descrição da empresa"
         name="companyDescription"
-        
+
       >
         <QuillEditor
           :enable="permission !== 'read'"
           ref="companyDescriptionRef"
           v-model:content="companyProfileDynamicValidateForm.companyDescription"
-          id="input-company_description" 
+          id="input-company_description"
           contentType="html"  theme="snow" />
       </a-form-item>
       <div
@@ -155,7 +155,7 @@
                 </a-list-item-meta>
               </a-list-item>
             </template>
-          </a-list> 
+          </a-list>
         </a-form-item>
       </div>
       <div
@@ -199,20 +199,20 @@
                 </a-list-item-meta>
               </a-list-item>
             </template>
-          </a-list> 
+          </a-list>
         </a-form-item>
       </div>
     <a-form-item
       label="Tag"
       name="tagId"
-      
+
     >
       <a-select
         v-model:value="companyProfileDynamicValidateForm.tagId"
         id="autocomplete-tag_id"
         mode="multiple"
         label-in-value
-        
+
         style="width: 100%"
         :filter-option="false"
         :not-found-content="tagIdOptions.fetching ? undefined : null"
@@ -245,13 +245,13 @@
     <a-form-item
       :label="'Pessoa ' + (partnersIndex + 1)"
       :name="`partner.personId_${partnersIndex}`"
-      
+
     >
       <a-select
         v-model:value="partner.personId"
         id="autocomplete-person_id"
         show-search
-        
+
         style="width: 100%"
         :default-active-first-option="false"
         :show-arrow="true"
@@ -278,7 +278,7 @@
         </a-card>
       </a-space>
       <a-form-item
-        
+
       >
         <a-button
           v-if="permission == 'edit'"
@@ -305,17 +305,17 @@
   <a-form-item
     :label="'Tipo de contato ' + (contactsIndex + 1)"
     :name="`contact.contactType_${contactsIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="contact.contactType"
         id="select-contact_type"
         placeholder="Tipo de contato"
-        
+
         required
-        
-        
+
+
         :options="contactTypeOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -323,29 +323,29 @@
       <a-form-item
         label="Contato"
         name="contact.contactValue"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="contact.contactValue"
           id="input-contact_value"
-          
-          
-          
+
+
+
         />
       </a-form-item>
       <a-form-item
         label="Complemento do contato"
         name="contact.contactComplement"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="contact.contactComplement"
           id="input-contact_complement"
-          
-          
-          
+
+
+
         />
       </a-form-item>
           </div>
@@ -363,7 +363,7 @@
         </a-card>
       </a-space>
       <a-form-item
-        
+
       >
         <a-button
           v-if="permission == 'edit'"
@@ -383,31 +383,31 @@
       <a-form-item
         label="CEP"
         name="addressFieldsetOne.addressOneCepBrasilApi"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetOne.addressOneCepBrasilApi"
           id="input-address_one_cep_brasil_api"
-          
-          
+
+
           @change="onAddressOneCepBrasilApiApiRequestDebounced(addressFieldsetOne.addressOneCepBrasilApi, addressFieldsetOne)"
         />
       </a-form-item>
   <a-form-item
     :label="'Tipo de endereço ' + (addressFieldsetOneIndex + 1)"
     :name="`addressFieldsetOne.addressOneType_${addressFieldsetOneIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="addressFieldsetOne.addressOneType"
         id="select-address_one_type"
         placeholder="Tipo de endereço"
-        
-        
-        
-        
+
+
+
+
         :options="addressOneTypeOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -415,102 +415,102 @@
       <a-form-item
         label="Logradouro"
         name="addressFieldsetOne.addressOneStreet"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetOne.addressOneStreet"
           id="input-address_one_street"
           placeholder="Ex.: Avenida Brasil"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Número"
         name="addressFieldsetOne.addressOneNumber"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetOne.addressOneNumber"
           id="input-address_one_number"
           placeholder="Ex.: 410 ou 410-A ou S/N"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Complemento"
         name="addressFieldsetOne.addressOneComplement"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetOne.addressOneComplement"
           id="input-address_one_complement"
           placeholder="Ex.: Ao lado da Igreja São Francisco"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Cidade"
         name="addressFieldsetOne.addressOneCity"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetOne.addressOneCity"
           id="input-address_one_city"
           placeholder="Ex.: Maceió"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Estado"
         name="addressFieldsetOne.addressOneState"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetOne.addressOneState"
           id="input-address_one_state"
           placeholder="Ex.: AL"
-          
-          
+
+
         />
       </a-form-item></div>
       <div>
       <a-form-item
         label="CEP"
         name="addressFieldsetTwo.addressTwoCepBrasilApi"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetTwo.addressTwoCepBrasilApi"
           id="input-address_two_cep_brasil_api"
-          
-          
+
+
           @change="onAddressTwoCepBrasilApiApiRequestDebounced(addressFieldsetTwo.addressTwoCepBrasilApi, addressFieldsetTwo)"
         />
       </a-form-item>
   <a-form-item
     :label="'Tipo de endereço ' + (addressFieldsetTwoIndex + 1)"
     :name="`addressFieldsetTwo.addressTwoType_${addressFieldsetTwoIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="addressFieldsetTwo.addressTwoType"
         id="select-address_two_type"
         placeholder="Tipo de endereço"
-        
-        
-        
-        
+
+
+
+
         :options="addressTwoTypeOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -518,71 +518,71 @@
       <a-form-item
         label="Logradouro"
         name="addressFieldsetTwo.addressTwoStreet"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetTwo.addressTwoStreet"
           id="input-address_two_street"
           placeholder="Ex.: Avenida Brasil"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Número"
         name="addressFieldsetTwo.addressTwoNumber"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetTwo.addressTwoNumber"
           id="input-address_two_number"
           placeholder="Ex.: 410 ou 410-A ou S/N"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Complemento"
         name="addressFieldsetTwo.addressTwoComplement"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetTwo.addressTwoComplement"
           id="input-address_two_complement"
           placeholder="Ex.: Ao lado da Igreja São Francisco"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Cidade"
         name="addressFieldsetTwo.addressTwoCity"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetTwo.addressTwoCity"
           id="input-address_two_city"
           placeholder="Ex.: Maceió"
-          
-          
+
+
         />
       </a-form-item>
       <a-form-item
         label="Estado"
         name="addressFieldsetTwo.addressTwoState"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="addressFieldsetTwo.addressTwoState"
           id="input-address_two_state"
           placeholder="Ex.: AL"
-          
-          
+
+
         />
       </a-form-item></div>
         </a-tab-pane>
@@ -591,17 +591,17 @@
   <a-form-item
     :label="'Banco ' + (bankDataFieldsetOneIndex + 1)"
     :name="`bankDataFieldsetOne.bankDataBankNameOne_${bankDataFieldsetOneIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="bankDataFieldsetOne.bankDataBankNameOne"
         id="select-bank_data_bank_name_one"
         placeholder="Banco"
-        
-        
-        
-        
+
+
+
+
         :options="bankDataBankNameOneOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -609,45 +609,45 @@
       <a-form-item
         label="Agência"
         name="bankDataFieldsetOne.bankDataBankBranchOne"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="bankDataFieldsetOne.bankDataBankBranchOne"
           id="input-bank_data_bank_branch_one"
-          
-          
-          
+
+
+
         />
       </a-form-item>
       <a-form-item
         label="Conta bancária"
         name="bankDataFieldsetOne.bankDataBankAccountOne"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="bankDataFieldsetOne.bankDataBankAccountOne"
           id="input-bank_data_bank_account_one"
-          
-          
-          
+
+
+
         />
       </a-form-item>
   <a-form-item
     :label="'Tipo de conta ' + (bankDataFieldsetOneIndex + 1)"
     :name="`bankDataFieldsetOne.bankDataBankAccountTypeOne_${bankDataFieldsetOneIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="bankDataFieldsetOne.bankDataBankAccountTypeOne"
         id="select-bank_data_bank_account_type_one"
         placeholder="Tipo de conta"
-        
-        
-        
-        
+
+
+
+
         :options="bankDataBankAccountTypeOneOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -656,17 +656,17 @@
   <a-form-item
     :label="'Banco ' + (bankDataFieldsetTwoIndex + 1)"
     :name="`bankDataFieldsetTwo.bankDataBankNameTwo_${bankDataFieldsetTwoIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="bankDataFieldsetTwo.bankDataBankNameTwo"
         id="select-bank_data_bank_name_two"
         placeholder="Banco"
-        
-        
-        
-        
+
+
+
+
         :options="bankDataBankNameTwoOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -674,45 +674,45 @@
       <a-form-item
         label="Agência"
         name="bankDataFieldsetTwo.bankDataBankBranchTwo"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="bankDataFieldsetTwo.bankDataBankBranchTwo"
           id="input-bank_data_bank_branch_two"
-          
-          
-          
+
+
+
         />
       </a-form-item>
       <a-form-item
         label="Conta bancária"
         name="bankDataFieldsetTwo.bankDataBankAccountTwo"
-        
+
       >
         <a-input
           :disabled="permission === 'read'"
           v-model:value="bankDataFieldsetTwo.bankDataBankAccountTwo"
           id="input-bank_data_bank_account_two"
-          
-          
-          
+
+
+
         />
       </a-form-item>
   <a-form-item
     :label="'Tipo de conta ' + (bankDataFieldsetTwoIndex + 1)"
     :name="`bankDataFieldsetTwo.bankDataBankAccountTypeTwo_${bankDataFieldsetTwoIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="bankDataFieldsetTwo.bankDataBankAccountTypeTwo"
         id="select-bank_data_bank_account_type_two"
         placeholder="Tipo de conta"
-        
-        
-        
-        
+
+
+
+
         :options="bankDataBankAccountTypeTwoOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -730,13 +730,13 @@
       <a-form-item
         label="Descrição do arquivo"
         name="relatedFile.filesDescription"
-        
+
       >
         <QuillEditor
           :enable="permission !== 'read'"
           ref="filesDescriptionRef"
           v-model:content="relatedFile.filesDescription"
-          id="input-files_description" 
+          id="input-files_description"
           contentType="html"  theme="snow" />
       </a-form-item>
       <div
@@ -780,23 +780,23 @@
                 </a-list-item-meta>
               </a-list-item>
             </template>
-          </a-list> 
+          </a-list>
         </a-form-item>
       </div>
   <a-form-item
     :label="'Dia de entrada no trabalho ' + (relatedFilesIndex + 1)"
     :name="`relatedFile.relatedFilesDateDay_${relatedFilesIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="relatedFile.relatedFilesDateDay"
         id="select-related_files_date_day"
         placeholder="Dia de entrada no trabalho"
-        
+
         required
-        
-        
+
+
         :options="relatedFilesDateDayOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -804,17 +804,17 @@
   <a-form-item
     :label="'Mês de entrada no trabalho ' + (relatedFilesIndex + 1)"
     :name="`relatedFile.relatedFilesDateMonth_${relatedFilesIndex}`"
-    
+
   >
     <a-select
         ref="select"
         v-model:value="relatedFile.relatedFilesDateMonth"
         id="select-related_files_date_month"
         placeholder="Mês de entrada no trabalho"
-        
+
         required
-        
-        
+
+
         :options="relatedFilesDateMonthOptions"
         :disabled="permission === 'read'"
       ></a-select>
@@ -822,14 +822,14 @@
       <a-form-item
         label="Ano do arquivo"
         name="relatedFile.relatedFilesDateYear"
-        
+
       >
         <a-input-number
           :disabled="permission === 'read'"
           v-model:value="relatedFile.relatedFilesDateYear"
           id="input-related_files_date_year"
-          
-          
+
+
         />
       </a-form-item>
           </div>
@@ -847,7 +847,7 @@
         </a-card>
       </a-space>
       <a-form-item
-        
+
       >
         <a-button
           v-if="permission == 'edit'"
@@ -886,7 +886,7 @@
     </template>
 
     <style>
-      
+
       /* you can make up upload button and sample style by using stylesheets */
       .ant-upload-select-picture-card i {
         font-size: 32px;
@@ -919,7 +919,7 @@
         const route = useRoute();
         const router = useRouter();
         let validateCompanyProfileForm: [];
-        
+
         const debounce = (func: Function, wait = 300, immediate = false) => {
           let timeout: any;
           return function (this: any, ...args: any[]) {
@@ -960,7 +960,7 @@
               },
             }));
           }
-          
+
           if (attr === 'tagId' && data.tagId) {
             companyProfileDynamicValidateForm.tagId = companyProfileDynamicValidateForm.tagId.map((element: any) => {
               return {
@@ -971,11 +971,11 @@
           }
            };
         });
-        
+
         const companyProfileFormRef = ref<FormInstance>();
         const companyProfileDynamicValidateForm: any = reactive<
           {
-userId: String | null;
+_id: String | null;
 cnpj: String | null;
 companyName: String | null;
 businessName: String | null;
@@ -1000,7 +1000,7 @@ relatedFilesDateYear: number | null;
           }
         > (
           {
-userId: null,
+_id: null,
 cnpj: null,
 companyName: null,
 businessName: null,
@@ -1027,7 +1027,7 @@ relatedFilesDateYear: null,
 
         const resetCompanyProfileForm = () => {
           Object.assign(companyProfileDynamicValidateForm, {
-userId: null,
+_id: null,
 cnpj: null,
 companyName: null,
 businessName: null,
@@ -1050,7 +1050,7 @@ relatedFilesDateDay: null,
 relatedFilesDateMonth: null,
 relatedFilesDateYear: null,
           });
-          
+
         };
 
         const handleFileChange = async (event: Event, attribute: string) => {
@@ -1081,7 +1081,7 @@ relatedFilesDateYear: null,
         const removeFile = (item: any, attribute: string) => {
           companyProfileDynamicValidateForm[attribute] = (companyProfileDynamicValidateForm[attribute] as any[]).filter(imageData => imageData.fileId !== item.fileId);
         };
-        
+
         const activeKey: any = ref('mainTab');
       const birthday = ref<Dayjs>();
   const legalNatureOptions = ref<SelectProps['options']>(
@@ -1107,12 +1107,12 @@ relatedFilesDateYear: null,
     });
 
     if (response.data.statusCode !== 200) return;
-    
+
     const body = response.data.data;
-    
+
     const data = body.result.map((datum: any, index: number) => ({
       id: `autocomplete-tag_id_${index}`,
-      label: `${datum.tagName}`, 
+      label: `${datum.tagName}`,
       value: datum._id
     }));
 
@@ -1121,12 +1121,12 @@ relatedFilesDateYear: null,
   };
 
   const onTagIdSearchDebounced = debounce(onTagIdSearch, 500);
-  
+
     interface Partners {
-      
+
 personId: String | null;
     };
-    
+
     const removePartner = (item: Partners, partners: Partners[]) => {
       const index = partners.indexOf(item);
       if (index !== -1) {
@@ -1135,7 +1135,7 @@ personId: String | null;
     };
     const addPartner = (partners: Partners[]) => {
       partners.push({
-        
+
 personId: null,
       });
     };
@@ -1158,12 +1158,12 @@ personId: null,
     });
 
     if (response.data.statusCode !== 200) return;
-    
+
     const body = response.data.data;
-    
+
     const data = body.result.map((datum: any, index: number) => ({
       id: `autocomplete-person_id_${index}`,
-      label: `${datum.personName} - ${datum.cpf}`, 
+      label: `${datum.personName} - ${datum.cpf}`,
       value: datum._id
     }));
 
@@ -1172,14 +1172,14 @@ personId: null,
   };
 
   const onPersonIdSearchDebounced = debounce(onPersonIdSearch, 500);
-  
+
     interface Contacts {
-      
+
 contactType: String | null;
 contactValue: String | null;
 contactComplement: String | null;
     };
-    
+
     const removeContact = (item: Contacts, contacts: Contacts[]) => {
       const index = contacts.indexOf(item);
       if (index !== -1) {
@@ -1188,7 +1188,7 @@ contactComplement: String | null;
     };
     const addContact = (contacts: Contacts[]) => {
       contacts.push({
-        
+
 contactType: null,
 contactValue: null,
 contactComplement: null,
@@ -1198,14 +1198,14 @@ contactComplement: null,
     [{"label":"Celular","value":"mobile"},{"label":"E-mail","value":"email"},{"label":"Site","value":"website"},{"label":"Linkedin","value":"linkedin"},{"label":"Instagram","value":"instagram"},{"label":"Facebook","value":"facebook"}]
   );
     interface RelatedFiles {
-      
+
 filesDescription: String | null;
 relatedFilesFiles: File | null;
 relatedFilesDateDay: Number | null;
 relatedFilesDateMonth: Number | null;
 relatedFilesDateYear: Number | null;
     };
-    
+
     const removeRelatedFile = (item: RelatedFiles, relatedFiles: RelatedFiles[]) => {
       const index = relatedFiles.indexOf(item);
       if (index !== -1) {
@@ -1214,7 +1214,7 @@ relatedFilesDateYear: Number | null;
     };
     const addRelatedFile = (relatedFiles: RelatedFiles[]) => {
       relatedFiles.push({
-        
+
 filesDescription: null,
 relatedFilesFiles: null,
 relatedFilesDateDay: null,
@@ -1238,8 +1238,8 @@ relatedFilesDateYear: null,
           console.info('Failed:', errorInfo);
         };
 
-        
-      const userIdRequiredValidator = async (_rule: Rule, value: any) => {
+
+      const _idRequiredValidator = async (_rule: Rule, value: any) => {
         if (!value || value === '') return Promise.reject('Campo obrigatório.');
       };
       const companyNameRequiredValidator = async (_rule: Rule, value: any) => {
@@ -1282,11 +1282,11 @@ relatedFilesDateYear: null,
           if (value?.length < 4) return Promise.reject('Mínimo de 4 caracteres.');
         };
 
-        const companyProfileRules: Record<string, Rule[]> = {userId: [{validator: userIdRequiredValidator, trigger: 'blur'},],cnpj: [],companyName: [{validator: companyNameRequiredValidator, trigger: 'blur'},],businessName: [{validator: businessNameRequiredValidator, trigger: 'blur'},],birthday: [],legalNature: [],companyDescription: [],logoImage: [],companyImages: [],tagId: [],personId: [{validator: personIdRequiredValidator, trigger: 'blur'},],contactType: [{validator: contactTypeRequiredValidator, trigger: 'blur'},],contactValue: [{validator: contactValueRequiredValidator, trigger: 'blur'},],contactComplement: [{validator: contactComplementRequiredValidator, trigger: 'blur'},],filesDescription: [{validator: filesDescriptionRequiredValidator, trigger: 'blur'},],relatedFilesFiles: [{validator: relatedFilesFilesRequiredValidator, trigger: 'blur'},],relatedFilesDateDay: [{validator: relatedFilesDateDayRequiredValidator, trigger: 'blur'},],relatedFilesDateMonth: [{validator: relatedFilesDateMonthRequiredValidator, trigger: 'blur'},],relatedFilesDateYear: [{validator: relatedFilesDateYearRequiredValidator, trigger: 'blur'},{validator: relatedFilesDateYearMaxLengthValidator, trigger: 'blur'},{validator: relatedFilesDateYearMinLengthValidator, trigger: 'blur'},],};
+        const companyProfileRules: Record<string, Rule[]> = {_id: [{validator: _idRequiredValidator, trigger: 'blur'},],cnpj: [],companyName: [{validator: companyNameRequiredValidator, trigger: 'blur'},],businessName: [{validator: businessNameRequiredValidator, trigger: 'blur'},],birthday: [],legalNature: [],companyDescription: [],logoImage: [],companyImages: [],tagId: [],personId: [{validator: personIdRequiredValidator, trigger: 'blur'},],contactType: [{validator: contactTypeRequiredValidator, trigger: 'blur'},],contactValue: [{validator: contactValueRequiredValidator, trigger: 'blur'},],contactComplement: [{validator: contactComplementRequiredValidator, trigger: 'blur'},],filesDescription: [{validator: filesDescriptionRequiredValidator, trigger: 'blur'},],relatedFilesFiles: [{validator: relatedFilesFilesRequiredValidator, trigger: 'blur'},],relatedFilesDateDay: [{validator: relatedFilesDateDayRequiredValidator, trigger: 'blur'},],relatedFilesDateMonth: [{validator: relatedFilesDateMonthRequiredValidator, trigger: 'blur'},],relatedFilesDateYear: [{validator: relatedFilesDateYearRequiredValidator, trigger: 'blur'},{validator: relatedFilesDateYearMaxLengthValidator, trigger: 'blur'},{validator: relatedFilesDateYearMinLengthValidator, trigger: 'blur'},],};
         const handleCompanyProfileValidate = (...args: any) => {
           validateCompanyProfileForm = args;
         };
-        
+
         const createCompanyProfile = async () => {
           try {
             if (validateCompanyProfileForm?.filter(item => item === false).length > 0) {
@@ -1300,25 +1300,25 @@ relatedFilesDateYear: null,
                 (partner: any) => {
                 return {
                   ...partner,
-            
-                personId: typeof partner.personId === 'object' 
-                ? partner.personId.value 
+
+                personId: typeof partner.personId === 'object'
+                ? partner.personId.value
                 : partner.personId,
-                
+
               }
             }),
               contacts: companyProfileDynamicValidateForm.contacts.map(
                 (contact: any) => {
                 return {
                   ...contact,
-            
+
               }
             }),
               relatedFiles: companyProfileDynamicValidateForm.relatedFiles.map(
                 (relatedFile: any) => {
                 return {
                   ...relatedFile,
-            
+
               }
             }),
             };
@@ -1343,7 +1343,7 @@ relatedFilesDateYear: null,
           }
         }
 
-        const updateCompanyProfile = async (id: string) => {          
+        const updateCompanyProfile = async (id: string) => {
           try {
             if (validateCompanyProfileForm?.filter(item => item === false).length > 0) {
               return message.error({ content: 'Erro no preenchimento do formulário.', key: 'saveMessage' });
@@ -1356,25 +1356,25 @@ relatedFilesDateYear: null,
                 (partner: any) => {
                 return {
                   ...partner,
-            
-                personId: typeof partner.personId === 'object' 
-                ? partner.personId.value 
+
+                personId: typeof partner.personId === 'object'
+                ? partner.personId.value
                 : partner.personId,
-                
+
               }
             }),
               contacts: companyProfileDynamicValidateForm.contacts.map(
                 (contact: any) => {
                 return {
                   ...contact,
-            
+
               }
             }),
               relatedFiles: companyProfileDynamicValidateForm.relatedFiles.map(
                 (relatedFile: any) => {
                 return {
                   ...relatedFile,
-            
+
               }
             }),
             };
@@ -1400,13 +1400,17 @@ relatedFilesDateYear: null,
         }
 
         const permission: any = ref<string>('read');
+        const userId: any = ref<string>(null);
         const getPermissionFromToken = () => {
           const token = sessionStorage.getItem('authToken');
           if (!token) return;
 
           try {
-            const decodedToken: any = { permission: 'edit' } // jwt.decode(token.split(' ')[1]);
+            const decodedToken: any = jwtDecode(token.split(' ')[1]);
             permission.value = decodedToken.permission;
+            userId.value = decodedToken.userId;
+
+            companyProfileDynamicValidateForm._id = userId.value;
           } catch (error) {
             console.error('Failed to decode token:', error);
           }
