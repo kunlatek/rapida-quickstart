@@ -20,7 +20,7 @@
 
       >
         <a-input
-          :disabled="permission === 'read'"
+          :disabled="true"
           v-model:value="companyProfileDynamicValidateForm._id"
           id="input-user_id"
 
@@ -940,7 +940,7 @@
           await router.isReady();
           if(!route.query._id) return;
           const response = await axios.get(
-            `http://company-profile-kunlatek.ngrok.dev/companies-profiles/${route.query._id}`,
+            `http://localhost:3000/companies-profiles/${route.query._id}`,
             {
               headers: {
                 Authorization: sessionStorage.getItem('authToken')!,
@@ -1062,7 +1062,7 @@ relatedFilesDateYear: null,
             formData.append('file', file);
 
             try {
-              const response = await axios.post(`http://company-profile-kunlatek.ngrok.dev/companies-profiles/file`, formData, {
+              const response = await axios.post(`http://localhost:3000/companies-profiles/file`, formData, {
                 headers: {
                   'Content-Type': 'multipart/form-data',
                   Authorization: sessionStorage.getItem('authToken')!,
@@ -1325,7 +1325,7 @@ relatedFilesDateYear: null,
 
             message.loading({ content: 'Salvando dados...', key: 'saveMessage' });
             const response = await axios.post(
-              `http://company-profile-kunlatek.ngrok.dev/companies-profiles`,
+              `http://localhost:3000/companies-profiles`,
               payload,
               {
                 headers: {
@@ -1381,7 +1381,7 @@ relatedFilesDateYear: null,
 
             message.loading({ content: 'Atualizando dados...', key: 'saveMessage' });
             const response = await axios.put(
-              `http://company-profile-kunlatek.ngrok.dev/companies-profiles/${id}`,
+              `http://localhost:3000/companies-profiles/${id}`,
               payload,
               {
                 headers: {
