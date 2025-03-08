@@ -694,7 +694,7 @@ onMounted(async () => {
   await router.isReady();
   if (!route.query._id) return;
   const response = await axios.get(
-    `https://api-mumi-backoffice-artist-kunlatek.ngrok.dev/people-profiles/${route.query._id}`,
+    `http://localhost:3000/people-profiles/${route.query._id}`,
     {
       headers: {
         Authorization: sessionStorage.getItem('authToken')!,
@@ -969,7 +969,7 @@ const handleFileChange = async (event: Event, attribute: string) => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post(`https://api-mumi-backoffice-artist-kunlatek.ngrok.dev/people-profiles/file`, formData, {
+      const response = await axios.post(`http://localhost:3000/people-profiles/file`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: sessionStorage.getItem('authToken')!,
@@ -1375,7 +1375,7 @@ const createPersonProfile = async () => {
 
     message.loading({ content: 'Salvando dados...', key: 'saveMessage' });
     const response = await axios.post(
-      `https://api-mumi-backoffice-artist-kunlatek.ngrok.dev/people-profiles`,
+      `http://localhost:3000/people-profiles`,
       payload,
       {
         headers: {
@@ -1438,7 +1438,7 @@ const updatePersonProfile = async (id: string) => {
 
     message.loading({ content: 'Atualizando dados...', key: 'saveMessage' });
     const response = await axios.put(
-      `https://api-mumi-backoffice-artist-kunlatek.ngrok.dev/people-profiles/${id}`,
+      `http://localhost:3000/people-profiles/${id}`,
       payload,
       {
         headers: {
