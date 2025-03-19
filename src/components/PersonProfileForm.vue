@@ -1,631 +1,608 @@
 <template>
-  <a-form ref="personProfileFormRef" name="dynamic_form_person_profile" autocomplete="off" layout="vertical"
-    :model="personProfileDynamicValidateForm" :rules="personProfileRules" @validate="handlePersonProfileValidate"
-    @finish="onFinish" @finishFailed="onFinishFailed">
-    <a-space direction="vertical" class="relative-child">
-      <a-tabs v-model:activeKey="activeKey">
-        <a-tab-pane key="mainTab" tab="Dados principais">
-          <a-form-item label="Usuário" name="_id">
-            <a-input :disabled="true" v-model:value="personProfileDynamicValidateForm._id" id="input-user_id"
-              disabled />
-          </a-form-item>
-          <a-form-item label="Nome da pessoa" name="personName">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.personName"
-              id="input-person_name" />
-          </a-form-item>
-          <a-form-item label="Nome social" name="personNickname">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.personNickname"
-              id="input-person_nickname" />
-          </a-form-item>
-          <a-form-item label="Gênero" name="gender">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.gender" id="select-gender"
-              placeholder="Gênero" required :options="genderOptions" :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-          <a-form-item label="Data de nascimento" name="birthday">
-            <a-date-picker class="full-width" :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.birthday" id="input-birthday" valueFormat="YYYY-MM-DD" />
-          </a-form-item>
-          <a-form-item label="Descrição da pessoa" name="personDescription">
-            <QuillEditor :enable="permission !== 'read'" ref="personDescriptionRef"
-              v-model:content="personProfileDynamicValidateForm.personDescription" id="input-person_description"
-              contentType="html" theme="snow" />
-          </a-form-item>
-          <a-form-item label="Estado civil" name="maritalStatus">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.maritalStatus"
-              id="select-marital_status" placeholder="Estado civil" :options="maritalStatusOptions"
-              :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-          <a-form-item label="Nome da mãe" name="motherName">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.motherName"
-              id="input-mother_name" />
-          </a-form-item>
-          <a-form-item label="Nome do pai" name="fatherName">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.fatherName"
-              id="input-father_name" />
-          </a-form-item>
-          <a-form-item label="Tag" name="tagId">
-            <a-select v-model:value="personProfileDynamicValidateForm.tagId" id="autocomplete-tag_id" mode="multiple"
-              label-in-value style="width: 100%" :filter-option="false"
-              :not-found-content="tagIdOptions.fetching ? undefined : null" :options="tagIdOptions.data"
-              :disabled="permission === 'read'" @search="onTagIdSearchDebounced" @change="onTagIdChange">
-              <template v-if="tagIdOptions.data.length">
-                <a-select-option v-for="option in tagIdOptions.data" :key="option.id" :value="option.value">
-                  {{ option.label }}
-                </a-select-option>
-              </template>
-            </a-select>
-          </a-form-item>
-        </a-tab-pane>
-        <a-tab-pane key="documentsTab" tab="Documentos">
-          <a-form-item label="CPF" name="cpf">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.cpf"
-              id="input-cpf" />
-          </a-form-item>
-          <div>
-            <a-form-item label="Arquivo do CPF" name="cpfFile">
-              <a-button :disabled="permission === 'read'" @click="$refs.cpfFileFileInput.click()">
-                Upload
-              </a-button>
-              <input type="file" ref="cpfFileFileInput" style="display: none"
-                @change="(e) => handleFileChange(e, 'cpfFile')" /><br /><br />
-              <a-list size="small" bordered v-if="personProfileDynamicValidateForm.cpfFile?.length > 0"
-                item-layout="horizontal" :data-source="personProfileDynamicValidateForm.cpfFile">
-                <template #renderItem="{ item }">
-                  <a-list-item>
-                    <template #actions>
-                      <a key="remove-file" @click="removeFile(item, 'cpfFile')">Remover</a>
-                    </template>
-                    <a-list-item-meta>
-                      <template #title>
-                        <a :href="item.url" target="_blank">{{ item.filename }}</a>
-                      </template>
-                      <template #avatar>
-                        <a-avatar :src="item.url" />
-                      </template>
-                    </a-list-item-meta>
-                  </a-list-item>
-                </template>
-              </a-list>
+  <a-card style="margin: 20px; padding: 0px;">
+    <a-form ref="personProfileFormRef" name="dynamic_form_person_profile" autocomplete="off" layout="vertical"
+      :model="personProfileDynamicValidateForm" :rules="personProfileRules" @validate="handlePersonProfileValidate"
+      @finish="onFinish" @finishFailed="onFinishFailed">
+      <a-space direction="vertical" class="relative-child">
+        <a-tabs v-model:activeKey="activeKey">
+          <a-tab-pane key="mainTab" tab="Dados principais">
+            <a-form-item label="Usuário" name="_id">
+              <a-input :disabled="true" v-model:value="personProfileDynamicValidateForm._id" id="input-user_id"
+                disabled />
             </a-form-item>
-          </div>
-          <a-form-item label="Número do RG" name="rg">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.rg"
-              id="input-rg" />
-          </a-form-item>
-          <a-form-item label="Órgão de expedição do RG" name="rgIssuingAuthority">
-            <a-input :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.rgIssuingAuthority" id="input-rg_issuing_authority" />
-          </a-form-item>
-          <a-form-item label="Data de emissão" name="rgIssuanceDate">
-            <a-date-picker class="full-width" :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.rgIssuanceDate" id="input-rg_issuance_date"
-              valueFormat="YYYY-MM-DD" />
-          </a-form-item>
-          <a-form-item label="Estado do RG" name="rgState">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.rgState" id="select-rg_state"
-              placeholder="Estado do RG" :options="rgStateOptions" :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-          <div>
-            <a-form-item label="Arquivo do RG" name="rgFile">
-              <a-button :disabled="permission === 'read'" @click="$refs.rgFileFileInput.click()">
-                Upload
-              </a-button>
-              <input type="file" ref="rgFileFileInput" style="display: none"
-                @change="(e) => handleFileChange(e, 'rgFile')" /><br /><br />
-              <a-list size="small" bordered v-if="personProfileDynamicValidateForm.rgFile?.length > 0"
-                item-layout="horizontal" :data-source="personProfileDynamicValidateForm.rgFile">
-                <template #renderItem="{ item }">
-                  <a-list-item>
-                    <template #actions>
-                      <a key="remove-file" @click="removeFile(item, 'rgFile')">Remover</a>
-                    </template>
-                    <a-list-item-meta>
-                      <template #title>
-                        <a :href="item.url" target="_blank">{{ item.filename }}</a>
-                      </template>
-                      <template #avatar>
-                        <a-avatar :src="item.url" />
-                      </template>
-                    </a-list-item-meta>
-                  </a-list-item>
-                </template>
-              </a-list>
+            <a-form-item label="Nome da pessoa" name="personName">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.personName"
+                id="input-person_name" />
             </a-form-item>
-          </div>
-          <a-form-item label="Número do passaporte" name="passport">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.passport"
-              id="input-passport" />
-          </a-form-item>
-          <a-form-item label="Data de emissão" name="passportIssuanceDate">
-            <a-date-picker class="full-width" :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.passportIssuanceDate" id="input-passport_issuance_date"
-              valueFormat="YYYY-MM-DD" />
-          </a-form-item>
-          <a-form-item label="Data de validade" name="passportExpirationDate">
-            <a-date-picker class="full-width" :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.passportExpirationDate"
-              id="input-passport_expiration_date" valueFormat="YYYY-MM-DD" />
-          </a-form-item>
-          <div>
-            <a-form-item label="Arquivo do passaporte" name="passportFile">
-              <a-button :disabled="permission === 'read'" @click="$refs.passportFileFileInput.click()">
-                Upload
-              </a-button>
-              <input type="file" ref="passportFileFileInput" style="display: none"
-                @change="(e) => handleFileChange(e, 'passportFile')" /><br /><br />
-              <a-list size="small" bordered v-if="personProfileDynamicValidateForm.passportFile?.length > 0"
-                item-layout="horizontal" :data-source="personProfileDynamicValidateForm.passportFile">
-                <template #renderItem="{ item }">
-                  <a-list-item>
-                    <template #actions>
-                      <a key="remove-file" @click="removeFile(item, 'passportFile')">Remover</a>
-                    </template>
-                    <a-list-item-meta>
-                      <template #title>
-                        <a :href="item.url" target="_blank">{{ item.filename }}</a>
-                      </template>
-                      <template #avatar>
-                        <a-avatar :src="item.url" />
-                      </template>
-                    </a-list-item-meta>
-                  </a-list-item>
-                </template>
-              </a-list>
+            <a-form-item label="Nome social" name="personNickname">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.personNickname"
+                id="input-person_nickname" />
             </a-form-item>
-          </div>
-        </a-tab-pane>
-        <a-tab-pane key="contactsTab" tab="Contatos">
-          <a-form-item label="Telefone principal" name="phoneNumberOne">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.phoneNumberOne"
-              id="input-phone_number_one" />
-          </a-form-item>
-          <a-form-item label="Telefone secundário" name="phoneNumberTwo">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.phoneNumberTwo"
-              id="input-phone_number_two" />
-          </a-form-item>
-          <a-form-item label="E-mail principal" name="emailOne">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.emailOne"
-              id="input-email_one" />
-          </a-form-item>
-          <a-form-item label="E-mail secundário" name="emailTwo">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.emailTwo"
-              id="input-email_two" />
-          </a-form-item>
-          <a-form-item label="Linkedin" name="linkedin">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.linkedin"
-              id="input-linkedin" />
-          </a-form-item>
-          <a-form-item label="Instagram" name="instagram">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.instagram"
-              id="input-instagram" />
-          </a-form-item>
-          <a-form-item label="Facebook" name="facebook">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.facebook"
-              id="input-facebook" />
-          </a-form-item>
-          <a-form-item label="Facebook" name="x">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.x"
-              id="input-x" />
-          </a-form-item>
-        </a-tab-pane>
-        <a-tab-pane key="addressesTab" tab="Endereços">
-          <a-form-item label="CEP" name="addressOneCepBrasilApi">
-            <a-input :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.addressOneCepBrasilApi"
-              id="input-address_one_cep_brasil_api"
-              @change="onAddressOneCepBrasilApiApiRequestDebounced(personProfileDynamicValidateForm.addressOneCepBrasilApi)" />
-          </a-form-item>
-          <a-form-item label="Tipo de endereço" name="addressOneType">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.addressOneType"
-              id="select-address_one_type" placeholder="Tipo de endereço" :options="addressOneTypeOptions"
-              :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-          <a-form-item label="Logradouro" name="addressOneStreet">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneStreet"
-              id="input-address_one_street" placeholder="Ex.: Avenida Brasil" />
-          </a-form-item>
-          <a-form-item label="Número" name="addressOneNumber">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneNumber"
-              id="input-address_one_number" placeholder="Ex.: 410 ou 410-A ou S/N" />
-          </a-form-item>
-          <a-form-item label="Complemento" name="addressOneComplement">
-            <a-input :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.addressOneComplement" id="input-address_one_complement"
-              placeholder="Ex.: Ao lado da Igreja São Francisco" />
-          </a-form-item>
-          <a-form-item label="Cidade" name="addressOneCity">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneCity"
-              id="input-address_one_city" placeholder="Ex.: Maceió" />
-          </a-form-item>
-          <a-form-item label="Estado" name="addressOneState">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneState"
-              id="input-address_one_state" placeholder="Ex.: AL" />
-          </a-form-item>
-          <a-form-item label="CEP" name="addressTwoCepBrasilApi">
-            <a-input :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.addressTwoCepBrasilApi"
-              id="input-address_two_cep_brasil_api"
-              @change="onAddressTwoCepBrasilApiApiRequestDebounced(personProfileDynamicValidateForm.addressTwoCepBrasilApi)" />
-          </a-form-item>
-          <a-form-item label="Tipo de endereço" name="addressTwoType">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.addressTwoType"
-              id="select-address_two_type" placeholder="Tipo de endereço" :options="addressTwoTypeOptions"
-              :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-          <a-form-item label="Logradouro" name="addressTwoStreet">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoStreet"
-              id="input-address_two_street" placeholder="Ex.: Avenida Brasil" />
-          </a-form-item>
-          <a-form-item label="Número" name="addressTwoNumber">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoNumber"
-              id="input-address_two_number" placeholder="Ex.: 410 ou 410-A ou S/N" />
-          </a-form-item>
-          <a-form-item label="Complemento" name="addressTwoComplement">
-            <a-input :disabled="permission === 'read'"
-              v-model:value="personProfileDynamicValidateForm.addressTwoComplement" id="input-address_two_complement"
-              placeholder="Ex.: Ao lado da Igreja São Francisco" />
-          </a-form-item>
-          <a-form-item label="Cidade" name="addressTwoCity">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoCity"
-              id="input-address_two_city" placeholder="Ex.: Maceió" />
-          </a-form-item>
-          <a-form-item label="Estado" name="addressTwoState">
-            <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoState"
-              id="input-address_two_state" placeholder="Ex.: AL" />
-          </a-form-item>
-        </a-tab-pane>
-        <a-tab-pane key="jobsTab" tab="Dados profissionais">
-          <a-space v-for="(profession, professionsIndex) in personProfileDynamicValidateForm.professions"
-            :key="professionsIndex" style="display: flex; margin-bottom: 8px" align="baseline">
-            <a-card class='card'>
-              <div>
-                <a-form-item :label="'Ocupação ' + (professionsIndex + 1)"
-                  :name="`profession.jobId_${professionsIndex}`">
-                  <a-select v-model:value="profession.jobId" id="autocomplete-job_id" show-search style="width: 100%"
-                    :default-active-first-option="false" :show-arrow="true" :filter-option="false"
-                    :not-found-content="null" :options="jobIdOptions.data" :disabled="permission === 'read'"
-                    @search="onJobIdSearchDebounced" @change="onJobIdChange"></a-select>
-                </a-form-item>
-                <a-form-item label="Mês de entrada no trabalho" name="profession.jobStartDateMonth">
-                  <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobStartDateMonth"
-                    id="input-job_start_date_month" />
-                </a-form-item>
-                <a-form-item label="Ano de entrada no trabalho" name="profession.jobStartDateYear">
-                  <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobStartDateYear"
-                    id="input-job_start_date_year" />
-                </a-form-item>
-                <a-form-item label="Ano de saída do trabalho" name="profession.jobFinishDateYear">
-                  <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobFinishDateYear"
-                    id="input-job_finish_date_year" />
-                </a-form-item>
-                <a-form-item label="Mês de saída do trabalho" name="profession.jobFinishDateMonth">
-                  <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobFinishDateMonth"
-                    id="input-job_finish_date_month" />
-                </a-form-item>
-                <a-form-item label="Descrição da ocupação" name="profession.jobDescription">
-                  <QuillEditor :enable="permission !== 'read'" ref="jobDescriptionRef"
-                    v-model:content="profession.jobDescription" id="input-job_description" contentType="html"
-                    theme="snow" />
-                </a-form-item>
-              </div>
-              <a-button v-if="permission == 'edit'" type="primary" danger block id="button-remove_professions"
-                @click="removeProfession(profession, personProfileDynamicValidateForm.professions)">
-                <span class="material-symbols-outlined">
-                  delete
-                </span>
-                Remover Profissão
-              </a-button>
-            </a-card>
-          </a-space>
-          <a-form-item>
-            <a-button v-if="permission == 'edit'" type="dashed" block id="button-add_professions"
-              @click="addProfession(personProfileDynamicValidateForm.professions)">
-              <span class="material-symbols-outlined">
-                add_circle
-              </span>
-              Adicionar Profissão
-            </a-button>
-          </a-form-item>
-        </a-tab-pane>
-        <a-tab-pane key="educationTab" tab="Dados profissionais">
-          <a-form-item label="Escolaridade" name="personEducation">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.personEducation"
-              id="select-person_education" placeholder="Escolaridade" @change="[checkPersonEducationsCondition(),]"
-              :options="personEducationOptions" :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-          <a-space v-for="(personEducation, personEducationsIndex) in personProfileDynamicValidateForm.personEducations"
-            :key="personEducationsIndex" style="display: flex; margin-bottom: 8px" align="baseline">
-            <a-card class='card'>
-              <div>
-                <a-form-item label="Curso" name="personEducation.personEducationCourse">
-                  <a-input :disabled="permission === 'read'" v-model:value="personEducation.personEducationCourse"
-                    id="input-person_education_course" />
-                </a-form-item>
-                <a-form-item label="Instituição" name="personEducation.personEducationInstitution">
-                  <a-input :disabled="permission === 'read'" v-model:value="personEducation.personEducationInstitution"
-                    id="input-person_education_institution" />
-                </a-form-item>
-                <a-form-item :label="'Data de início ' + (personEducationsIndex + 1)"
-                  :name="`personEducation.personEducationStartDate_${personEducationsIndex}`">
-                  <a-date-picker class="full-width" :disabled="permission === 'read'"
-                    v-model:value="personEducation.personEducationStartDate" id="input-person_education_start_date"
-                    valueFormat="YYYY-MM-DD" />
-                </a-form-item>
-                <a-form-item :label="'Data de término ' + (personEducationsIndex + 1)"
-                  :name="`personEducation.personEducationFinishDate_${personEducationsIndex}`">
-                  <a-date-picker class="full-width" :disabled="permission === 'read'"
-                    v-model:value="personEducation.personEducationFinishDate" id="input-person_education_finish_date"
-                    valueFormat="YYYY-MM-DD" />
-                </a-form-item>
-                <a-form-item label="Descrição do curso" name="personEducation.personEducationDescription">
-                  <QuillEditor :enable="permission !== 'read'" ref="personEducationDescriptionRef"
-                    v-model:content="personEducation.personEducationDescription" id="input-person_education_description"
-                    contentType="html" theme="snow" />
-                </a-form-item>
-                <div>
-                  <a-form-item label="Certificado" name="personEducation.personEducationCertificateFile">
-                    <a-button :disabled="permission === 'read'"
-                      @click="$refs.personEducationCertificateFileFileInput.click()">
-                      Upload
-                    </a-button>
-                    <input type="file" ref="personEducationCertificateFileFileInput" style="display: none"
-                      @change="(e) => handleFileChange(e, 'personEducationCertificateFile')" /><br /><br />
-                    <a-list size="small" bordered
-                      v-if="personProfileDynamicValidateForm.personEducationCertificateFile?.length > 0"
-                      item-layout="horizontal"
-                      :data-source="personProfileDynamicValidateForm.personEducationCertificateFile">
-                      <template #renderItem="{ item }">
-                        <a-list-item>
-                          <template #actions>
-                            <a key="remove-file" @click="removeFile(item, 'personEducationCertificateFile')">Remover</a>
-                          </template>
-                          <a-list-item-meta>
-                            <template #title>
-                              <a :href="item.url" target="_blank">{{ item.filename }}</a>
-                            </template>
-                            <template #avatar>
-                              <a-avatar :src="item.url" />
-                            </template>
-                          </a-list-item-meta>
-                        </a-list-item>
-                      </template>
-                    </a-list>
-                  </a-form-item>
-                </div>
-              </div>
-              <a-button v-if="permission == 'edit'" type="primary" danger block id="button-remove_person_educations"
-                @click="removePersonEducation(personEducation, personProfileDynamicValidateForm.personEducations)">
-                <span class="material-symbols-outlined">
-                  delete
-                </span>
-                Remover Formação
-              </a-button>
-            </a-card>
-          </a-space>
-          <a-form-item v-if="personEducationsCondition">
-            <a-button v-if="permission == 'edit'" type="dashed" block id="button-add_person_educations"
-              @click="addPersonEducation(personProfileDynamicValidateForm.personEducations)">
-              <span class="material-symbols-outlined">
-                add_circle
-              </span>
-              Adicionar Formação
-            </a-button>
-          </a-form-item>
-          <a-space v-for="(personCourse, personCoursesIndex) in personProfileDynamicValidateForm.personCourses"
-            :key="personCoursesIndex" style="display: flex; margin-bottom: 8px" align="baseline">
-            <a-card class='card'>
-              <div>
-                <a-form-item label="Curso" name="personCourse.personCourseName">
-                  <a-input :disabled="permission === 'read'" v-model:value="personCourse.personCourseName"
-                    id="input-person_course_name" />
-                </a-form-item>
-                <a-form-item label="Instituição" name="personCourse.personCourseInstitution">
-                  <a-input :disabled="permission === 'read'" v-model:value="personCourse.personCourseInstitution"
-                    id="input-person_course_institution" />
-                </a-form-item>
-                <a-form-item :label="'Data de início ' + (personCoursesIndex + 1)"
-                  :name="`personCourse.personCourseStartDate_${personCoursesIndex}`">
-                  <a-date-picker class="full-width" :disabled="permission === 'read'"
-                    v-model:value="personCourse.personCourseStartDate" id="input-person_course_start_date"
-                    valueFormat="YYYY-MM-DD" />
-                </a-form-item>
-                <a-form-item :label="'Data de término ' + (personCoursesIndex + 1)"
-                  :name="`personCourse.personCourseFinishDate_${personCoursesIndex}`">
-                  <a-date-picker class="full-width" :disabled="permission === 'read'"
-                    v-model:value="personCourse.personCourseFinishDate" id="input-person_course_finish_date"
-                    valueFormat="YYYY-MM-DD" />
-                </a-form-item>
-                <a-form-item label="Descrição do curso" name="personCourse.personCourseDescription">
-                  <QuillEditor :enable="permission !== 'read'" ref="personCourseDescriptionRef"
-                    v-model:content="personCourse.personCourseDescription" id="input-person_course_description"
-                    contentType="html" theme="snow" />
-                </a-form-item>
-                <div>
-                  <a-form-item label="Certificado" name="personCourse.personCourseCertificateFile">
-                    <a-button :disabled="permission === 'read'"
-                      @click="$refs.personCourseCertificateFileFileInput.click()">
-                      Upload
-                    </a-button>
-                    <input type="file" ref="personCourseCertificateFileFileInput" style="display: none"
-                      @change="(e) => handleFileChange(e, 'personCourseCertificateFile')" /><br /><br />
-                    <a-list size="small" bordered
-                      v-if="personProfileDynamicValidateForm.personCourseCertificateFile?.length > 0"
-                      item-layout="horizontal"
-                      :data-source="personProfileDynamicValidateForm.personCourseCertificateFile">
-                      <template #renderItem="{ item }">
-                        <a-list-item>
-                          <template #actions>
-                            <a key="remove-file" @click="removeFile(item, 'personCourseCertificateFile')">Remover</a>
-                          </template>
-                          <a-list-item-meta>
-                            <template #title>
-                              <a :href="item.url" target="_blank">{{ item.filename }}</a>
-                            </template>
-                            <template #avatar>
-                              <a-avatar :src="item.url" />
-                            </template>
-                          </a-list-item-meta>
-                        </a-list-item>
-                      </template>
-                    </a-list>
-                  </a-form-item>
-                </div>
-              </div>
-              <a-button v-if="permission == 'edit'" type="primary" danger block id="button-remove_person_courses"
-                @click="removePersonCourse(personCourse, personProfileDynamicValidateForm.personCourses)">
-                <span class="material-symbols-outlined">
-                  delete
-                </span>
-                Remover Cursos
-              </a-button>
-            </a-card>
-          </a-space>
-          <a-form-item>
-            <a-button v-if="permission == 'edit'" type="dashed" block id="button-add_person_courses"
-              @click="addPersonCourse(personProfileDynamicValidateForm.personCourses)">
-              <span class="material-symbols-outlined">
-                add_circle
-              </span>
-              Adicionar Cursos
-            </a-button>
-          </a-form-item>
-          <a-form-item label="Idiomas" name="personLanguages">
-            <a-select ref="select" v-model:value="personProfileDynamicValidateForm.personLanguages"
-              id="select-person_languages" placeholder="Idiomas" :options="personLanguagesOptions"
-              :disabled="permission === 'read'"></a-select>
-          </a-form-item>
-        </a-tab-pane>
-        <a-tab-pane key="bankDataTab" tab="Dados bancários">
-          <div>
-            <a-form-item :label="'Banco ' + (bankDataFieldsetOneIndex + 1)"
-              :name="`bankDataFieldsetOne.bankDataBankNameOne_${bankDataFieldsetOneIndex}`">
-              <a-select ref="select" v-model:value="bankDataFieldsetOne.bankDataBankNameOne"
-                id="select-bank_data_bank_name_one" placeholder="Banco" :options="bankDataBankNameOneOptions"
+            <a-form-item label="Gênero" name="gender">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.gender" id="select-gender"
+                placeholder="Gênero" required :options="genderOptions" :disabled="permission === 'read'"></a-select>
+            </a-form-item>
+            <a-form-item label="Data de nascimento" name="birthday">
+              <a-date-picker class="full-width" :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.birthday" id="input-birthday" valueFormat="YYYY-MM-DD" />
+            </a-form-item>
+            <a-form-item label="Descrição da pessoa" name="personDescription">
+              <QuillEditor :enable="permission !== 'read'" ref="personDescriptionRef"
+                v-model:content="personProfileDynamicValidateForm.personDescription" id="input-person_description"
+                contentType="html" theme="snow" />
+            </a-form-item>
+            <a-form-item label="Estado civil" name="maritalStatus">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.maritalStatus"
+                id="select-marital_status" placeholder="Estado civil" :options="maritalStatusOptions"
                 :disabled="permission === 'read'"></a-select>
             </a-form-item>
-            <a-form-item label="Agência" name="bankDataFieldsetOne.bankDataBankBranchOne">
-              <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetOne.bankDataBankBranchOne"
-                id="input-bank_data_bank_branch_one" />
+            <a-form-item label="Nome da mãe" name="motherName">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.motherName"
+                id="input-mother_name" />
             </a-form-item>
-            <a-form-item label="Conta bancária" name="bankDataFieldsetOne.bankDataBankAccountOne">
-              <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetOne.bankDataBankAccountOne"
-                id="input-bank_data_bank_account_one" />
+            <a-form-item label="Nome do pai" name="fatherName">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.fatherName"
+                id="input-father_name" />
             </a-form-item>
-            <a-form-item :label="'Tipo de conta ' + (bankDataFieldsetOneIndex + 1)"
-              :name="`bankDataFieldsetOne.bankDataBankAccountTypeOne_${bankDataFieldsetOneIndex}`">
-              <a-select ref="select" v-model:value="bankDataFieldsetOne.bankDataBankAccountTypeOne"
-                id="select-bank_data_bank_account_type_one" placeholder="Tipo de conta"
-                :options="bankDataBankAccountTypeOneOptions" :disabled="permission === 'read'"></a-select>
+            <a-form-item label="Tag" name="tagId">
+              <a-select v-model:value="personProfileDynamicValidateForm.tagId" id="autocomplete-tag_id" mode="multiple"
+                label-in-value style="width: 100%" :filter-option="false"
+                :not-found-content="tagIdOptions.fetching ? undefined : null" :options="tagIdOptions.data"
+                :disabled="permission === 'read'" @search="onTagIdSearchDebounced" @change="onTagIdChange">
+                <template v-if="tagIdOptions.data.length">
+                  <a-select-option v-for="option in tagIdOptions.data" :key="option.id" :value="option.value">
+                    {{ option.label }}
+                  </a-select-option>
+                </template>
+              </a-select>
             </a-form-item>
-          </div>
-          <div>
-            <a-form-item :label="'Banco ' + (bankDataFieldsetTwoIndex + 1)"
-              :name="`bankDataFieldsetTwo.bankDataBankNameTwo_${bankDataFieldsetTwoIndex}`">
-              <a-select ref="select" v-model:value="bankDataFieldsetTwo.bankDataBankNameTwo"
-                id="select-bank_data_bank_name_two" placeholder="Banco" :options="bankDataBankNameTwoOptions"
+          </a-tab-pane>
+          <a-tab-pane key="documentsTab" tab="Documentos">
+            <a-form-item label="CPF" name="cpf">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.cpf"
+                id="input-cpf" />
+            </a-form-item>
+            <div>
+              <a-form-item label="Arquivo do CPF" name="cpfFile">
+                <a-button :disabled="permission === 'read'" @click="$refs.cpfFileFileInput.click()">
+                  Upload
+                </a-button>
+                <input type="file" ref="cpfFileFileInput" style="display: none"
+                  @change="(e) => handleFileChange(e, 'cpfFile')" /><br /><br />
+                <a-list size="small" bordered v-if="personProfileDynamicValidateForm.cpfFile?.length > 0"
+                  item-layout="horizontal" :data-source="personProfileDynamicValidateForm.cpfFile">
+                  <template #renderItem="{ item }">
+                    <a-list-item>
+                      <template #actions>
+                        <a key="remove-file" @click="removeFile(item, 'cpfFile')">Remover</a>
+                      </template>
+                      <a-list-item-meta>
+                        <template #title>
+                          <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                        </template>
+                        <template #avatar>
+                          <a-avatar :src="item.url" />
+                        </template>
+                      </a-list-item-meta>
+                    </a-list-item>
+                  </template>
+                </a-list>
+              </a-form-item>
+            </div>
+            <a-form-item label="Número do RG" name="rg">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.rg"
+                id="input-rg" />
+            </a-form-item>
+            <a-form-item label="Órgão de expedição do RG" name="rgIssuingAuthority">
+              <a-input :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.rgIssuingAuthority" id="input-rg_issuing_authority" />
+            </a-form-item>
+            <a-form-item label="Data de emissão" name="rgIssuanceDate">
+              <a-date-picker class="full-width" :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.rgIssuanceDate" id="input-rg_issuance_date"
+                valueFormat="YYYY-MM-DD" />
+            </a-form-item>
+            <a-form-item label="Estado do RG" name="rgState">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.rgState" id="select-rg_state"
+                placeholder="Estado do RG" :options="rgStateOptions" :disabled="permission === 'read'"></a-select>
+            </a-form-item>
+            <div>
+              <a-form-item label="Arquivo do RG" name="rgFile">
+                <a-button :disabled="permission === 'read'" @click="$refs.rgFileFileInput.click()">
+                  Upload
+                </a-button>
+                <input type="file" ref="rgFileFileInput" style="display: none"
+                  @change="(e) => handleFileChange(e, 'rgFile')" /><br /><br />
+                <a-list size="small" bordered v-if="personProfileDynamicValidateForm.rgFile?.length > 0"
+                  item-layout="horizontal" :data-source="personProfileDynamicValidateForm.rgFile">
+                  <template #renderItem="{ item }">
+                    <a-list-item>
+                      <template #actions>
+                        <a key="remove-file" @click="removeFile(item, 'rgFile')">Remover</a>
+                      </template>
+                      <a-list-item-meta>
+                        <template #title>
+                          <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                        </template>
+                        <template #avatar>
+                          <a-avatar :src="item.url" />
+                        </template>
+                      </a-list-item-meta>
+                    </a-list-item>
+                  </template>
+                </a-list>
+              </a-form-item>
+            </div>
+            <a-form-item label="Número do passaporte" name="passport">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.passport"
+                id="input-passport" />
+            </a-form-item>
+            <a-form-item label="Data de emissão" name="passportIssuanceDate">
+              <a-date-picker class="full-width" :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.passportIssuanceDate" id="input-passport_issuance_date"
+                valueFormat="YYYY-MM-DD" />
+            </a-form-item>
+            <a-form-item label="Data de validade" name="passportExpirationDate">
+              <a-date-picker class="full-width" :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.passportExpirationDate"
+                id="input-passport_expiration_date" valueFormat="YYYY-MM-DD" />
+            </a-form-item>
+            <div>
+              <a-form-item label="Arquivo do passaporte" name="passportFile">
+                <a-button :disabled="permission === 'read'" @click="$refs.passportFileFileInput.click()">
+                  Upload
+                </a-button>
+                <input type="file" ref="passportFileFileInput" style="display: none"
+                  @change="(e) => handleFileChange(e, 'passportFile')" /><br /><br />
+                <a-list size="small" bordered v-if="personProfileDynamicValidateForm.passportFile?.length > 0"
+                  item-layout="horizontal" :data-source="personProfileDynamicValidateForm.passportFile">
+                  <template #renderItem="{ item }">
+                    <a-list-item>
+                      <template #actions>
+                        <a key="remove-file" @click="removeFile(item, 'passportFile')">Remover</a>
+                      </template>
+                      <a-list-item-meta>
+                        <template #title>
+                          <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                        </template>
+                        <template #avatar>
+                          <a-avatar :src="item.url" />
+                        </template>
+                      </a-list-item-meta>
+                    </a-list-item>
+                  </template>
+                </a-list>
+              </a-form-item>
+            </div>
+          </a-tab-pane>
+          <a-tab-pane key="contactsTab" tab="Contatos">
+            <a-form-item label="Telefone principal" name="phoneNumberOne">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.phoneNumberOne"
+                id="input-phone_number_one" />
+            </a-form-item>
+            <a-form-item label="Telefone secundário" name="phoneNumberTwo">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.phoneNumberTwo"
+                id="input-phone_number_two" />
+            </a-form-item>
+            <a-form-item label="E-mail principal" name="emailOne">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.emailOne"
+                id="input-email_one" />
+            </a-form-item>
+            <a-form-item label="E-mail secundário" name="emailTwo">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.emailTwo"
+                id="input-email_two" />
+            </a-form-item>
+            <a-form-item label="Linkedin" name="linkedin">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.linkedin"
+                id="input-linkedin" />
+            </a-form-item>
+            <a-form-item label="Instagram" name="instagram">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.instagram"
+                id="input-instagram" />
+            </a-form-item>
+            <a-form-item label="Facebook" name="facebook">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.facebook"
+                id="input-facebook" />
+            </a-form-item>
+            <a-form-item label="Facebook" name="x">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.x"
+                id="input-x" />
+            </a-form-item>
+          </a-tab-pane>
+          <a-tab-pane key="addressesTab" tab="Endereços">
+            <a-form-item label="CEP" name="addressOneCepBrasilApi">
+              <a-input :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.addressOneCepBrasilApi"
+                id="input-address_one_cep_brasil_api"
+                @change="onAddressOneCepBrasilApiApiRequestDebounced(personProfileDynamicValidateForm.addressOneCepBrasilApi)" />
+            </a-form-item>
+            <a-form-item label="Tipo de endereço" name="addressOneType">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.addressOneType"
+                id="select-address_one_type" placeholder="Tipo de endereço" :options="addressOneTypeOptions"
                 :disabled="permission === 'read'"></a-select>
             </a-form-item>
-            <a-form-item label="Agência" name="bankDataFieldsetTwo.bankDataBankBranchTwo">
-              <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetTwo.bankDataBankBranchTwo"
-                id="input-bank_data_bank_branch_two" />
+            <a-form-item label="Logradouro" name="addressOneStreet">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneStreet"
+                id="input-address_one_street" placeholder="Ex.: Avenida Brasil" />
             </a-form-item>
-            <a-form-item label="Conta bancária" name="bankDataFieldsetTwo.bankDataBankAccountTwo">
-              <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetTwo.bankDataBankAccountTwo"
-                id="input-bank_data_bank_account_two" />
+            <a-form-item label="Número" name="addressOneNumber">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneNumber"
+                id="input-address_one_number" placeholder="Ex.: 410 ou 410-A ou S/N" />
             </a-form-item>
-            <a-form-item :label="'Tipo de conta ' + (bankDataFieldsetTwoIndex + 1)"
-              :name="`bankDataFieldsetTwo.bankDataBankAccountTypeTwo_${bankDataFieldsetTwoIndex}`">
-              <a-select ref="select" v-model:value="bankDataFieldsetTwo.bankDataBankAccountTypeTwo"
-                id="select-bank_data_bank_account_type_two" placeholder="Tipo de conta"
-                :options="bankDataBankAccountTypeTwoOptions" :disabled="permission === 'read'"></a-select>
+            <a-form-item label="Complemento" name="addressOneComplement">
+              <a-input :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.addressOneComplement" id="input-address_one_complement"
+                placeholder="Ex.: Ao lado da Igreja São Francisco" />
             </a-form-item>
-          </div>
-        </a-tab-pane>
-        <a-tab-pane key="relateFilesTab" tab="Arquivos relacionados">
-          <a-space v-for="(relatedFile, relatedFilesIndex) in personProfileDynamicValidateForm.relatedFiles"
-            :key="relatedFilesIndex" style="display: flex; margin-bottom: 8px" align="baseline">
-            <a-card class='card'>
-              <div>
-                <a-form-item label="Descrição do arquivo" name="relatedFile.filesDescription">
-                  <QuillEditor :enable="permission !== 'read'" ref="filesDescriptionRef"
-                    v-model:content="relatedFile.filesDescription" id="input-files_description" contentType="html"
-                    theme="snow" />
-                </a-form-item>
+            <a-form-item label="Cidade" name="addressOneCity">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneCity"
+                id="input-address_one_city" placeholder="Ex.: Maceió" />
+            </a-form-item>
+            <a-form-item label="Estado" name="addressOneState">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressOneState"
+                id="input-address_one_state" placeholder="Ex.: AL" />
+            </a-form-item>
+            <a-form-item label="CEP" name="addressTwoCepBrasilApi">
+              <a-input :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.addressTwoCepBrasilApi"
+                id="input-address_two_cep_brasil_api"
+                @change="onAddressTwoCepBrasilApiApiRequestDebounced(personProfileDynamicValidateForm.addressTwoCepBrasilApi)" />
+            </a-form-item>
+            <a-form-item label="Tipo de endereço" name="addressTwoType">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.addressTwoType"
+                id="select-address_two_type" placeholder="Tipo de endereço" :options="addressTwoTypeOptions"
+                :disabled="permission === 'read'"></a-select>
+            </a-form-item>
+            <a-form-item label="Logradouro" name="addressTwoStreet">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoStreet"
+                id="input-address_two_street" placeholder="Ex.: Avenida Brasil" />
+            </a-form-item>
+            <a-form-item label="Número" name="addressTwoNumber">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoNumber"
+                id="input-address_two_number" placeholder="Ex.: 410 ou 410-A ou S/N" />
+            </a-form-item>
+            <a-form-item label="Complemento" name="addressTwoComplement">
+              <a-input :disabled="permission === 'read'"
+                v-model:value="personProfileDynamicValidateForm.addressTwoComplement" id="input-address_two_complement"
+                placeholder="Ex.: Ao lado da Igreja São Francisco" />
+            </a-form-item>
+            <a-form-item label="Cidade" name="addressTwoCity">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoCity"
+                id="input-address_two_city" placeholder="Ex.: Maceió" />
+            </a-form-item>
+            <a-form-item label="Estado" name="addressTwoState">
+              <a-input :disabled="permission === 'read'" v-model:value="personProfileDynamicValidateForm.addressTwoState"
+                id="input-address_two_state" placeholder="Ex.: AL" />
+            </a-form-item>
+          </a-tab-pane>
+          <a-tab-pane key="jobsTab" tab="Dados profissionais">
+            <a-collapse v-if="personProfileDynamicValidateForm.professions.length > 0">
+              <a-collapse-panel v-for="(profession, professionsIndex) in personProfileDynamicValidateForm.professions"
+                :key="professionsIndex" style="margin-bottom: 8px" :header="'Ocupação ' + (professionsIndex + 1)">
+                  <div>
+                    <a-form-item :label="'Ocupação ' + (professionsIndex + 1)"
+                      :name="`profession.jobId_${professionsIndex}`">
+                      <a-select v-model:value="profession.jobId" id="autocomplete-job_id" show-search style="width: 100%"
+                        :default-active-first-option="false" :show-arrow="true" :filter-option="false"
+                        :not-found-content="null" :options="jobIdOptions.data" :disabled="permission === 'read'"
+                        @search="onJobIdSearchDebounced" @change="onJobIdChange"></a-select>
+                    </a-form-item>
+                    <a-form-item label="Mês de entrada no trabalho" name="profession.jobStartDateMonth">
+                      <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobStartDateMonth"
+                        id="input-job_start_date_month" />
+                    </a-form-item>
+                    <a-form-item label="Ano de entrada no trabalho" name="profession.jobStartDateYear">
+                      <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobStartDateYear"
+                        id="input-job_start_date_year" />
+                    </a-form-item>
+                    <a-form-item label="Ano de saída do trabalho" name="profession.jobFinishDateYear">
+                      <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobFinishDateYear"
+                        id="input-job_finish_date_year" />
+                    </a-form-item>
+                    <a-form-item label="Mês de saída do trabalho" name="profession.jobFinishDateMonth">
+                      <a-input-number :disabled="permission === 'read'" v-model:value="profession.jobFinishDateMonth"
+                        id="input-job_finish_date_month" />
+                    </a-form-item>
+                    <a-form-item label="Descrição da ocupação" name="profession.jobDescription">
+                      <QuillEditor :enable="permission !== 'read'" ref="jobDescriptionRef"
+                        v-model:content="profession.jobDescription" id="input-job_description" contentType="html"
+                        theme="snow" />
+                    </a-form-item>
+                  </div>
+                  <template #extra><delete-outlined @click="removeProfession(profession, personProfileDynamicValidateForm.professions)" /></template>
+                </a-collapse-panel>
+            </a-collapse>
+            <a-form-item>
+              <a-button v-if="permission == 'edit'" block id="button-add_professions"
+                @click="addProfession(personProfileDynamicValidateForm.professions)">
+                <template #icon>
+                  <PlusOutlined />
+                </template>
+                Adicionar Profissão
+              </a-button>
+            </a-form-item>
+          </a-tab-pane>
+          <a-tab-pane key="educationTab" tab="Dados profissionais">
+            <a-form-item label="Escolaridade" name="personEducation">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.personEducation"
+                id="select-person_education" placeholder="Escolaridade" @change="[checkPersonEducationsCondition(),]"
+                :options="personEducationOptions" :disabled="permission === 'read'"></a-select>
+            </a-form-item>
+            <a-space v-for="(personEducation, personEducationsIndex) in personProfileDynamicValidateForm.personEducations"
+              :key="personEducationsIndex" style="display: flex; margin-bottom: 8px" align="baseline">
+              <a-card class='card'>
                 <div>
-                  <a-form-item label="Arquivos do projeto" name="relatedFile.relatedFilesFiles">
-                    <a-button :disabled="permission === 'read'" @click="$refs.relatedFilesFilesFileInput.click()">
-                      Upload
-                    </a-button>
-                    <input type="file" ref="relatedFilesFilesFileInput" style="display: none"
-                      @change="(e) => handleFileChange(e, 'relatedFilesFiles')" /><br /><br />
-                    <a-list size="small" bordered v-if="personProfileDynamicValidateForm.relatedFilesFiles?.length > 0"
-                      item-layout="horizontal" :data-source="personProfileDynamicValidateForm.relatedFilesFiles">
-                      <template #renderItem="{ item }">
-                        <a-list-item>
-                          <template #actions>
-                            <a key="remove-file" @click="removeFile(item, 'relatedFilesFiles')">Remover</a>
+                  <a-form-item label="Curso" name="personEducation.personEducationCourse">
+                    <a-input :disabled="permission === 'read'" v-model:value="personEducation.personEducationCourse"
+                      id="input-person_education_course" />
+                  </a-form-item>
+                  <a-form-item label="Instituição" name="personEducation.personEducationInstitution">
+                    <a-input :disabled="permission === 'read'" v-model:value="personEducation.personEducationInstitution"
+                      id="input-person_education_institution" />
+                  </a-form-item>
+                  <a-form-item :label="'Data de início ' + (personEducationsIndex + 1)"
+                    :name="`personEducation.personEducationStartDate_${personEducationsIndex}`">
+                    <a-date-picker class="full-width" :disabled="permission === 'read'"
+                      v-model:value="personEducation.personEducationStartDate" id="input-person_education_start_date"
+                      valueFormat="YYYY-MM-DD" />
+                  </a-form-item>
+                  <a-form-item :label="'Data de término ' + (personEducationsIndex + 1)"
+                    :name="`personEducation.personEducationFinishDate_${personEducationsIndex}`">
+                    <a-date-picker class="full-width" :disabled="permission === 'read'"
+                      v-model:value="personEducation.personEducationFinishDate" id="input-person_education_finish_date"
+                      valueFormat="YYYY-MM-DD" />
+                  </a-form-item>
+                  <a-form-item label="Descrição do curso" name="personEducation.personEducationDescription">
+                    <QuillEditor :enable="permission !== 'read'" ref="personEducationDescriptionRef"
+                      v-model:content="personEducation.personEducationDescription" id="input-person_education_description"
+                      contentType="html" theme="snow" />
+                  </a-form-item>
+                  <div>
+                    <a-form-item label="Certificado" name="personEducation.personEducationCertificateFile">
+                      <a-button :disabled="permission === 'read'"
+                        @click="$refs.personEducationCertificateFileFileInput.click()">
+                        Upload
+                      </a-button>
+                      <input type="file" ref="personEducationCertificateFileFileInput" style="display: none"
+                        @change="(e) => handleFileChange(e, 'personEducationCertificateFile')" /><br /><br />
+                      <a-list size="small" bordered
+                        v-if="personProfileDynamicValidateForm.personEducationCertificateFile?.length > 0"
+                        item-layout="horizontal"
+                        :data-source="personProfileDynamicValidateForm.personEducationCertificateFile">
+                        <template #renderItem="{ item }">
+                          <a-list-item>
+                            <template #actions>
+                              <a key="remove-file" @click="removeFile(item, 'personEducationCertificateFile')">Remover</a>
+                            </template>
+                            <a-list-item-meta>
+                              <template #title>
+                                <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                              </template>
+                              <template #avatar>
+                                <a-avatar :src="item.url" />
+                              </template>
+                            </a-list-item-meta>
+                          </a-list-item>
+                        </template>
+                      </a-list>
+                    </a-form-item>
+                  </div>
+                </div>
+                <a-button v-if="permission == 'edit'" danger block id="button-remove_person_educations"
+                  @click="removePersonEducation(personEducation, personProfileDynamicValidateForm.personEducations)">
+                  <DeleteOutlined />
+                  Remover Formação
+                </a-button>
+              </a-card>
+            </a-space>
+            <a-form-item v-if="personEducationsCondition">
+              <a-button v-if="permission == 'edit'" block id="button-add_person_educations"
+                @click="addPersonEducation(personProfileDynamicValidateForm.personEducations)">
+                <PlusOutlined />
+                Adicionar Formação
+              </a-button>
+            </a-form-item>
+            <a-collapse v-if="personProfileDynamicValidateForm.personCourses.length > 0">
+              <a-collapse-panel v-for="(personCourse, personCoursesIndex) in personProfileDynamicValidateForm.personCourses"
+                :key="personCoursesIndex" style="margin-bottom: 8px" :header="'Curso: ' + (personCourse.personCourseName ?? '')">
+                  <div>
+                    <a-form-item label="Curso" name="personCourse.personCourseName">
+                      <a-input :disabled="permission === 'read'" v-model:value="personCourse.personCourseName"
+                        id="input-person_course_name" />
+                    </a-form-item>
+                    <a-form-item label="Instituição" name="personCourse.personCourseInstitution">
+                      <a-input :disabled="permission === 'read'" v-model:value="personCourse.personCourseInstitution"
+                        id="input-person_course_institution" />
+                    </a-form-item>
+                    <a-form-item :label="'Data de início ' + (personCoursesIndex + 1)"
+                      :name="`personCourse.personCourseStartDate_${personCoursesIndex}`">
+                      <a-date-picker class="full-width" :disabled="permission === 'read'"
+                        v-model:value="personCourse.personCourseStartDate" id="input-person_course_start_date"
+                        valueFormat="YYYY-MM-DD" />
+                    </a-form-item>
+                    <a-form-item :label="'Data de término ' + (personCoursesIndex + 1)"
+                      :name="`personCourse.personCourseFinishDate_${personCoursesIndex}`">
+                      <a-date-picker class="full-width" :disabled="permission === 'read'"
+                        v-model:value="personCourse.personCourseFinishDate" id="input-person_course_finish_date"
+                        valueFormat="YYYY-MM-DD" />
+                    </a-form-item>
+                    <a-form-item label="Descrição do curso" name="personCourse.personCourseDescription">
+                      <QuillEditor :enable="permission !== 'read'" ref="personCourseDescriptionRef"
+                        v-model:content="personCourse.personCourseDescription" id="input-person_course_description"
+                        contentType="html" theme="snow" />
+                    </a-form-item>
+                    <div>
+                      <a-form-item label="Certificado" name="personCourse.personCourseCertificateFile">
+                        <a-button :disabled="permission === 'read'"
+                          @click="$refs.personCourseCertificateFileFileInput.click()">
+                          Upload
+                        </a-button>
+                        <input type="file" ref="personCourseCertificateFileFileInput" style="display: none"
+                          @change="(e) => handleFileChange(e, 'personCourseCertificateFile')" /><br /><br />
+                        <a-list size="small" bordered
+                          v-if="personProfileDynamicValidateForm.personCourseCertificateFile?.length > 0"
+                          item-layout="horizontal"
+                          :data-source="personProfileDynamicValidateForm.personCourseCertificateFile">
+                          <template #renderItem="{ item }">
+                            <a-list-item>
+                              <template #actions>
+                                <a key="remove-file" @click="removeFile(item, 'personCourseCertificateFile')">Remover</a>
+                              </template>
+                              <a-list-item-meta>
+                                <template #title>
+                                  <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                                </template>
+                                <template #avatar>
+                                  <a-avatar :src="item.url" />
+                                </template>
+                              </a-list-item-meta>
+                            </a-list-item>
                           </template>
-                          <a-list-item-meta>
-                            <template #title>
-                              <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                        </a-list>
+                      </a-form-item>
+                    </div>
+                  </div>
+                  <template #extra><delete-outlined @click="removePersonCourse(personCourse, personProfileDynamicValidateForm.personCourses)" /></template>
+              </a-collapse-panel>
+            </a-collapse>
+            <a-form-item>
+              <a-button v-if="permission == 'edit'" block id="button-add_person_courses"
+                @click="addPersonCourse(personProfileDynamicValidateForm.personCourses)">
+                <PlusOutlined />
+                Adicionar Cursos
+              </a-button>
+            </a-form-item>
+            <a-form-item label="Idiomas" name="personLanguages">
+              <a-select ref="select" v-model:value="personProfileDynamicValidateForm.personLanguages"
+                id="select-person_languages" placeholder="Idiomas" :options="personLanguagesOptions"
+                :disabled="permission === 'read'"></a-select>
+            </a-form-item>
+          </a-tab-pane>
+          <!-- <a-tab-pane key="bankDataTab" tab="Dados bancários">
+            <div>
+              <a-form-item :label="'Banco ' + (bankDataFieldsetOneIndex + 1)"
+                :name="`bankDataFieldsetOne.bankDataBankNameOne_${bankDataFieldsetOneIndex}`">
+                <a-select ref="select" v-model:value="bankDataFieldsetOne.bankDataBankNameOne"
+                  id="select-bank_data_bank_name_one" placeholder="Banco" :options="bankDataBankNameOneOptions"
+                  :disabled="permission === 'read'"></a-select>
+              </a-form-item>
+              <a-form-item label="Agência" name="bankDataFieldsetOne.bankDataBankBranchOne">
+                <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetOne.bankDataBankBranchOne"
+                  id="input-bank_data_bank_branch_one" />
+              </a-form-item>
+              <a-form-item label="Conta bancária" name="bankDataFieldsetOne.bankDataBankAccountOne">
+                <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetOne.bankDataBankAccountOne"
+                  id="input-bank_data_bank_account_one" />
+              </a-form-item>
+              <a-form-item :label="'Tipo de conta ' + (bankDataFieldsetOneIndex + 1)"
+                :name="`bankDataFieldsetOne.bankDataBankAccountTypeOne_${bankDataFieldsetOneIndex}`">
+                <a-select ref="select" v-model:value="bankDataFieldsetOne.bankDataBankAccountTypeOne"
+                  id="select-bank_data_bank_account_type_one" placeholder="Tipo de conta"
+                  :options="bankDataBankAccountTypeOneOptions" :disabled="permission === 'read'"></a-select>
+              </a-form-item>
+            </div>
+            <div>
+              <a-form-item :label="'Banco ' + (bankDataFieldsetTwoIndex + 1)"
+                :name="`bankDataFieldsetTwo.bankDataBankNameTwo_${bankDataFieldsetTwoIndex}`">
+                <a-select ref="select" v-model:value="bankDataFieldsetTwo.bankDataBankNameTwo"
+                  id="select-bank_data_bank_name_two" placeholder="Banco" :options="bankDataBankNameTwoOptions"
+                  :disabled="permission === 'read'"></a-select>
+              </a-form-item>
+              <a-form-item label="Agência" name="bankDataFieldsetTwo.bankDataBankBranchTwo">
+                <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetTwo.bankDataBankBranchTwo"
+                  id="input-bank_data_bank_branch_two" />
+              </a-form-item>
+              <a-form-item label="Conta bancária" name="bankDataFieldsetTwo.bankDataBankAccountTwo">
+                <a-input :disabled="permission === 'read'" v-model:value="bankDataFieldsetTwo.bankDataBankAccountTwo"
+                  id="input-bank_data_bank_account_two" />
+              </a-form-item>
+              <a-form-item :label="'Tipo de conta ' + (bankDataFieldsetTwoIndex + 1)"
+                :name="`bankDataFieldsetTwo.bankDataBankAccountTypeTwo_${bankDataFieldsetTwoIndex}`">
+                <a-select ref="select" v-model:value="bankDataFieldsetTwo.bankDataBankAccountTypeTwo"
+                  id="select-bank_data_bank_account_type_two" placeholder="Tipo de conta"
+                  :options="bankDataBankAccountTypeTwoOptions" :disabled="permission === 'read'"></a-select>
+              </a-form-item>
+            </div>
+          </a-tab-pane> -->
+          <a-tab-pane key="relateFilesTab" tab="Arquivos relacionados">
+            <a-collapse v-if="personProfileDynamicValidateForm.relatedFiles.length > 0">
+              <a-collapse-panel v-for="(relatedFile, relatedFilesIndex) in personProfileDynamicValidateForm.relatedFiles"
+                :key="relatedFilesIndex" style="margin-bottom: 8px" :header="'Arquivo relacionado ' + (relatedFilesIndex + 1)">
+                <div>
+                  <a-form-item label="Descrição do arquivo" name="relatedFile.filesDescription">
+                    <QuillEditor :enable="permission !== 'read'" ref="filesDescriptionRef"
+                      v-model:content="relatedFile.filesDescription" id="input-files_description" contentType="html"
+                      theme="snow" />
+                  </a-form-item>
+                  <div>
+                    <a-form-item label="Arquivos do projeto" name="relatedFile.relatedFilesFiles">
+                      <a-button :disabled="permission === 'read'" @click="$refs.relatedFilesFilesFileInput.click()">
+                        Upload
+                      </a-button>
+                      <input type="file" ref="relatedFilesFilesFileInput" style="display: none"
+                        @change="(e) => handleFileChange(e, 'relatedFilesFiles')" /><br /><br />
+                      <a-list size="small" bordered v-if="personProfileDynamicValidateForm.relatedFilesFiles?.length > 0"
+                        item-layout="horizontal" :data-source="personProfileDynamicValidateForm.relatedFilesFiles">
+                        <template #renderItem="{ item }">
+                          <a-list-item>
+                            <template #actions>
+                              <a key="remove-file" @click="removeFile(item, 'relatedFilesFiles')">Remover</a>
                             </template>
-                            <template #avatar>
-                              <a-avatar :src="item.url" />
-                            </template>
-                          </a-list-item-meta>
-                        </a-list-item>
-                      </template>
-                    </a-list>
+                            <a-list-item-meta>
+                              <template #title>
+                                <a :href="item.url" target="_blank">{{ item.filename }}</a>
+                              </template>
+                              <template #avatar>
+                                <a-avatar :src="item.url" />
+                              </template>
+                            </a-list-item-meta>
+                          </a-list-item>
+                        </template>
+                      </a-list>
+                    </a-form-item>
+                  </div>
+                  <a-form-item :label="'Dia de entrada no trabalho ' + (relatedFilesIndex + 1)"
+                    :name="`relatedFile.relatedFilesDateDay_${relatedFilesIndex}`">
+                    <a-select ref="select" v-model:value="relatedFile.relatedFilesDateDay"
+                      id="select-related_files_date_day" placeholder="Dia de entrada no trabalho" required
+                      :options="relatedFilesDateDayOptions" :disabled="permission === 'read'"></a-select>
+                  </a-form-item>
+                  <a-form-item :label="'Mês de entrada no trabalho ' + (relatedFilesIndex + 1)"
+                    :name="`relatedFile.relatedFilesDateMonth_${relatedFilesIndex}`">
+                    <a-select ref="select" v-model:value="relatedFile.relatedFilesDateMonth"
+                      id="select-related_files_date_month" placeholder="Mês de entrada no trabalho" required
+                      :options="relatedFilesDateMonthOptions" :disabled="permission === 'read'"></a-select>
+                  </a-form-item>
+                  <a-form-item label="Ano do arquivo" name="relatedFile.relatedFilesDateYear">
+                    <a-input-number :disabled="permission === 'read'" v-model:value="relatedFile.relatedFilesDateYear"
+                      id="input-related_files_date_year" />
                   </a-form-item>
                 </div>
-                <a-form-item :label="'Dia de entrada no trabalho ' + (relatedFilesIndex + 1)"
-                  :name="`relatedFile.relatedFilesDateDay_${relatedFilesIndex}`">
-                  <a-select ref="select" v-model:value="relatedFile.relatedFilesDateDay"
-                    id="select-related_files_date_day" placeholder="Dia de entrada no trabalho" required
-                    :options="relatedFilesDateDayOptions" :disabled="permission === 'read'"></a-select>
-                </a-form-item>
-                <a-form-item :label="'Mês de entrada no trabalho ' + (relatedFilesIndex + 1)"
-                  :name="`relatedFile.relatedFilesDateMonth_${relatedFilesIndex}`">
-                  <a-select ref="select" v-model:value="relatedFile.relatedFilesDateMonth"
-                    id="select-related_files_date_month" placeholder="Mês de entrada no trabalho" required
-                    :options="relatedFilesDateMonthOptions" :disabled="permission === 'read'"></a-select>
-                </a-form-item>
-                <a-form-item label="Ano do arquivo" name="relatedFile.relatedFilesDateYear">
-                  <a-input-number :disabled="permission === 'read'" v-model:value="relatedFile.relatedFilesDateYear"
-                    id="input-related_files_date_year" />
-                </a-form-item>
-              </div>
-              <a-button v-if="permission == 'edit'" type="primary" danger block id="button-remove_related_files"
-                @click="removeRelatedFile(relatedFile, personProfileDynamicValidateForm.relatedFiles)">
-                <span class="material-symbols-outlined">
-                  delete
-                </span>
-                Remover Arquivos relacionados
+                <template #extra><delete-outlined @click="removeRelatedFile(relatedFile, personProfileDynamicValidateForm.relatedFiles)" /></template>
+              </a-collapse-panel>
+            </a-collapse>
+
+            <a-form-item>
+              <a-button v-if="permission == 'edit'" block id="button-add_related_files"
+                @click="addRelatedFile(personProfileDynamicValidateForm.relatedFiles)">
+                <PlusOutlined />
+                Adicionar Arquivos relacionados
               </a-button>
-            </a-card>
-          </a-space>
-          <a-form-item>
-            <a-button v-if="permission == 'edit'" type="dashed" block id="button-add_related_files"
-              @click="addRelatedFile(personProfileDynamicValidateForm.relatedFiles)">
-              <span class="material-symbols-outlined">
-                add_circle
-              </span>
-              Adicionar Arquivos relacionados
-            </a-button>
-          </a-form-item>
-        </a-tab-pane>
-      </a-tabs>
-      <div v-if="permission == 'edit'">
-        <a-button v-if="!$route.query._id" type="primary" id="button-form_save" @click="createPersonProfile">
-          Salvar
-        </a-button>
-        <a-button v-if="$route.query._id" type="primary" id="button-form_update"
-          @click="updatePersonProfile($route.query._id as string)">
-          Atualizar
-        </a-button>
-      </div>
-    </a-space>
-  </a-form>
+            </a-form-item>
+          </a-tab-pane>
+        </a-tabs>
+        <div v-if="permission == 'edit'">
+          <a-button v-if="!$route.query._id" type="primary" id="button-form_save" @click="createPersonProfile">
+            Salvar
+          </a-button>
+          <a-button v-if="$route.query._id" type="primary" id="button-form_update"
+            @click="updatePersonProfile($route.query._id as string)">
+            Atualizar
+          </a-button>
+        </div>
+      </a-space>
+    </a-form>
+  </a-card>
 </template>
 
 <style>
@@ -669,6 +646,7 @@ import type { Dayjs } from 'dayjs';
 import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 import { jwtDecode } from 'jwt-decode';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
 const route = useRoute();
 const router = useRouter();
