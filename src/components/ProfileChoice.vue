@@ -1,16 +1,27 @@
 <template>
-  <a-form-item>
-    <a-select v-model:value="profile" style="width: 100%" placeholder="Tipo de perfil">
-      <a-select-option value="person">Pessoa</a-select-option>
-      <a-select-option value="company">Empresa</a-select-option>
-    </a-select>
-  </a-form-item>
+  <div class="background-theme"></div>
+  <div class="container-div" style="padding: 20px 5px;">
+    <div style="text-align: left; margin-bottom: 30px; width: 80%;">
+      <a-typography-title :level="4" style="margin-bottom: 0px; margin-top: 10px;">Perfil</a-typography-title>
+      <a-typography-text type="secondary">Escolha o tipo de perfil</a-typography-text>
+    </div>
 
-  <a-form-item>
-    <a-button type="primary" @click="submitProfile">
-      Continuar
-    </a-button>
-  </a-form-item>
+    <a-form layout="vertical" style="width: 80%;">
+      <a-form-item label="Tipo de perfil">
+        <a-select v-model:value="profile" style="width: 100%" placeholder="Tipo de perfil">
+          <a-select-option value="">Escolha...</a-select-option>
+          <a-select-option value="person">Pessoa</a-select-option>
+          <a-select-option value="company">Empresa</a-select-option>
+        </a-select>
+      </a-form-item>
+
+      <a-form-item>
+        <a-button style="width: 100%;" type="primary" @click="submitProfile">
+          Continuar
+        </a-button>
+      </a-form-item>
+    </a-form>
+  </div>
 </template>
 
 <script lang="ts">
