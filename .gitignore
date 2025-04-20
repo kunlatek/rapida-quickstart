@@ -1,0 +1,46 @@
+
+# Flutter/Dart specific
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+.dart_tool/
+
+# Build outputs
+build/
+android/app/build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework/
+ios/Flutter/Flutter.podspec
+
+# IntelliJ/Android Studio
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# FVM (Flutter Version Management)
+.fvm/
+.fvm_config.json
+
+# macOS
+.DS_Store
+
+# Linux
+*.lock
+
+# Windows
+Thumbs.db
+
+# Generated files
+*.log
+*.tmp
+*.swp
+*.lock
+*.bak
+*.orig
+*.rej
+*.swo
