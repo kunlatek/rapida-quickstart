@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ProfileChoice from './ProfileChoice.vue';
+import ProfileChoice from "@/components/ProfileChoice.vue";
 </script>
 
 <template>
