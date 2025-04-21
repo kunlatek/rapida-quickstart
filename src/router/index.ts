@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
 
 import ProfileChoiceView from "@/modules/ProfileChoiceView.vue";
 import CompanyProfileFormView from "@/modules/CompanyProfileFormView.vue";
@@ -27,11 +31,9 @@ const baseRoutes: RouteRecordRaw[] = [
   },
 ];
 
-// ⬇️ Rapida Vibe: hook for dynamically generated routes
-// Generated routes will be automatically injected here
-const generatedRoutes: RouteRecordRaw[] = [
-  // ⚠️ DO NOT REMOVE — populated dynamically by Rapida Vibe
-];
+// ✅ Rapida Vibe dynamically generated routes
+// This is injected by Rapida Vibe — do not remove the import
+import { generatedRoutes } from "@/router/generated-routes";
 
 const router = createRouter({
   history: createWebHistory(),
