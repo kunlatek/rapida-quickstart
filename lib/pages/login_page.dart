@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:quickstart_flutter/providers/auth_provider.dart';
+import 'package:quickstart_flutter/services/google_signin_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +12,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final googleService = GoogleSignInService();
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -107,6 +110,43 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       const Text('Entrar'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final userCredential =
+                        await googleService.signInWithGoogle();
+                    if (userCredential != null) {
+                      print(userCredential);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    minimumSize: const Size(double.infinity, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Image(
+                        image: AssetImage('assets/images/google_logo.png'),
+                        width: 24,
+                        height: 24,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Login com Google',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),

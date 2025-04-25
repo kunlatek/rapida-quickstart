@@ -44,3 +44,6 @@ Thumbs.db
 *.orig
 *.rej
 *.swo
+
+# Environment files
+.env
