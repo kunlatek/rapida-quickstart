@@ -126,10 +126,10 @@
   </div>
 {:else}
   <div class="max-w-4xl mx-auto pb-20">
-    <Card>
-      <Heading tag="h1" class="text-2xl font-bold mb-6"
-        >Criar Perfil de Pessoa</Heading
-      >
+    <div class="text-gray-500 dark:text-gray-400 mb-6 px-4">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        Criar Perfil de Pessoa
+      </h1>
       <div class="text-gray-500 dark:text-gray-400 mb-6">
         <p>
           Preencha o formulário abaixo para criar seu perfil de pessoa. Os
@@ -144,6 +144,6 @@
         on:submit={handleSubmit}
         on:cancel={handleCancel}
       />
-    </Card>
+    </div>
   </div>
 {/if}
