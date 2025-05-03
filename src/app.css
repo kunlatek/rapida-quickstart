@@ -1,5 +1,7 @@
 /* Import Flowbite CSS */
 @import "flowbite/dist/flowbite.css";
+@import './lib/styles/flowbite.css';
+@import './lib/styles/contentCard.css';
 
 @tailwind base;
 @tailwind components;

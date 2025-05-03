@@ -2,9 +2,6 @@
   import {
     Navbar,
     NavBrand,
-    NavLi,
-    NavUl,
-    NavHamburger,
     Dropdown,
     DropdownItem,
     Button,
@@ -15,15 +12,18 @@
     SidebarGroup,
     SidebarItem,
   } from "flowbite-svelte";
-  // Remover importações problemáticas
+  import { profileStore } from "$stores/profile";
+
   import { UserCircleSolid } from "flowbite-svelte-icons";
   import { authStore } from "$stores/auth";
   import { authService } from "$services/auth";
   import { toastStore } from "$stores/toast";
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
-  import { onMount } from "svelte";
   import { sineIn } from "svelte/easing";
+
+  // New prop to control menu visibility
+  export let showMenu = true;
 
   let drawerHidden = true;
   let showLogoutConfirm = false;
@@ -90,36 +90,95 @@
 
   <div class="flex items-center md:order-2">
     {#if $authStore.isAuthenticated}
-      <div class="flex items-center space-x-3">
-        <!-- Botão do menu - usando SVG inline em vez de ícone importado -->
-        <Button color="light" size="sm" on:click={openDrawer} class="mr-2">
-          <svg
-            class="w-5 h-5 mr-2"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <span class="hidden md:inline">Menu</span>
-        </Button>
+      {#if showMenu}
+        <div class="flex items-center space-x-3">
+          <!-- Menu button - using inline SVG instead of imported icon -->
+          <Button color="light" size="sm" on:click={openDrawer} class="mr-2">
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http:"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <span class="hidden md:inline">Menu</span>
+          </Button>
 
-        <!-- Botão de logout - usando SVG inline em vez de ícone importado -->
-        <Button
-          color="light"
-          size="sm"
-          on:click={confirmLogout}
-          class="hidden md:flex"
-        >
+          <Dropdown inline={true} class="w-44">
+            <!-- User icon for dropdown - keeping UserCircleSolid as it seems to work -->
+            <div slot="trigger" class="cursor-pointer">
+              <UserCircleSolid
+                size="lg"
+                class="text-gray-600 dark:text-gray-300"
+              />
+            </div>
+
+            <div slot="content" class="py-1">
+              <DropdownItem class="flex items-center space-x-2">
+                <span class="text-sm text-gray-700"
+                  >{$authStore.user?.email || ""}</span
+                >
+              </DropdownItem>
+              <DropdownItem>Perfil</DropdownItem>
+              <DropdownItem>Configurações</DropdownItem>
+              <hr class="my-1" />
+
+              {#if $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 0}
+                <div class="px-4 py-2">
+                  <span class="text-sm text-gray-500"
+                    >Papel Ativo: {$authStore.user.activeRole || "Nenhum"}</span
+                  >
+                </div>
+                {#each $authStore.user.availableRoles as role}
+                  <DropdownItem on:click={() => switchRole(role)}>
+                    Usar papel: {role}
+                  </DropdownItem>
+                {/each}
+                <hr class="my-1" />
+              {/if}
+
+              <DropdownItem
+                on:click={confirmLogout}
+                class="md:hidden text-red-600 dark:text-red-500"
+              >
+                <div class="flex items-center">
+                  <!-- Logout icon - using inline SVG instead of imported icon -->
+                  <svg
+                    class="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http:"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.293 3.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    ></path>
+                    <path
+                      fill-rule="evenodd"
+                      d="M7 8a1 1 0 011-1h7a1 1 0 110 2H8a1 1 0 01-1-1z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                  Sair
+                </div>
+              </DropdownItem>
+            </div>
+          </Dropdown>
+        </div>
+      {:else}
+        <!-- When no active role, only show logout button -->
+        <Button color="light" size="sm" on:click={confirmLogout}>
           <svg
             class="w-5 h-5 mr-2"
             fill="currentColor"
             viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
+            xmlns="http:"
           >
             <path
               fill-rule="evenodd"
@@ -132,92 +191,19 @@
               clip-rule="evenodd"
             ></path>
           </svg>
-          <span>Sair</span>
+          Sair
         </Button>
-
-        <Dropdown inline={true} class="w-44">
-          <!-- Ícone de usuário para dropdown - mantendo UserCircleSolid pois parece funcionar -->
-          <div slot="trigger" class="cursor-pointer">
-            <UserCircleSolid
-              size="lg"
-              class="text-gray-600 dark:text-gray-300"
-            />
-          </div>
-
-          <div slot="content" class="py-1">
-            <DropdownItem class="flex items-center space-x-2">
-              <span class="text-sm text-gray-700"
-                >{$authStore.user?.email || ""}</span
-              >
-            </DropdownItem>
-            <DropdownItem>Perfil</DropdownItem>
-            <DropdownItem>Configurações</DropdownItem>
-            <hr class="my-1" />
-
-            {#if $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 0}
-              <div class="px-4 py-2">
-                <span class="text-sm text-gray-500"
-                  >Papel Ativo: {$authStore.user.activeRole || "Nenhum"}</span
-                >
-              </div>
-              {#each $authStore.user.availableRoles as role}
-                <DropdownItem on:click={() => switchRole(role)}>
-                  Usar papel: {role}
-                </DropdownItem>
-              {/each}
-              <hr class="my-1" />
-            {/if}
-
-            <DropdownItem
-              on:click={confirmLogout}
-              class="md:hidden text-red-600 dark:text-red-500"
-            >
-              <div class="flex items-center">
-                <!-- Ícone de logout - usando SVG inline em vez de ícone importado -->
-                <svg
-                  class="w-5 h-5 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.293 3.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                  <path
-                    fill-rule="evenodd"
-                    d="M7 8a1 1 0 011-1h7a1 1 0 110 2H8a1 1 0 01-1-1z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-                Sair
-              </div>
-            </DropdownItem>
-          </div>
-        </Dropdown>
-      </div>
+      {/if}
     {:else}
+      <Button href="/">Início</Button>
+      <Button href="/auth/register">Criar conta</Button>
       <Button href="/auth/login">Login</Button>
     {/if}
   </div>
-
-  <NavUl {hidden} class="order-1">
-    <NavLi href="/">Início</NavLi>
-    {#if $authStore.isAuthenticated}
-      <NavLi href="/dashboard">Dashboard</NavLi>
-      {#if $authStore.user?.activeRole === "person"}
-        <NavLi href="/profile/person">Perfil Pessoa</NavLi>
-      {/if}
-      {#if $authStore.user?.activeRole === "company"}
-        <NavLi href="/profile/company">Perfil Empresa</NavLi>
-      {/if}
-    {/if}
-  </NavUl>
 </Navbar>
 
-<!-- Drawer implementado corretamente -->
-{#if browser}
+<!-- Drawer implemented correctly -->
+{#if browser && showMenu}
   <Drawer
     placement="left"
     transitionType="fly"
@@ -257,7 +243,7 @@
                 class="w-5 h-5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+                xmlns="http:"
               >
                 <path
                   d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
@@ -278,7 +264,7 @@
                   class="w-5 h-5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="http:"
                 >
                   <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
                   <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
@@ -288,7 +274,7 @@
 
             {#if $authStore.user?.activeRole === "person"}
               <SidebarItem
-                href="/profile/person"
+                href={"/profile/person/" + $profileStore.person._id}
                 on:click={closeDrawer}
                 label="Perfil Pessoa"
                 class="break-words"
@@ -298,7 +284,7 @@
                     class="w-5 h-5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns="http:"
                   >
                     <path
                       fill-rule="evenodd"
@@ -312,7 +298,7 @@
 
             {#if $authStore.user?.activeRole === "company"}
               <SidebarItem
-                href="/profile/company"
+                href={"/profile/company/" + $profileStore.company._id}
                 on:click={closeDrawer}
                 label="Perfil Empresa"
                 class="break-words"
@@ -322,7 +308,7 @@
                     class="w-5 h-5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns="http:"
                   >
                     <path
                       fill-rule="evenodd"
@@ -353,7 +339,7 @@
                       class="w-5 h-5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns="http:"
                     >
                       <path
                         fill-rule="evenodd"
@@ -377,12 +363,12 @@
               label="Sair"
             >
               <svelte:fragment slot="icon">
-                <!-- Ícone de logout - usando SVG inline em vez de ícone importado -->
+                <!-- Logout icon - using inline SVG instead of imported icon -->
                 <svg
                   class="w-5 h-5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="http:"
                 >
                   <path
                     fill-rule="evenodd"
@@ -404,7 +390,7 @@
   </Drawer>
 {/if}
 
-<!-- Modal de confirmação de logout -->
+<!-- Logout confirmation modal -->
 <Modal title="Confirmação de Logout" bind:open={showLogoutConfirm} autoclose>
   <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
     Tem certeza que deseja sair da plataforma?

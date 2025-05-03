@@ -1,54 +1,95 @@
 <script>
-  import { goto } from '$app/navigation';
-  import { authService } from '$services/auth';
-  import { toastStore } from '$stores/toast';
-  import { authStore } from '$stores/auth';
-  import { Button, Card, Input, Label, Checkbox, Alert } from 'flowbite-svelte';
-  import AuthLayout from '$components/layout/AuthLayout.svelte';
-  
-  let email = '';
-  let password = '';
+  import { goto } from "$app/navigation";
+  import { authService } from "$services/auth";
+  import { toastStore } from "$stores/toast";
+  import { authStore } from "$stores/auth";
+  import { profileService } from "$services/profile";
+  import { Button, Card, Input, Label, Checkbox, Alert } from "flowbite-svelte";
+  import AuthLayout from "$components/layout/AuthLayout.svelte";
+  import { onMount } from "svelte";
+
+  let email = "";
+  let password = "";
   let rememberMe = false;
   let loading = false;
-  let errorMessage = '';
-  
-  // Redirecionar se já estiver autenticado
-  $: if ($authStore.isAuthenticated) {
-    goto('/dashboard');
+  let errorMessage = "";
+
+  async function checkAndRedirect() {
+    if ($authStore.isAuthenticated) {
+      try {
+        // First check if the user already has an active role or needs to select one
+        const roleStatus = await authService.checkAndSetActiveRole();
+
+        // If the user needs to select a role from multiple available ones
+        if (roleStatus.needsSelection) {
+          console.log("Redirecionando para seleção de papel");
+          goto("/profile/role-select");
+          return;
+        }
+
+        // Check if user has any profiles
+        const profiles = await profileService.checkUserProfiles(
+          $authStore.user.userId
+        );
+
+        console.log("Verificação de perfis após login:", profiles);
+
+        if (!profiles.hasPerson && !profiles.hasCompany) {
+          console.log("Redirecionando para seleção de perfil");
+          goto("/profile/select");
+        } else {
+          console.log("Redirecionando para dashboard");
+          goto("/dashboard");
+        }
+      } catch (error) {
+        console.error("Erro ao verificar perfis:", error);
+
+        goto("/dashboard");
+      }
+    }
   }
-  
+
+  // Check authentication status on mount
+  onMount(() => {
+    if ($authStore.isAuthenticated) {
+      checkAndRedirect();
+    }
+  });
+
   async function handleLogin() {
     if (!email || !password) {
-      errorMessage = 'Por favor, preencha todos os campos';
+      errorMessage = "Por favor, preencha todos os campos";
       return;
     }
-    
+
     try {
       loading = true;
-      errorMessage = '';
-      
+      errorMessage = "";
+
       await authService.login(email, password);
-      toastStore.success('Login realizado com sucesso!');
-      goto('/dashboard');
+      toastStore.success("Login realizado com sucesso!");
+      checkAndRedirect();
     } catch (error) {
-      console.error('Erro no login:', error);
-      errorMessage = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.';
+      console.error("Erro no login:", error);
+      errorMessage =
+        error.response?.data?.message ||
+        "Erro ao fazer login. Verifique suas credenciais.";
       toastStore.error(errorMessage);
     } finally {
       loading = false;
     }
   }
-  
+
   async function handleGoogleLogin() {
-    // Em uma implementação real, aqui você usaria a API do Google para obter o ID token
-    // e então passaria para o método authService.googleLogin()
-    alert('Esta funcionalidade seria implementada com a API do Google');
+    // This would be implemented with the Google API
+
+    alert("Esta funcionalidade seria implementada com a API do Google");
   }
-  
+
   async function handleAppleLogin() {
-    // Em uma implementação real, aqui você usaria a API da Apple para obter o ID token
-    // e então passaria para o método authService.appleLogin()
-    alert('Esta funcionalidade seria implementada com a API da Apple');
+    // This would be implemented with the Apple API
+
+    alert("Esta funcionalidade seria implementada com a API da Apple");
   }
 </script>
 
@@ -60,12 +101,14 @@
   <Card class="w-full max-w-md">
     <div class="flex flex-col items-center">
       <img src="/images/logo.svg" alt="Logo" class="h-16 mb-6" />
-      <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Entrar na sua conta</h2>
-      
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+        Entrar na sua conta
+      </h2>
+
       {#if errorMessage}
         <Alert color="red" class="mb-4 w-full">{errorMessage}</Alert>
       {/if}
-      
+
       <form on:submit|preventDefault={handleLogin} class="w-full space-y-4">
         <div>
           <Label for="email" class="mb-2">Email</Label>
@@ -77,7 +120,7 @@
             required
           />
         </div>
-        
+
         <div>
           <Label for="password" class="mb-2">Senha</Label>
           <Input
@@ -88,32 +131,44 @@
             required
           />
         </div>
-        
+
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <Checkbox id="remember" bind:checked={rememberMe} />
             <Label for="remember" class="ml-2">Lembrar de mim</Label>
           </div>
-          <a href="/auth/forgot-password" class="text-sm text-primary-600 hover:underline dark:text-primary-500">
+          <a
+            href="/auth/forgot-password"
+            class="text-sm text-primary-600 hover:underline dark:text-primary-500"
+          >
             Esqueceu sua senha?
           </a>
         </div>
-        
+
         <Button type="submit" class="w-full" color="blue" disabled={loading}>
-          {loading ? 'Aguarde...' : 'Entrar'}
+          {loading ? "Aguarde..." : "Entrar"}
         </Button>
-        
-        <div class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center">
-          Não tem uma conta? <a href="/auth/register" class="text-primary-600 hover:underline dark:text-primary-500">Criar conta</a>
+
+        <div
+          class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"
+        >
+          Não tem uma conta? <a
+            href="/auth/register"
+            class="text-primary-600 hover:underline dark:text-primary-500"
+            >Criar conta</a
+          >
         </div>
       </form>
-      
+
       <div class="flex flex-col w-full mt-4 space-y-3">
         <div class="relative flex items-center justify-center w-full">
           <hr class="w-full border-gray-300 dark:border-gray-600" />
-          <span class="absolute px-3 text-xs text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400">ou continue com</span>
+          <span
+            class="absolute px-3 text-xs text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400"
+            >ou continue com</span
+          >
         </div>
-        
+
         <div class="grid grid-cols-2 gap-3">
           <Button color="alternative" on:click={handleGoogleLogin}>
             <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">

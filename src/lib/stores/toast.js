@@ -1,47 +1,45 @@
-// src/lib/stores/toast.js
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
-// Criar store para mensagens toast
 function createToastStore() {
   const { subscribe, update } = writable([]);
-  
-  // Gerar ID único para cada toast
-  const generateId = () => Math.floor(Math.random() * 10000);
-  
+
+  // Usar timestamp + random para garantir unicidade
+  const generateId = () => {
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  };
+
   const store = {
     subscribe,
-    // Adicionar uma nova mensagem toast
-    add: (message, type = 'info', timeout = 5000) => {
+
+    add: (message, type = "info", timeout = 5000) => {
       const id = generateId();
       const toast = { id, message, type, timeout };
-      
-      update(toasts => [...toasts, toast]);
-      
-      // Remover automaticamente após o timeout
+
+      update((toasts) => [...toasts, toast]);
+
       if (timeout) {
         setTimeout(() => {
-          update(toasts => toasts.filter(t => t.id !== id));
+          update((toasts) => toasts.filter((t) => t.id !== id));
         }, timeout);
       }
-      
+
       return id;
     },
-    // Remover uma mensagem toast pelo ID
+
     remove: (id) => {
-      update(toasts => toasts.filter(t => t.id !== id));
+      update((toasts) => toasts.filter((t) => t.id !== id));
     },
-    // Limpar todas as mensagens
+
     clear: () => {
       update(() => []);
-    }
+    },
   };
-  
-  // Adicionar métodos de conveniência
-  store.success = (message, timeout) => store.add(message, 'success', timeout);
-  store.error = (message, timeout) => store.add(message, 'error', timeout);
-  store.warning = (message, timeout) => store.add(message, 'warning', timeout);
-  store.info = (message, timeout) => store.add(message, 'info', timeout);
-  
+
+  store.success = (message, timeout) => store.add(message, "success", timeout);
+  store.error = (message, timeout) => store.add(message, "error", timeout);
+  store.warning = (message, timeout) => store.add(message, "warning", timeout);
+  store.info = (message, timeout) => store.add(message, "info", timeout);
+
   return store;
 }
 

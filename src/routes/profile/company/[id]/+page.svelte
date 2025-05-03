@@ -76,18 +76,22 @@
   <title>Editar Perfil de Empresa - Rapida Quickstart</title>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto pb-20">
-  <Card>
-    <Heading tag="h1" class="text-2xl font-bold mb-6">Editar Perfil de Empresa</Heading>
-    
+<div class="max-w-screen-2xl mx-auto pb-20">    
     {#if loadingProfile}
       <div class="flex justify-center items-center py-12">
         <Spinner size="xl" />
         <span class="ml-2">Carregando perfil...</span>
       </div>
     {:else if profile}
-      <div class="text-gray-500 dark:text-gray-400 mb-6">
-        <p>Edite as informações do seu perfil de empresa. Os campos marcados com <span class="text-red-500">*</span> são obrigatórios.</p>
+      <div class="text-gray-500 dark:text-gray-400 mb-6 px-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Editar Perfil de Empresa
+        </h1>
+        <p>
+          Edite as informações do seu perfil de empresa. Os campos marcados com <span
+            class="text-red-500">*</span
+          > são obrigatórios.
+        </p>
       </div>
       
       <CompanyProfileForm
@@ -100,8 +104,9 @@
       />
     {:else}
       <div class="text-center py-12">
-        <p class="text-gray-500 dark:text-gray-400">Perfil não encontrado ou você não tem permissão para editá-lo.</p>
+        <p class="text-gray-500 dark:text-gray-400">
+          Perfil não encontrado ou você não tem permissão para editá-lo.
+        </p>
       </div>
     {/if}
-  </Card>
 </div>
