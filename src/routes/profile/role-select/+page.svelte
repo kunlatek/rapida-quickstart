@@ -52,10 +52,10 @@
 </svelte:head>
 
 <div class="max-w-4xl mx-auto pb-20">
-  <Card>
-    <Heading tag="h1" class="text-2xl font-bold mb-6"
-      >Selecione seu Papel Ativo</Heading
-    >
+  <div class="text-gray-500 dark:text-gray-400 mb-6 px-4">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      Selecione seu Papel Ativo
+    </h1>
 
     <div class="text-gray-700 dark:text-gray-300 mb-8">
       <p>
@@ -70,13 +70,13 @@
           class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
         >
           <div class="mb-4">
-            <h2 class="text-xl font-semibold mb-2">Papel: {role}</h2>
+            <h2 class="text-xl font-semibold mb-2">Papel: {role === "company" ? "Empresa" : "Pessoa"}</h2>
             <p class="text-gray-600 dark:text-gray-400">
               Ativar este papel para acessar as funcionalidades correspondentes.
             </p>
           </div>
           <Button color="blue" on:click={() => selectRole(role)}>
-            Ativar Papel {role}
+            Ativar Papel {role === "company" ? "de Empresa" : "de Pessoa"}
           </Button>
         </div>
       {/each}
@@ -88,5 +88,5 @@
         usuário.
       </p>
     </div>
-  </Card>
+  </div>
 </div>
