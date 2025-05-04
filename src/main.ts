@@ -5,11 +5,20 @@ import * as dotenv from 'dotenv';
 import { AuthDebugMiddleware } from './common/middleware/auth-debug.middleware';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   // Register global exception filter
   app.useGlobalFilters(new GlobalExceptionFilter());

@@ -25,6 +25,7 @@ export enum MaritalStatus {
   WIDOWED = 'widowed',
   ENGAGED = 'engaged',
   COMMON_LAW = 'commonLawMarried',
+  NULL = '',
 }
 
 export enum EducationLevel {
@@ -37,6 +38,7 @@ export enum EducationLevel {
   POSTGRADUATE = 'postgraduate',
   MASTERS = 'mastersDegree',
   DOCTORATE = 'doctorate',
+  NULL = '',
 }
 
 export enum BankAccountType {
