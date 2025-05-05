@@ -323,7 +323,6 @@
             label="CPF"
             placeholder="123.456.789-00"
             bind:value={profile.cpf}
-            isRequired={true}
             error={errors.cpf}
           />
 
@@ -422,7 +421,6 @@
             label="Telefone Principal"
             placeholder="(99) 99999-9999"
             bind:value={profile.phoneNumberOne}
-            isRequired={true}
             error={errors.phoneNumberOne}
           />
 
@@ -441,7 +439,6 @@
             label="Email Principal"
             placeholder="email@exemplo.com"
             bind:value={profile.emailOne}
-            isRequired={true}
             error={errors.emailOne}
           />
 
@@ -763,9 +760,3 @@
     />
   </div>
 </form>
-
-<style>
-  .tab-content {
-    margin-top: 1.5rem;
-  }
-</style>

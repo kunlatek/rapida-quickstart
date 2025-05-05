@@ -1,5 +1,4 @@
 import api from "./api";
-import { getState } from "$stores/auth";
 
 export const profileService = {
   /**
