@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProfileModule } from './modules/profile/profile.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
       envFilePath: '.env', // Explicitly sets the .env file location
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI),
+    CommonModule,
     AuthModule,
     ProfileModule,
   ],
