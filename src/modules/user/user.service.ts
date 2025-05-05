@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -7,6 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { CompanyProfile } from '../profile/schemas/company-profile.schema';
 import { UserRole } from 'src/enums/user-role.enum';
 import { PersonProfile } from '../profile/schemas/person-profile.schema';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -112,5 +113,51 @@ export class UserService {
     if (person) roles.push(UserRole.PERSON);
 
     return roles;
+  }
+
+  async updateUser(id: string, payload: UpdateUserDto): Promise<UserDocument> {
+    const user = await this.userModel.findById(id);
+    if (!user || user.deletedAt) {
+      throw new NotFoundException('User not found or has been deleted');
+    }
+
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+
+    Object.assign(user, payload);
+    return user.save();
+  }
+
+  async softDeleteUser(id: string): Promise<void> {
+    const user = await this.userModel.findById(id);
+    if (!user || user.deletedAt) {
+      throw new NotFoundException('User not found or has been deleted');
+    }
+
+    user.deletedAt = new Date();
+    await user.save();
+  }
+
+  async restoreUser(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(id);
+    if (!user || !user.deletedAt) {
+      throw new NotFoundException('User not found or is not deleted');
+    }
+
+    user.deletedAt = null;
+    return user.save();
+  }
+
+  async findAll(): Promise<UserDocument[]> {
+    return this.userModel.find().exec();
+  }
+
+  async findOne(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(id);
+    if (!user || user.deletedAt) {
+      throw new NotFoundException('User not found or has been deleted');
+    }
+    return user;
   }
 }

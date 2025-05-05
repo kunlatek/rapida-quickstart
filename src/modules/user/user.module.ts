@@ -11,6 +11,7 @@ import {
   PersonProfile,
   PersonProfileSchema,
 } from '../profile/schemas/person-profile.schema';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import {
     MongooseModule.forFeature([
       { name: PersonProfile.name, schema: PersonProfileSchema },
     ]),
+    CommonModule,
   ],
   controllers: [UserController],
   providers: [UserService],
