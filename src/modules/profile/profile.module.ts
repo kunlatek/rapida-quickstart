@@ -10,6 +10,7 @@ import { CompanyProfileSchema } from './schemas/company-profile.schema';
 import { PersonProfileController } from './person-profile.controller';
 import { PersonProfileService } from './person-profile.service';
 import { PersonProfileSchema } from './schemas/person-profile.schema';
+import { ErrorService } from '../../common/services/error.service';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { PersonProfileSchema } from './schemas/person-profile.schema';
     AuthModule,
   ],
   controllers: [CompanyProfileController, PersonProfileController],
-  providers: [CompanyProfileService, PersonProfileService],
+  providers: [
+    CompanyProfileService,
+    PersonProfileService,
+    ErrorService,
+  ],
 })
 export class ProfileModule {}
