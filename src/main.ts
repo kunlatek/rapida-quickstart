@@ -24,8 +24,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(app.get(LoggingInterceptor));
 
   const config = new DocumentBuilder()
-    .setTitle('Traampo API')
-    .setDescription('API documentation for Traampo services')
+    .setTitle('Quickstart API')
+    .setDescription('API documentation')
     .setVersion('1.0')
     .addBearerAuth(
       {
