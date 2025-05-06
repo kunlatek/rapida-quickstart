@@ -8,16 +8,20 @@ import { CompanyProfile } from '../profile/schemas/company-profile.schema';
 import { UserRole } from 'src/enums/user-role.enum';
 import { PersonProfile } from '../profile/schemas/person-profile.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CascadeService } from 'src/common/services/cascade.service';
 
 @Injectable()
 export class UserService {
+  private readonly DAYS_UNTIL_HARD_DELETE = 90;
+
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(CompanyProfile.name)
     private companyProfileModel: Model<CompanyProfile>,
     @InjectModel(PersonProfile.name)
     private personProfileModel: Model<PersonProfile>,
-  ) {}
+    private readonly cascadeService: CascadeService,
+  ) { }
 
   /**
    * Creates a new user, storing the password hashed.
@@ -137,6 +141,30 @@ export class UserService {
 
     user.deletedAt = new Date();
     await user.save();
+    
+    // Cascade soft delete to all related documents
+    await this.cascadeService.cascadeSoftDelete(id);
+
+    // Schedule hard delete after 90 days if user remains soft deleted
+    setTimeout(async () => {
+      const user = await this.userModel.findById(id);
+      if (user?.deletedAt) {
+        const daysSinceDelete = Math.floor(
+          (Date.now() - user.deletedAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (daysSinceDelete >= this.DAYS_UNTIL_HARD_DELETE) {
+          await this.hardDeleteUser(id);
+        }
+      }
+    }, this.DAYS_UNTIL_HARD_DELETE * 24 * 60 * 60 * 1000);
+  }
+
+  async hardDeleteUser(id: string): Promise<void> {
+    // Cascade hard delete to all related documents first
+    await this.cascadeService.cascadeHardDelete(id);
+
+    // Then delete the user
+    await this.userModel.findByIdAndDelete(id);
   }
 
   async restoreUser(id: string): Promise<UserDocument> {
@@ -146,7 +174,12 @@ export class UserService {
     }
 
     user.deletedAt = null;
-    return user.save();
+    await user.save();
+
+    // Cascade restore to all related documents
+    await this.cascadeService.cascadeRestore(id);
+
+    return user;
   }
 
   async findAll(): Promise<UserDocument[]> {

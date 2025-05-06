@@ -24,7 +24,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly errorService: ErrorService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: "Create a new user" })
@@ -93,15 +93,21 @@ export class UserController {
         this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
       );
     }
+
     await this.userService.softDeleteUser(req.user.userId);
     return { message: "User soft deleted successfully" };
-    // to-do: @alexis: após 90 dias do soft delete, deletar o usuário
-    // to-do: @alexis: verificar se no mongodb existe algum tipo de cascata que relacione todos os dados do sistemas ao ide do usuário com deletedAt e adicione a essses documents deleteAt também
   }
 
-  @Patch()
-  @ApiOperation({ summary: "Restore a soft-deleted user by ID" })
-  async restoreUser(@Param("id") id: string) {
-    // to-do: @alexis: remover o deltedAt do usuário que não quer mais remover a conta
+  @Patch('restore')
+  @ApiSecurity('jwt')
+  @ApiOperation({ summary: "Restore own soft-deleted profile" })
+  async restoreOwnProfile(@Req() req) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException(
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
+      );
+    }
+    await this.userService.restoreUser(req.user.userId);
+    return { message: "User restored successfully" };
   }
 }
