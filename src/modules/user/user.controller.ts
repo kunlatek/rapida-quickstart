@@ -8,6 +8,7 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -17,6 +18,7 @@ import { Roles } from "src/common/decorators/roles.decorator";
 import { UserRole } from "src/enums/user-role.enum";
 import { ErrorService } from "src/common/services/error.service";
 import { ErrorCode } from "src/common/constants/error-code.enum";
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags("users")
 @Controller("users")
@@ -75,6 +77,14 @@ export class UserController {
     return this.userService.updateUser(id, updateUserDto);
   }
 
+  @Patch("change-password")
+  @ApiSecurity('jwt')
+  @Roles(UserRole.PERSON, UserRole.COMPANY)
+  @ApiOperation({ summary: "Update a user by ID" })
+  async updateOwnProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    // to-do @alexis: change password only
+  }
+
   @Delete(":id")
   @ApiSecurity('jwt')
   @Roles(UserRole.ADMIN)
@@ -86,6 +96,8 @@ export class UserController {
 
   @Delete()
   @ApiSecurity('jwt')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles(UserRole.PERSON, UserRole.COMPANY)
   @ApiOperation({ summary: "Soft delete own profile" })
   async softDeleteOwnProfile(@Req() req) {
     if (!req.user || !req.user.userId) {
@@ -100,6 +112,8 @@ export class UserController {
 
   @Patch('restore')
   @ApiSecurity('jwt')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles(UserRole.PERSON, UserRole.COMPANY)
   @ApiOperation({ summary: "Restore own soft-deleted profile" })
   async restoreOwnProfile(@Req() req) {
     if (!req.user || !req.user.userId) {

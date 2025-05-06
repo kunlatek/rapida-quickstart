@@ -68,6 +68,7 @@ export class AuthController {
       'Returns JWT access token on successful login with available roles',
   })
   async login(@Req() req) {
+    // to-do @alexis: quando o usuário tem deletedAt preenchido não consegue logar, fazer com que consiga, mas que não tenha acesso a nada
     return this.authService.login(req.user);
   }
 
