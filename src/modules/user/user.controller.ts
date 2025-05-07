@@ -19,6 +19,7 @@ import { UserRole } from "src/enums/user-role.enum";
 import { ErrorService } from "src/common/services/error.service";
 import { ErrorCode } from "src/common/constants/error-code.enum";
 import { AuthGuard } from "@nestjs/passport";
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @ApiTags("users")
 @Controller("users")
@@ -66,6 +67,48 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
+  @Patch('restore')
+  @ApiSecurity('jwt')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles(UserRole.PERSON, UserRole.COMPANY)
+  @ApiOperation({ summary: "Restore own soft-deleted profile" })
+  async restoreOwnProfile(@Req() req) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException(
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
+      );
+    }
+    await this.userService.restoreUser(req.user.userId);
+    return { message: "User restored successfully" };
+  }
+
+  @Patch("change-password")
+  @ApiSecurity('jwt')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles(UserRole.PERSON, UserRole.COMPANY)
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ status: 401, description: 'Current password is incorrect' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async changePassword(
+    @Req() req,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException(
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
+      );
+    }
+
+    await this.userService.updatePassword(
+      req.user.userId,
+      updatePasswordDto.currentPassword,
+      updatePasswordDto.newPassword,
+    );
+
+    return { message: 'Password changed successfully' };
+  }
+
   @Patch(":id")
   @ApiSecurity('jwt')
   @Roles(UserRole.ADMIN)
@@ -75,14 +118,6 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto
   ) {
     return this.userService.updateUser(id, updateUserDto);
-  }
-
-  @Patch("change-password")
-  @ApiSecurity('jwt')
-  @Roles(UserRole.PERSON, UserRole.COMPANY)
-  @ApiOperation({ summary: "Update a user by ID" })
-  async updateOwnProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    // to-do @alexis: change password only
   }
 
   @Delete(":id")
@@ -108,20 +143,5 @@ export class UserController {
 
     await this.userService.softDeleteUser(req.user.userId);
     return { message: "User soft deleted successfully" };
-  }
-
-  @Patch('restore')
-  @ApiSecurity('jwt')
-  @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.PERSON, UserRole.COMPANY)
-  @ApiOperation({ summary: "Restore own soft-deleted profile" })
-  async restoreOwnProfile(@Req() req) {
-    if (!req.user || !req.user.userId) {
-      throw new UnauthorizedException(
-        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
-      );
-    }
-    await this.userService.restoreUser(req.user.userId);
-    return { message: "User restored successfully" };
   }
 }

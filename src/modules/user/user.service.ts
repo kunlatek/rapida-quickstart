@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -192,5 +192,21 @@ export class UserService {
       throw new NotFoundException('User not found or has been deleted');
     }
     return user;
+  }
+
+  async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    if (!user || user.deletedAt) {
+      throw new NotFoundException('User not found or has been deleted');
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
   }
 }
