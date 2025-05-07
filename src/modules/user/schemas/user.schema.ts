@@ -18,7 +18,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 // Adiciona um filtro global para excluir documentos com deletedAt definido
-UserSchema.pre(/^find/, function (next) {
-  (this as any).setQuery({ ...(this as any).getQuery(), deletedAt: null });
-  next();
-});
+// UserSchema.pre(/^find/, function (next) {
+//   (this as any).setQuery({ ...(this as any).getQuery(), deletedAt: null });
+//   next();
+// });
