@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
 import { AuthDebugMiddleware } from './common/middleware/auth-debug.middleware';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
+// import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 
 dotenv.config();
@@ -30,7 +30,7 @@ async function bootstrap() {
     next();
   });
 
-  app.useGlobalInterceptors(app.get(LoggingInterceptor));
+  // app.useGlobalInterceptors(app.get(LoggingInterceptor));
 
   const config = new DocumentBuilder()
     .setTitle('Quickstart API')
