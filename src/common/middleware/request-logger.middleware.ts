@@ -2,12 +2,13 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { CustomLogger } from '../logging/logging.service';
 import { v4 as uuidv4 } from 'uuid';
+import { DiscordLoggerService } from '../services/discord-logger.service';
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
   private readonly logger: CustomLogger;
 
-  constructor() {
+  constructor(private readonly discordLogger: DiscordLoggerService) {
     this.logger = new CustomLogger('RequestLogger');
   }
 
@@ -21,6 +22,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
 
     // Capture response data
     const originalSend = res.send;
+    const self = this; // Store reference to this
     res.send = function (body) {
       // Log response
       const responseTime = Date.now() - req['startTime'];
@@ -28,9 +30,16 @@ export class RequestLoggerMiddleware implements NestMiddleware {
       
       const logger = new CustomLogger('RequestLogger');
       if (statusCode >= 400) {
-        logger.error(
-          `Response: ${req.method} ${req.originalUrl} - Status: ${statusCode} - Time: ${responseTime}ms - RequestId: ${requestId} - Body: ${JSON.stringify(body)}`
-        );
+        const errorMessage = `Response: ${req.method} ${req.originalUrl} - Status: ${statusCode} - Time: ${responseTime}ms - RequestId: ${requestId} - Body: ${JSON.stringify(body)}`;
+        // Log to file
+        logger.error(errorMessage);
+        
+        // Send to Discord only for 404 and 500 errors
+        if (statusCode === 404 || statusCode === 500) {
+          const error = new Error(body);
+          error.name = statusCode.toString();
+          self.discordLogger.logError(error);
+        }
       } else {
         logger.log(
           `Response: ${req.method} ${req.originalUrl} - Status: ${statusCode} - Time: ${responseTime}ms - RequestId: ${requestId} - Body: ${JSON.stringify(body)}`
