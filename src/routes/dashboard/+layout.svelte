@@ -5,6 +5,11 @@
   import { toastStore } from "$stores/toast";
   import { browser } from "$app/environment";
   import { profileService } from "$services/profile";
+  import {
+    accountDeletionStore,
+    fetchDeletionStatus,
+  } from "$stores/account-deletion";
+  import Loading from "../../lib/components/common/Loading.svelte";
 
   let loading = true;
   let isCheckingProfiles = false;
@@ -16,8 +21,11 @@
       return;
     }
 
-    // Check if user has active role
-    if (!$authStore.user?.activeRole) {
+    // Check if user's account is marked for deletion
+    await fetchDeletionStatus();
+
+    // Only check for active role if account is not marked for deletion
+    if (!$accountDeletionStore.isDeleted && !$authStore.user?.activeRole) {
       toastStore.error(
         "Você precisa selecionar um papel para acessar esta página"
       );
@@ -25,8 +33,8 @@
       return;
     }
 
-    // Check for profiles
-    if (!isCheckingProfiles) {
+    // Only check for profiles if account is not marked for deletion
+    if (!$accountDeletionStore.isDeleted && !isCheckingProfiles) {
       isCheckingProfiles = true;
 
       try {
@@ -34,8 +42,12 @@
           $authStore.user.userId
         );
 
-        // If user has no profiles, redirect to profile selection
-        if (!profiles.hasPerson && !profiles.hasCompany) {
+        // Only redirect if account is not marked for deletion
+        if (
+          !$accountDeletionStore.isDeleted &&
+          !profiles.hasPerson &&
+          !profiles.hasCompany
+        ) {
           toastStore.info(
             "Você precisa criar um perfil para acessar a plataforma"
           );
@@ -48,30 +60,29 @@
         loading = false;
         isCheckingProfiles = false;
       }
+    } else {
+      loading = false;
     }
   });
 
-  // Reactive check for authentication status
+  // Reactive statement to handle authentication state changes
   $: if (browser && !$authStore.isAuthenticated) {
     goto("/auth/login");
   }
 
-  // Reactive check for active role
+  // Reactive statement to handle active role changes - only if account is not deleted
   $: if (
     browser &&
     $authStore.isAuthenticated &&
-    !$authStore.user?.activeRole
+    !$authStore.user?.activeRole &&
+    !$accountDeletionStore.isDeleted
   ) {
     goto("/profile/role-select");
   }
 </script>
 
 {#if loading}
-  <div class="flex justify-center items-center w-full h-full min-h-[300px]">
-    <div
-      class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"
-    ></div>
-  </div>
+  <Loading />
 {:else}
   <div class="w-full p-6">
     <slot />

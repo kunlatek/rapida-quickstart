@@ -15,7 +15,17 @@
   export let error = "";
   export let id = name;
 
-  // Computed classes for styling
+  // Função para lidar com a mudança de valor em campos de data
+  function handleChange(event) {
+    // Se for um campo de data e o valor estiver vazio, defina como undefined
+    if (dataType === "date" && event.target.value === "") {
+      value = undefined;
+    } else {
+      value = event.target.value;
+    }
+  }
+
+  // Classe CSS condicional baseada no erro
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
   $: inputClass = error
     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -59,6 +69,7 @@
     {maxlength}
     minlength={minLength}
     class="w-full {inputClass}"
+    on:change={handleChange}
   />
 
   {#if error}

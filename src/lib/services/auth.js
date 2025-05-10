@@ -19,11 +19,22 @@ export const authService = {
 
   async googleLogin(idToken) {
     try {
+      console.log('🔄 Iniciando login com Google');
       const response = await api.post("/auth/google/login", { idToken });
-      this.setSession(response.data.access_token);
-      return response.data;
+
+      if (response.data && response.data.access_token) {
+        console.log('✅ Token JWT recebido após autenticação com Google');
+        this.setSession(response.data.access_token);
+
+        // Carregar perfis do usuário
+        await loadProfiles();
+
+        return response.data;
+      } else {
+        throw new Error('Resposta inválida do servidor');
+      }
     } catch (error) {
-      console.error("Erro ao fazer login com Google:", error);
+      console.error('❌ Erro ao autenticar com Google:', error);
       throw error;
     }
   },
@@ -31,13 +42,19 @@ export const authService = {
   async appleLogin(idToken) {
     try {
       const response = await api.post("/auth/apple/login", { idToken });
-      this.setSession(response.data.access_token);
-      return response.data;
+
+      if (response.data && response.data.access_token) {
+        this.setSession(response.data.access_token);
+        return response.data;
+      } else {
+        throw new Error('Resposta inválida do servidor');
+      }
     } catch (error) {
       console.error("Erro ao fazer login com Apple:", error);
       throw error;
     }
   },
+
   setSession(token) {
     if (browser) {
       localStorage.setItem("token", token);

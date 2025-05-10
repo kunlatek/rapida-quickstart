@@ -6,15 +6,20 @@
   import { authStore } from "$stores/auth";
   import { profileService } from "$services/profile";
   import { goto } from "$app/navigation";
+  import {
+    accountDeletionStore,
+    fetchDeletionStatus,
+  } from "$stores/account-deletion";
 
   import "../app.css";
 
-  // Track if user has active role
+  // Modified hasActiveRole calculation to consider the deleted account status
   let hasActiveRole = false;
+  let accountIsDeleted = false;
 
-  // Check if current route should be protected by active role
+  // This function detects if route is protected
   function isProtectedRoute(path) {
-    // Routes that don't require active role
+    // List of public routes that don't require authentication
     const publicRoutes = [
       "/auth/login",
       "/auth/register",
@@ -22,17 +27,23 @@
       "/profile/role-select",
     ];
 
-    // Check if current path is in public routes
+    // Route is protected if it's not in the public routes list
     return !publicRoutes.some((route) => path.startsWith(route));
   }
 
   onMount(async () => {
     const currentPath = window.location.pathname;
 
-    // Update hasActiveRole based on authStore
+    // Check if account is marked for deletion
+    if ($authStore.isAuthenticated) {
+      await fetchDeletionStatus();
+      accountIsDeleted = $accountDeletionStore.isDeleted;
+    }
+
+    // Verify active role
     hasActiveRole = !!$authStore.user?.activeRole;
 
-    // If authenticated but with no active role and trying to access protected route
+    // Redirect to role selection if authenticated but no active role
     if (
       $authStore.isAuthenticated &&
       !hasActiveRole &&
@@ -43,7 +54,18 @@
       return;
     }
 
-    // Original profile checking logic
+    // If account is deleted and user is not on dashboard, redirect to dashboard
+    if (
+      $authStore.isAuthenticated &&
+      $accountDeletionStore.isDeleted &&
+      currentPath !== "/dashboard"
+    ) {
+      console.log("Account is marked for deletion, redirecting to dashboard");
+      goto("/dashboard");
+      return;
+    }
+
+    // Check for profiles
     if (
       $authStore.isAuthenticated &&
       !currentPath.includes("/profile/") &&
@@ -65,13 +87,16 @@
     }
   });
 
-  // Reactive statement to update hasActiveRole when auth store changes
+  // Update reactively when auth store or deletion status changes
   $: hasActiveRole = !!$authStore.user?.activeRole;
+  $: accountIsDeleted = $accountDeletionStore.isDeleted;
 </script>
 
-<!-- Fixed the conditional rendering to prevent DOM hierarchy errors -->
+<!-- Show menu only if user has an active role AND account is not deleted -->
 <Navbar
-  showMenu={$authStore.isAuthenticated ? !!$authStore.user?.activeRole : true}
+  showMenu={$authStore.isAuthenticated
+    ? !!$authStore.user?.activeRole && !$accountDeletionStore.isDeleted
+    : true}
 />
 
 <div class="flex flex-col min-h-screen">

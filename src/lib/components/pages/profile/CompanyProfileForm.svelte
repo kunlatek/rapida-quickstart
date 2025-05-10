@@ -15,7 +15,7 @@
     companyName: "",
     businessName: "",
     cnpj: "",
-    birthday: "",
+    birthday: undefined,
     legalNature: "",
     companyDescription: "",
     logoImage: null,

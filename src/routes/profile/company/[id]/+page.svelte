@@ -4,9 +4,9 @@
   import { authStore } from '$stores/auth';
   import { toastStore } from '$stores/toast';
   import { profileService } from '$services/profile';
-  import { Card, Heading, Spinner } from 'flowbite-svelte';
-  import CompanyProfileForm from '$components/profile/CompanyProfileForm.svelte';
+  import CompanyProfileForm from '$components/pages/profile/CompanyProfileForm.svelte';
   import { onMount } from 'svelte';
+    import Loading from '../../../../lib/components/common/Loading.svelte';
 
   const profileId = $page.params.id;
   let profile = null;
@@ -78,10 +78,7 @@
 
 <div class="max-w-screen-2xl mx-auto pb-20">    
     {#if loadingProfile}
-      <div class="flex justify-center items-center py-12">
-        <Spinner size="xl" />
-        <span class="ml-2">Carregando perfil...</span>
-      </div>
+      <Loading />
     {:else if profile}
       <div class="text-gray-500 dark:text-gray-400 mb-6 px-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">

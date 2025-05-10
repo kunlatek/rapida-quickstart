@@ -4,30 +4,44 @@
   import { toastStore } from "$stores/toast";
   import { authStore } from "$stores/auth";
   import { profileService } from "$services/profile";
-  import { Button, Card, Input, Label, Checkbox, Alert } from "flowbite-svelte";
-  import AuthLayout from "$components/layout/AuthLayout.svelte";
+  import {
+    Button,
+    Card,
+    Input,
+    Label,
+    Checkbox,
+    Alert,
+    Spinner,
+  } from "flowbite-svelte";
+  import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { onMount } from "svelte";
+  import GoogleLoginButton from "$lib/components/pages/auth/GoogleLoginButton.svelte";
+  import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
 
+  // Form data and state
   let email = "";
   let password = "";
   let rememberMe = false;
   let loading = false;
+  let googleLoading = false;
+  let appleLoading = false;
   let errorMessage = "";
 
+  // Handle redirects if already logged in
   async function checkAndRedirect() {
     if ($authStore.isAuthenticated) {
       try {
-        // First check if the user already has an active role or needs to select one
+        // Check if the user needs to select a role
         const roleStatus = await authService.checkAndSetActiveRole();
 
-        // If the user needs to select a role from multiple available ones
+        // Redirect based on role status
         if (roleStatus.needsSelection) {
           console.log("Redirecionando para seleção de papel");
           goto("/profile/role-select");
           return;
         }
 
-        // Check if user has any profiles
+        // Check if the user has any profiles
         const profiles = await profileService.checkUserProfiles(
           $authStore.user.userId
         );
@@ -43,19 +57,19 @@
         }
       } catch (error) {
         console.error("Erro ao verificar perfis:", error);
-
         goto("/dashboard");
       }
     }
   }
 
-  // Check authentication status on mount
+  // Check if already logged in on mount
   onMount(() => {
     if ($authStore.isAuthenticated) {
       checkAndRedirect();
     }
   });
 
+  // Handle login form submission
   async function handleLogin() {
     if (!email || !password) {
       errorMessage = "Por favor, preencha todos os campos";
@@ -79,18 +93,6 @@
       loading = false;
     }
   }
-
-  async function handleGoogleLogin() {
-    // This would be implemented with the Google API
-
-    alert("Esta funcionalidade seria implementada com a API do Google");
-  }
-
-  async function handleAppleLogin() {
-    // This would be implemented with the Apple API
-
-    alert("Esta funcionalidade seria implementada com a API da Apple");
-  }
 </script>
 
 <svelte:head>
@@ -98,10 +100,10 @@
 </svelte:head>
 
 <AuthLayout>
-  <Card class="w-full max-w-md">
+  <Card class="w-full max-w-md mx-auto">
     <div class="flex flex-col items-center">
       <img src="/images/logo.svg" alt="Logo" class="h-16 mb-6" />
-      <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
         Entrar na sua conta
       </h2>
 
@@ -118,45 +120,56 @@
             placeholder="nome@empresa.com"
             bind:value={email}
             required
+            disabled={loading}
           />
         </div>
 
         <div>
-          <Label for="password" class="mb-2">Senha</Label>
+          <div class="flex items-center justify-between mb-2">
+            <Label for="password">Senha</Label>
+            <a
+              href="/auth/forgot-password"
+              class="text-sm text-blue-600 hover:underline dark:text-blue-500"
+            >
+              Esqueceu sua senha?
+            </a>
+          </div>
           <Input
             type="password"
             id="password"
             placeholder="••••••••"
             bind:value={password}
             required
+            disabled={loading}
           />
         </div>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <Checkbox id="remember" bind:checked={rememberMe} />
-            <Label for="remember" class="ml-2">Lembrar de mim</Label>
-          </div>
-          <a
-            href="/auth/forgot-password"
-            class="text-sm text-primary-600 hover:underline dark:text-primary-500"
-          >
-            Esqueceu sua senha?
-          </a>
+        <div class="flex items-center">
+          <Checkbox id="remember" bind:checked={rememberMe} />
+          <Label for="remember" class="ml-2">Lembrar de mim</Label>
         </div>
 
         <Button type="submit" class="w-full" color="blue" disabled={loading}>
-          {loading ? "Aguarde..." : "Entrar"}
+          {#if loading}
+            <div class="flex items-center justify-center">
+              <Spinner class="mr-3" size="sm" />
+              Entrando...
+            </div>
+          {:else}
+            Entrar
+          {/if}
         </Button>
 
         <div
           class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"
         >
-          Não tem uma conta? <a
+          Não tem uma conta?
+          <a
             href="/auth/register"
-            class="text-primary-600 hover:underline dark:text-primary-500"
-            >Criar conta</a
+            class="text-blue-600 hover:underline dark:text-blue-500"
           >
+            Criar conta
+          </a>
         </div>
       </form>
 
@@ -165,29 +178,14 @@
           <hr class="w-full border-gray-300 dark:border-gray-600" />
           <span
             class="absolute px-3 text-xs text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400"
-            >ou continue com</span
           >
+            ou continue com
+          </span>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <Button color="alternative" on:click={handleGoogleLogin}>
-            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
-              />
-            </svg>
-            Google
-          </Button>
-          <Button color="alternative" on:click={handleAppleLogin}>
-            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.09,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"
-              />
-            </svg>
-            Apple
-          </Button>
+          <GoogleLoginButton bind:loading={googleLoading} />
+          <AppleLoginButton bind:loading={appleLoading} />
         </div>
       </div>
     </div>

@@ -107,4 +107,32 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+api.interceptors.request.use(
+  (config) => {
+    if (browser) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        console.log("🔑 Token encontrado no localStorage:", token.substring(0, 20) + "...");
+        console.log("📨 Enviando requisição para:", config.url, "com método:", config.method);
+        config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        console.warn("⚠️ Nenhum token encontrado no localStorage!");
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => {
+    console.log("✅ Resposta recebida com status:", response.status);
+    return response;
+  },
+  (error) => {
+    console.error("❌ Erro na requisição:", error.response?.status, error.response?.data);
+    return Promise.reject(error);
+  }
+);
+
 export default api;

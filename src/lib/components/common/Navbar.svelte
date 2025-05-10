@@ -21,8 +21,9 @@
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
   import { sineIn } from "svelte/easing";
+  import { accountDeletionStore } from "$stores/account-deletion";
 
-  // New prop to control menu visibility
+  // Added showMenu prop declaration
   export let showMenu = true;
 
   let drawerHidden = true;
@@ -90,7 +91,7 @@
 
   <div class="flex items-center md:order-2">
     {#if $authStore.isAuthenticated}
-      {#if showMenu}
+      {#if showMenu && !$accountDeletionStore.isDeleted}
         <div class="flex items-center space-x-3">
           <!-- Menu button - using inline SVG instead of imported icon -->
           <Button color="light" size="sm" on:click={openDrawer} class="mr-2">
@@ -172,7 +173,7 @@
           </Dropdown>
         </div>
       {:else}
-        <!-- When no active role, only show logout button -->
+        <!-- When no active role or account is deleted, only show logout button -->
         <Button color="light" size="sm" on:click={confirmLogout}>
           <svg
             class="w-5 h-5 mr-2"
@@ -272,7 +273,7 @@
               </svelte:fragment>
             </SidebarItem>
 
-            {#if $authStore.user?.activeRole === "person"}
+            {#if !$accountDeletionStore.isDeleted && $authStore.user?.activeRole === "person"}
               <SidebarItem
                 href={"/profile/person/" + $profileStore?.person?._id}
                 on:click={closeDrawer}
@@ -296,7 +297,7 @@
               </SidebarItem>
             {/if}
 
-            {#if $authStore.user?.activeRole === "company"}
+            {#if !$accountDeletionStore.isDeleted && $authStore.user?.activeRole === "company"}
               <SidebarItem
                 href={"/profile/company/" + $profileStore?.company?._id}
                 on:click={closeDrawer}
@@ -320,7 +321,7 @@
               </SidebarItem>
             {/if}
 
-            {#if $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 1}
+            {#if !$accountDeletionStore.isDeleted && $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 1}
               <hr class="my-2" />
               <div class="px-4 py-2">
                 <span
@@ -386,6 +387,29 @@
               </svelte:fragment>
             </SidebarItem>
           {/if}
+          {#if !$accountDeletionStore.isDeleted}
+            <SidebarItem
+              href="/settings"
+              on:click={closeDrawer}
+              label="Configurações"
+              class="break-words"
+            >
+              <svelte:fragment slot="icon">
+                <svg
+                  class="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </svelte:fragment>
+            </SidebarItem>
+          {/if}
         </SidebarGroup>
       </Sidebar>
     </div>
@@ -393,7 +417,12 @@
 {/if}
 
 <!-- Logout confirmation modal -->
-<Modal title="Confirmação de Logout" bind:open={showLogoutConfirm} autoclose>
+<Modal
+  title="Confirmação de Logout"
+  bind:open={showLogoutConfirm}
+  size="sm"
+  autoclose
+>
   <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
     Tem certeza que deseja sair da plataforma?
   </p>

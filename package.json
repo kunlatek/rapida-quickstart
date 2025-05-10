@@ -8,6 +8,7 @@
 	},
 	"devDependencies": {
 		"@rollup/wasm-node": "^4.25.0",
+		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/kit": "^2.20.0",
 		"esbuild-wasm": "^0.21.5",
 		"svelte": "^5.0.0",
@@ -16,7 +17,6 @@
 	"type": "module",
 	"dependencies": {
 		"@floating-ui/dom": "^1.6.13",
-		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
 		"axios": "^1.9.0",
 		"esbuild": "^0.25.3",

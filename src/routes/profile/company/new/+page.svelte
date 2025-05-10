@@ -4,9 +4,9 @@
   import { toastStore } from "$stores/toast";
   import { authService } from "$services/auth";
   import { profileService } from "$services/profile";
-  import { Spinner } from "flowbite-svelte";
-  import CompanyProfileForm from "$components/profile/CompanyProfileForm.svelte";
+  import CompanyProfileForm from "$components/pages/profile/CompanyProfileForm.svelte";
   import { onMount } from "svelte";
+    import Loading from "../../../../lib/components/common/Loading.svelte";
 
   let loading = false;
   let errors = {};
@@ -122,8 +122,7 @@
 
 {#if checkingProfile}
   <div class="flex justify-center items-center py-12">
-    <Spinner size="xl" />
-    <span class="ml-3">Verificando seu perfil...</span>
+    <Loading />
   </div>
 {:else}
 <div class="max-w-4xl mx-auto pb-20">
