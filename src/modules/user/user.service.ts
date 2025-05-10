@@ -194,6 +194,14 @@ export class UserService {
     return user;
   }
 
+  async findMe(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
   async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
     const user = await this.userModel.findById(userId);
     if (!user || user.deletedAt) {

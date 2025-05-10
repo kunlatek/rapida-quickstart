@@ -13,21 +13,27 @@ import {
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiSecurity } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiSecurity,
+} from "@nestjs/swagger";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { UserRole } from "src/enums/user-role.enum";
 import { ErrorService } from "src/common/services/error.service";
 import { ErrorCode } from "src/common/constants/error-code.enum";
 import { AuthGuard } from "@nestjs/passport";
-import { UpdatePasswordDto } from './dto/update-password.dto';
+import { UpdatePasswordDto } from "./dto/update-password.dto";
 
 @ApiTags("users")
 @Controller("users")
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly errorService: ErrorService,
-  ) { }
+    private readonly errorService: ErrorService
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new user" })
@@ -52,30 +58,45 @@ export class UserController {
   }
 
   @Get()
-  @ApiSecurity('jwt')
+  @ApiSecurity("jwt")
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: "Get all users" })
   async findAll() {
     return this.userService.findAll();
   }
 
+  @Get("me")
+  @ApiSecurity("jwt")
+  @UseGuards(AuthGuard("jwt"))
+  @Roles(UserRole.ADMIN, UserRole.PERSON, UserRole.COMPANY)
+  @ApiOperation({ summary: "Get my user" })
+  async findMe(@Req() req) {
+    const userId = req.user?.sub ?? req.user?.userId; // Corrigido: pega ID do JWT
+    if (!userId) {
+      throw new UnauthorizedException(
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED)
+      );
+    }
+    return this.userService.findMe(userId);
+  }
+
   @Get(":id")
-  @ApiSecurity('jwt')
+  @ApiSecurity("jwt")
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: "Get a user by ID" })
   async findOne(@Param("id") id: string) {
     return this.userService.findOne(id);
   }
 
-  @Patch('restore')
-  @ApiSecurity('jwt')
-  @UseGuards(AuthGuard('jwt'))
+  @Patch("restore")
+  @ApiSecurity("jwt")
+  @UseGuards(AuthGuard("jwt"))
   @Roles(UserRole.PERSON, UserRole.COMPANY)
   @ApiOperation({ summary: "Restore own soft-deleted profile" })
   async restoreOwnProfile(@Req() req) {
     if (!req.user || !req.user.userId) {
       throw new UnauthorizedException(
-        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED)
       );
     }
     await this.userService.restoreUser(req.user.userId);
@@ -83,34 +104,34 @@ export class UserController {
   }
 
   @Patch("change-password")
-  @ApiSecurity('jwt')
-  @UseGuards(AuthGuard('jwt'))
+  @ApiSecurity("jwt")
+  @UseGuards(AuthGuard("jwt"))
   @Roles(UserRole.PERSON, UserRole.COMPANY)
-  @ApiOperation({ summary: 'Change user password' })
-  @ApiResponse({ status: 200, description: 'Password changed successfully' })
-  @ApiResponse({ status: 401, description: 'Current password is incorrect' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOperation({ summary: "Change user password" })
+  @ApiResponse({ status: 200, description: "Password changed successfully" })
+  @ApiResponse({ status: 401, description: "Current password is incorrect" })
+  @ApiResponse({ status: 404, description: "User not found" })
   async changePassword(
     @Req() req,
-    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Body() updatePasswordDto: UpdatePasswordDto
   ) {
     if (!req.user || !req.user.userId) {
       throw new UnauthorizedException(
-        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED)
       );
     }
 
     await this.userService.updatePassword(
       req.user.userId,
       updatePasswordDto.currentPassword,
-      updatePasswordDto.newPassword,
+      updatePasswordDto.newPassword
     );
 
-    return { message: 'Password changed successfully' };
+    return { message: "Password changed successfully" };
   }
 
   @Patch(":id")
-  @ApiSecurity('jwt')
+  @ApiSecurity("jwt")
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: "Update a user by ID" })
   async updateUser(
@@ -121,7 +142,7 @@ export class UserController {
   }
 
   @Delete(":id")
-  @ApiSecurity('jwt')
+  @ApiSecurity("jwt")
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: "Soft delete a user by ID" })
   async softDeleteUser(@Param("id") id: string) {
@@ -130,14 +151,14 @@ export class UserController {
   }
 
   @Delete()
-  @ApiSecurity('jwt')
-  @UseGuards(AuthGuard('jwt'))
+  @ApiSecurity("jwt")
+  @UseGuards(AuthGuard("jwt"))
   @Roles(UserRole.PERSON, UserRole.COMPANY)
   @ApiOperation({ summary: "Soft delete own profile" })
   async softDeleteOwnProfile(@Req() req) {
     if (!req.user || !req.user.userId) {
       throw new UnauthorizedException(
-        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED),
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED)
       );
     }
 
