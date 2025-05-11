@@ -6,7 +6,7 @@
   import { profileService } from '$services/profile';
   import CompanyProfileForm from '$components/pages/profile/CompanyProfileForm.svelte';
   import { onMount } from 'svelte';
-    import Loading from '../../../../lib/components/common/Loading.svelte';
+  import KuLoading from '../../../../lib/components/common/KuLoading.svelte';
 
   const profileId = $page.params.id;
   let profile = null;
@@ -78,7 +78,7 @@
 
 <div class="max-w-screen-2xl mx-auto pb-20">    
     {#if loadingProfile}
-      <Loading />
+      <KuLoading />
     {:else if profile}
       <div class="text-gray-500 dark:text-gray-400 mb-6 px-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">

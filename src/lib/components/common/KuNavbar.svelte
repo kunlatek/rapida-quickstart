@@ -5,7 +5,6 @@
     Dropdown,
     DropdownItem,
     Button,
-    Modal,
     Drawer,
     CloseButton,
     Sidebar,
@@ -22,6 +21,7 @@
   import { browser } from "$app/environment";
   import { sineIn } from "svelte/easing";
   import { accountDeletionStore } from "$stores/account-deletion";
+  import KuModal from "./KuModal.svelte";
 
   // Added showMenu prop declaration
   export let showMenu = true;
@@ -43,21 +43,23 @@
     drawerHidden = true;
   }
 
+  let showLogoutModal = false;
+
   function confirmLogout() {
-    showLogoutConfirm = true;
+    showLogoutModal = true;
   }
 
   function handleLogout() {
     if (browser) {
       authService.logout();
-      showLogoutConfirm = false;
+      showLogoutModal = false;
       toastStore.success("Você saiu da plataforma com sucesso!");
       goto("/auth/login");
     }
   }
 
   function cancelLogout() {
-    showLogoutConfirm = false;
+    showLogoutModal = false;
   }
 
   async function switchRole(role) {
@@ -145,6 +147,7 @@
 
               <DropdownItem
                 on:click={confirmLogout}
+                data-testid="logout-button"
                 class="md:hidden text-red-600 dark:text-red-500"
               >
                 <div class="flex items-center">
@@ -174,7 +177,12 @@
         </div>
       {:else}
         <!-- When no active role or account is deleted, only show logout button -->
-        <Button color="light" size="sm" on:click={confirmLogout}>
+        <Button
+          color="light"
+          size="sm"
+          on:click={confirmLogout}
+          data-testid="logout-button"
+        >
           <svg
             class="w-5 h-5 mr-2"
             fill="currentColor"
@@ -417,17 +425,14 @@
 {/if}
 
 <!-- Logout confirmation modal -->
-<Modal
+<KuModal
+  bind:open={showLogoutModal}
   title="Confirmação de Logout"
-  bind:open={showLogoutConfirm}
-  size="sm"
-  autoclose
+  testId="logout-modal"
+  on:confirm={handleLogout}
+  on:cancel={cancelLogout}
 >
-  <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-    Tem certeza que deseja sair da plataforma?
-  </p>
-  <svelte:fragment slot="footer">
-    <Button color="alternative" on:click={cancelLogout}>Cancelar</Button>
-    <Button color="red" on:click={handleLogout}>Confirmar</Button>
-  </svelte:fragment>
-</Modal>
+  <p slot="message">Tem certeza que deseja sair da plataforma?</p>
+  <span slot="cancel-text">Cancelar</span>
+  <span slot="confirm-text">Confirmar</span>
+</KuModal>

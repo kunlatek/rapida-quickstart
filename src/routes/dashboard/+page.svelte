@@ -5,7 +5,7 @@
   import { Heading } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import { toastStore } from "$stores/toast";
-  import { Loading } from "$lib/components/common";
+  import { KuLoading } from "$lib/components/common";
   import AccountRestorationNotice from "$lib/components/pages/dashboard/AccountRestorationNotice.svelte";
   import { fetchDeletionStatus } from "$stores/account-deletion";
 
@@ -53,7 +53,7 @@
   </div>
 
   {#if loading}
-    <Loading size="lg" text="Carregando dashboard..." />
+    <KuLoading size="lg" text="Carregando dashboard..." />
   {:else}
     <!-- Dashboard content -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

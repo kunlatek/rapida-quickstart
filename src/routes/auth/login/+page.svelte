@@ -7,7 +7,7 @@
   import { Card, Alert, Spinner, Checkbox, Label } from "flowbite-svelte";
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { onMount } from "svelte";
-  import { FormInput, FormButton } from "$lib/components/form";
+  import { KuInput, KuButton } from "$lib/components/form";
   import GoogleLoginButton from "../../../lib/components/pages/auth/GoogleLoginButton.svelte";
   import AppleLoginButton from "../../../lib/components/pages/auth/AppleLoginButton.svelte";
 
@@ -105,7 +105,7 @@
       {/if}
 
       <form on:submit|preventDefault={handleLogin} class="w-full space-y-4">
-        <FormInput
+        <KuInput
           name="email"
           dataType="email"
           label="Email"
@@ -116,7 +116,7 @@
         />
 
         <div>
-          <FormInput
+          <KuInput
             name="password"
             dataType="password"
             label="Senha"
@@ -140,7 +140,7 @@
           <Label for="remember" class="ml-2">Lembrar de mim</Label>
         </div>
 
-        <FormButton
+        <KuButton
           actionType="submit"
           label={loading ? "Entrando..." : "Entrar"}
           isDisabled={loading}
@@ -151,7 +151,7 @@
               <Spinner class="mr-3" size="sm" />
             </div>
           {/if}
-        </FormButton>
+        </KuButton>
 
         <div
           class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"

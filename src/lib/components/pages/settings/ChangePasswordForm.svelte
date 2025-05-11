@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { Button, Alert } from "flowbite-svelte";
-  import { FormInput } from "$lib/components/form";
+  import { KuInput } from "$lib/components/form";
   import { userService } from "$services/user";
   import { toastStore } from "$stores/toast";
 
@@ -84,7 +84,7 @@
   {/if}
 
   <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-    <FormInput
+    <KuInput
       name="currentPassword"
       dataType="password"
       label="Senha Atual"
@@ -93,7 +93,7 @@
       isRequired={true}
     />
 
-    <FormInput
+    <KuInput
       name="newPassword"
       dataType="password"
       label="Nova Senha"
@@ -102,7 +102,7 @@
       isRequired={true}
     />
 
-    <FormInput
+    <KuInput
       name="confirmPassword"
       dataType="password"
       label="Confirmar Nova Senha"

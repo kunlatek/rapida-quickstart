@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import Toast from "$lib/components/common/Toast.svelte";
-  import Navbar from "$lib/components/common/Navbar.svelte";
-  import Footer from "$lib/components/common/Footer.svelte";
+  import KuToast from "$lib/components/common/KuToast.svelte";
+  import KuNavbar from "$lib/components/common/KuNavbar.svelte";
+  import KuFooter from "$lib/components/common/KuFooter.svelte";
   import { authStore } from "$stores/auth";
   import { profileService } from "$services/profile";
   import { goto } from "$app/navigation";
@@ -98,7 +98,7 @@
 
 <ThemeProvider>
   <!-- Show menu only if user has an active role AND account is not deleted -->
-  <Navbar
+  <KuNavbar
     showMenu={$authStore.isAuthenticated
       ? !!$authStore.user?.activeRole && !$accountDeletionStore.isDeleted
       : true}
@@ -110,6 +110,6 @@
     </div>
   </div>
 
-  <Footer />
-  <Toast />
+  <KuFooter />
+  <KuToast />
 </ThemeProvider>

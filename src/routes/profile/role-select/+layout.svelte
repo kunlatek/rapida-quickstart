@@ -1,5 +1,5 @@
 <script>
-  import Toast from "$lib/components/common/Toast.svelte";
+  import KuToast from "$lib/components/common/KuToast.svelte";
   import { authStore } from "$stores/auth";
   import { browser } from "$app/environment";
   import { onMount } from "svelte";
@@ -26,4 +26,4 @@
   </div>
 </div>
 
-<Toast />
+<KuToast />

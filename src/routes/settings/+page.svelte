@@ -9,7 +9,7 @@
     fetchDeletionStatus,
   } from "$stores/account-deletion";
   import { Button, Card, Heading, Modal } from "flowbite-svelte";
-  import { Loading } from "$components/common";
+  import { KuLoading } from "$components/common";
   import ChangePasswordForm from "$lib/components/pages/settings/ChangePasswordForm.svelte";
   import DeleteAccountConfirm from "$lib/components/pages/settings/DeleteAccountConfirm.svelte";
   import AccountRestorationNotice from "../../lib/components/pages/dashboard/AccountRestorationNotice.svelte";
@@ -78,7 +78,7 @@
 
   {#if loading}
     <div class="py-12">
-      <Loading size="lg" text="Carregando configurações..." />
+      <KuLoading size="lg" text="Carregando configurações..." />
     </div>
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

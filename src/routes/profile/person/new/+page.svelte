@@ -6,7 +6,7 @@
   import { profileService } from "$services/profile";
   import PersonProfileForm from "$components/pages/profile/PersonProfileForm.svelte";
   import { onMount } from "svelte";
-    import Loading from "../../../../lib/components/common/Loading.svelte";
+  import KuLoading from "../../../../lib/components/common/KuLoading.svelte";
 
   let loading = false;
   let errors = {};
@@ -121,7 +121,7 @@
 
 {#if checkingProfile}
   <div class="flex justify-center items-center py-12">
-    <Loading />
+    <KuLoading />
   </div>
 {:else}
   <div class="max-w-4xl mx-auto pb-20">

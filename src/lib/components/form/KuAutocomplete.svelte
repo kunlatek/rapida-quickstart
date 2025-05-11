@@ -2,7 +2,7 @@
   import { Label, Helper } from "flowbite-svelte";
   import { writable } from "svelte/store";
   import { onMount } from "svelte";
-  import Loading from "../common/Loading.svelte";
+  import Loading from "../common/KuLoading.svelte";
   import { getComponentClasses } from "../../styles/theme";
 
   export let name = "";
@@ -189,7 +189,7 @@
 
     <!-- Indicador de carregamento -->
     {#if loading}
-      <Loading />
+      <KuLoading />
     {/if}
 
     <!-- Lista de opções -->

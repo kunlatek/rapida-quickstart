@@ -9,7 +9,7 @@
     accountDeletionStore,
     fetchDeletionStatus,
   } from "$stores/account-deletion";
-  import Loading from "../../lib/components/common/Loading.svelte";
+  import KuLoading from "../../lib/components/common/KuLoading.svelte";
 
   let loading = true;
   let isCheckingProfiles = false;
@@ -82,7 +82,7 @@
 </script>
 
 {#if loading}
-  <Loading />
+  <KuLoading />
 {:else}
   <div class="w-full p-6">
     <slot />

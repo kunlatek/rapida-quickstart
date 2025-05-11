@@ -2,12 +2,12 @@
   import { createEventDispatcher } from "svelte";
   import { Label, Button, Alert, Tabs, TabItem } from "flowbite-svelte";
   import {
-    FormInput,
-    FormSelect,
-    FormFile,
-    FormFieldset,
-    FormTab,
-    FormButton,
+    KuInput,
+    KuSelect,
+    KuFile,
+    KuFieldset,
+    KuTab,
+    KuButton,
   } from "$lib/components/form";
   import { STATES } from "/constants/states";
 
@@ -190,7 +190,7 @@
     <Alert color="green" class="mb-4">{success}</Alert>
   {/if}
 
-  <FormTab
+  <KuTab
     id="person-tabs" 
     {tabs} 
     bind:activeTabId
@@ -198,7 +198,7 @@
   >
     {#if activeTabId === "main"}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormInput
+        <KuInput
           name="companyName"
           label="Razão Social"
           placeholder="Razão Social"
@@ -207,7 +207,7 @@
           error={errors.companyName}
         />
 
-        <FormInput
+        <KuInput
           name="businessName"
           label="Nome Fantasia"
           placeholder="Nome Fantasia"
@@ -216,7 +216,7 @@
           error={errors.businessName}
         />
 
-        <FormInput
+        <KuInput
           name="cnpj"
           label="CNPJ"
           placeholder="00.000.000/0000-00"
@@ -224,7 +224,7 @@
           error={errors.cnpj}
         />
 
-        <FormInput
+        <KuInput
           name="birthday"
           dataType="date"
           label="Data de Fundação"
@@ -232,7 +232,7 @@
           error={errors.birthday}
         />
 
-        <FormInput
+        <KuInput
           name="legalNature"
           label="Natureza Jurídica"
           placeholder="Ex: LTDA, ME, EIRELI..."
@@ -260,7 +260,7 @@
       </div>
 
       <div class="mt-6">
-        <FormFile
+        <KuFile
           name="logoImage"
           label="Logo da Empresa"
           bind:value={profile.logoImage}
@@ -291,7 +291,7 @@
         {/if}
       </div>
     {:else if activeTabId === "contacts"}
-      <FormFieldset title="Contatos">
+      <KuFieldset title="Contatos">
         <!-- Lista de contatos adicionados -->
         {#if profile.contacts.length > 0}
           <div
@@ -352,21 +352,21 @@
             Adicionar Contato
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormSelect
+            <KuSelect
               name="contactType"
               label="Tipo"
               options={contactTypeOptions}
               bind:value={newContact.contactType}
             />
 
-            <FormInput
+            <KuInput
               name="contactValue"
               label="Valor"
               placeholder="(99) 99999-9999, email@exemplo.com, etc."
               bind:value={newContact.contactValue}
             />
 
-            <FormInput
+            <KuInput
               name="contactComplement"
               label="Complemento"
               placeholder="Comercial, Financeiro, etc."
@@ -377,11 +377,11 @@
             Adicionar Contato
           </Button>
         </div>
-      </FormFieldset>
+      </KuFieldset>
     {:else if activeTabId === "addresses"}
-      <FormFieldset title="Endereço Principal">
+      <KuFieldset title="Endereço Principal">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormInput
+          <KuInput
             name="addressOneCepBrasilApi"
             label="CEP"
             placeholder="00000-000"
@@ -389,7 +389,7 @@
             error={errors.addressOneCepBrasilApi}
           />
 
-          <FormSelect
+          <KuSelect
             name="addressOneType"
             label="Tipo de Endereço"
             options={addressTypeOptions}
@@ -397,7 +397,7 @@
             error={errors.addressOneType}
           />
 
-          <FormInput
+          <KuInput
             name="addressOneStreet"
             label="Logradouro"
             placeholder="Rua, Avenida, etc."
@@ -405,7 +405,7 @@
             error={errors.addressOneStreet}
           />
 
-          <FormInput
+          <KuInput
             name="addressOneNumber"
             label="Número"
             placeholder="123"
@@ -413,7 +413,7 @@
             error={errors.addressOneNumber}
           />
 
-          <FormInput
+          <KuInput
             name="addressOneComplement"
             label="Complemento"
             placeholder="Sala, Andar, etc."
@@ -421,7 +421,7 @@
             error={errors.addressOneComplement}
           />
 
-          <FormInput
+          <KuInput
             name="addressOneCity"
             label="Cidade"
             placeholder="Cidade"
@@ -429,7 +429,7 @@
             error={errors.addressOneCity}
           />
 
-          <FormSelect
+          <KuSelect
             name="addressOneState"
             label="Estado"
             options={stateOptions}
@@ -437,11 +437,11 @@
             error={errors.addressOneState}
           />
         </div>
-      </FormFieldset>
+      </KuFieldset>
 
-      <FormFieldset title="Endereço Secundário">
+      <KuFieldset title="Endereço Secundário">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormInput
+          <KuInput
             name="addressTwoCepBrasilApi"
             label="CEP"
             placeholder="00000-000"
@@ -449,7 +449,7 @@
             error={errors.addressTwoCepBrasilApi}
           />
 
-          <FormSelect
+          <KuSelect
             name="addressTwoType"
             label="Tipo de Endereço"
             options={addressTypeOptions}
@@ -457,7 +457,7 @@
             error={errors.addressTwoType}
           />
 
-          <FormInput
+          <KuInput
             name="addressTwoStreet"
             label="Logradouro"
             placeholder="Rua, Avenida, etc."
@@ -465,7 +465,7 @@
             error={errors.addressTwoStreet}
           />
 
-          <FormInput
+          <KuInput
             name="addressTwoNumber"
             label="Número"
             placeholder="123"
@@ -473,7 +473,7 @@
             error={errors.addressTwoNumber}
           />
 
-          <FormInput
+          <KuInput
             name="addressTwoComplement"
             label="Complemento"
             placeholder="Sala, Andar, etc."
@@ -481,7 +481,7 @@
             error={errors.addressTwoComplement}
           />
 
-          <FormInput
+          <KuInput
             name="addressTwoCity"
             label="Cidade"
             placeholder="Cidade"
@@ -489,7 +489,7 @@
             error={errors.addressTwoCity}
           />
 
-          <FormSelect
+          <KuSelect
             name="addressTwoState"
             label="Estado"
             options={stateOptions}
@@ -497,9 +497,9 @@
             error={errors.addressTwoState}
           />
         </div>
-      </FormFieldset>
+      </KuFieldset>
     {:else if activeTabId === "files"}
-      <FormFieldset title="Arquivos Relacionados">
+      <KuFieldset title="Arquivos Relacionados">
         <!-- Lista de arquivos adicionados -->
         {#if profile.relatedFiles.length > 0}
           <div
@@ -558,14 +558,14 @@
             Adicionar Arquivo
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput
+            <KuInput
               name="filesDescription"
               label="Descrição"
               placeholder="Ex: Contrato Social, Alvará de Funcionamento"
               bind:value={newFile.filesDescription}
             />
 
-            <FormFile
+            <KuFile
               name="relatedFilesFiles"
               label="Arquivo"
               bind:value={newFile.relatedFilesFiles}
@@ -574,19 +574,19 @@
             <div>
               <Label class="mb-2">Data do Documento</Label>
               <div class="grid grid-cols-3 gap-2">
-                <FormInput
+                <KuInput
                   name="relatedFilesDateDay"
                   dataType="number"
                   placeholder="Dia"
                   bind:value={newFile.relatedFilesDateDay}
                 />
-                <FormInput
+                <KuInput
                   name="relatedFilesDateMonth"
                   dataType="number"
                   placeholder="Mês"
                   bind:value={newFile.relatedFilesDateMonth}
                 />
-                <FormInput
+                <KuInput
                   name="relatedFilesDateYear"
                   dataType="number"
                   placeholder="Ano"
@@ -604,11 +604,11 @@
             Adicionar Arquivo
           </Button>
         </div>
-      </FormFieldset>
+      </KuFieldset>
     {:else if activeTabId === "banking"}
-      <FormFieldset title="Dados Bancários Principais">
+      <KuFieldset title="Dados Bancários Principais">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormInput
+          <KuInput
             name="bankDataOneName"
             label="Banco"
             placeholder="Nome ou Código do Banco"
@@ -616,7 +616,7 @@
             error={errors.bankDataOne?.bankName}
           />
 
-          <FormInput
+          <KuInput
             name="bankDataOneBranch"
             label="Agência"
             placeholder="0000"
@@ -624,7 +624,7 @@
             error={errors.bankDataOne?.bankBranch}
           />
 
-          <FormInput
+          <KuInput
             name="bankDataOneAccount"
             label="Conta"
             placeholder="00000-0"
@@ -632,7 +632,7 @@
             error={errors.bankDataOne?.bankAccount}
           />
 
-          <FormSelect
+          <KuSelect
             name="bankDataOneAccountType"
             label="Tipo de Conta"
             options={accountTypeOptions}
@@ -640,11 +640,11 @@
             error={errors.bankDataOne?.bankAccountType}
           />
         </div>
-      </FormFieldset>
+      </KuFieldset>
 
-      <FormFieldset title="Dados Bancários Secundários">
+      <KuFieldset title="Dados Bancários Secundários">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormInput
+          <KuInput
             name="bankDataTwoName"
             label="Banco"
             placeholder="Nome ou Código do Banco"
@@ -652,7 +652,7 @@
             error={errors.bankDataTwo?.bankName}
           />
 
-          <FormInput
+          <KuInput
             name="bankDataTwoBranch"
             label="Agência"
             placeholder="0000"
@@ -660,7 +660,7 @@
             error={errors.bankDataTwo?.bankBranch}
           />
 
-          <FormInput
+          <KuInput
             name="bankDataTwoAccount"
             label="Conta"
             placeholder="00000-0"
@@ -668,7 +668,7 @@
             error={errors.bankDataTwo?.bankAccount}
           />
 
-          <FormSelect
+          <KuSelect
             name="bankDataTwoAccountType"
             label="Tipo de Conta"
             options={accountTypeOptions}
@@ -676,19 +676,19 @@
             error={errors.bankDataTwo?.bankAccountType}
           />
         </div>
-      </FormFieldset>
+      </KuFieldset>
     {/if}
-  </FormTab>
+  </KuTab>
 
   <!-- Botões de ação -->
   <div class="flex justify-end space-x-4 mt-8 px-4">
-    <FormButton
+    <KuButton
       id="cancel-button"
       label="Cancelar"
       actionType="reset"
       on:click={handleCancel}
     />
-    <FormButton
+    <KuButton
       id="submit-button"
       label={loading ? "Salvando..." : "Salvar Perfil"}
       actionType="submit"

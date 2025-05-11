@@ -1,8 +1,8 @@
-export { default as FormInput } from "./Input.svelte";
-export { default as FormSelect } from "./Select.svelte";
-export { default as FormFile } from "./File.svelte";
-export { default as FormFieldset } from "./Fieldset.svelte";
-export { default as FormTab } from "./Tab.svelte";
-export { default as FormButton } from "./Button.svelte";
-export { default as FormAutocomplete } from "./Autocomplete.svelte";
-export { default as FormArray } from "./Array.svelte";
+export { default as KuInput } from "./KuInput.svelte";
+export { default as KuSelect } from "./KuSelect.svelte";
+export { default as KuFile } from "./KuFile.svelte";
+export { default as KuFieldset } from "./KuFieldset.svelte";
+export { default as KuTab } from "./KuTab.svelte";
+export { default as KuButton } from "./KuButton.svelte";
+export { default as KuAutocomplete } from "./KuAutocomplete.svelte";
+export { default as KuArray } from "./KuArray.svelte";
