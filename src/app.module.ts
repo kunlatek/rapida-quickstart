@@ -9,6 +9,7 @@ import { CommonModule } from './common/common.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { UserModule } from './modules/user/user.module';
 import { RequestLoggerModule } from './common/middleware/request-logger.module';
+import { InviteModule } from './modules/invite/invite.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RequestLoggerModule } from './common/middleware/request-logger.module';
     UserModule,
     ProfileModule,
     RequestLoggerModule,
+    InviteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

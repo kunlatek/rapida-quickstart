@@ -40,6 +40,6 @@ import { CommonModule } from '../../common/common.module';
   ],
   providers: [AuthService, EmailStrategy, JwtStrategy],
   controllers: [AuthController],
-  exports: [PassportModule, JwtStrategy, AuthService],
+  exports: [PassportModule, JwtStrategy, AuthService, JwtModule],
 })
 export class AuthModule {}
