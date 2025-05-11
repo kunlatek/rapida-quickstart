@@ -4,11 +4,12 @@ import { Document, Types } from 'mongoose';
 export type InviteDocument = Invite & Document;
 
 @Schema({ timestamps: true })
-export class Invite {
-    _id: Types.ObjectId;
-
-    @Prop({ required: true, unique: true })
+export class Invite extends Document {
+    @Prop({ required: true })
     email: string;
+
+    @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
+    createdBy: Types.ObjectId;
 
     @Prop({ required: true })
     role: string;

@@ -45,6 +45,15 @@ export class InviteService {
     return InviteMapper.toDto(invite);
   }
 
+  async findByUserId(userId: string): Promise<InviteResponseDto | null> {
+    const invite = await this.inviteModel.findOne({ 
+      email: userId,
+      accepted: true 
+    }).exec();
+    
+    return invite ? InviteMapper.toDto(invite) : null;
+  }
+
   async update(id: string, updateData: Partial<CreateInviteDto>): Promise<InviteResponseDto> {
     const invite = await this.findOne(id);
 
@@ -96,6 +105,9 @@ export class InviteService {
       throw new BadRequestException('Invite already accepted');
     }
 
-    await this.inviteModel.findByIdAndUpdate(id, { accepted: true }).exec();
+    await this.inviteModel.findByIdAndUpdate(id, { 
+      accepted: true,
+      acceptedAt: new Date()
+    }).exec();
   }
 } 

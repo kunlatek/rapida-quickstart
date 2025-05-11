@@ -43,4 +43,10 @@ export class InviteResponseDto {
     description: 'Data da última atualização do convite',
   })
   updatedAt: Date;
+
+  @ApiProperty({
+    example: '507f1f77bcf86cd799439011',
+    description: 'ID do usuário que criou o convite',
+  })
+  createdBy: string;
 } 

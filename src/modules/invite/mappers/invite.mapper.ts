@@ -6,6 +6,7 @@ export class InviteMapper {
     return {
       id: invite._id.toString(),
       email: invite.email,
+      createdBy: invite.createdBy.toString(),
       role: invite.role,
       accepted: invite.accepted,
       acceptedAt: invite.acceptedAt,

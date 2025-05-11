@@ -17,4 +17,11 @@ export class CreateInviteDto {
   @IsString()
   @IsNotEmpty()
   role: string;
+
+  @ApiProperty({
+    description: 'ID do usuário que está criando o convite',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @IsString()
+  createdBy: string;
 } 

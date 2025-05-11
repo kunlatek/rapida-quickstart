@@ -10,6 +10,7 @@ import { LoggingModule } from './common/logging/logging.module';
 import { UserModule } from './modules/user/user.module';
 import { RequestLoggerModule } from './common/middleware/request-logger.module';
 import { InviteModule } from './modules/invite/invite.module';
+import { OwnerModule } from './common/interceptors/owner.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { InviteModule } from './modules/invite/invite.module';
     ProfileModule,
     RequestLoggerModule,
     InviteModule,
+    OwnerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,6 +6,8 @@ import { AuthDebugMiddleware } from './common/middleware/auth-debug.middleware';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 // import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { ValidationPipe } from '@nestjs/common';
+import { OwnerInterceptor } from './common/interceptors/owner.interceptor';
+import { InviteService } from './modules/invite/invite.service';
 
 dotenv.config();
 
@@ -53,6 +55,10 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
+
+  const inviteService = app.get(InviteService);
+  app.useGlobalInterceptors(new OwnerInterceptor(inviteService));
+
   const port = process.env.PORT || 3000;
   await app.listen(port);
   console.log(`🚀 Application is running on: ${await app.getUrl()}`);
