@@ -11,7 +11,6 @@ import { UserModule } from './modules/user/user.module';
 import { RequestLoggerModule } from './common/middleware/request-logger.module';
 import { InvitationModule } from './modules/invitation/invitation.module';
 import { OwnerModule } from './common/interceptors/owner.module';
-import { TodoModule } from './modules/todo/todo.module';
 
 @Module({
   imports: [
@@ -28,7 +27,6 @@ import { TodoModule } from './modules/todo/todo.module';
     RequestLoggerModule,
     InvitationModule,
     OwnerModule,
-    TodoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
