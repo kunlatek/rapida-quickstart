@@ -9,7 +9,7 @@
     FormTab,
     FormButton,
   } from "$lib/components/form";
-  import { STATES } from "/static/constants/states";
+  import { STATES } from "/constants/states";
 
   export let profile = {
     companyName: "",

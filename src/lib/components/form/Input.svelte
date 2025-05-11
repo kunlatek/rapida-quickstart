@@ -1,5 +1,7 @@
 <script>
   import { Label, Input as FlowbiteInput, Helper } from "flowbite-svelte";
+  import { getComponentClasses } from "../../styles/theme";
+  import { EyeSolid, EyeSlashSolid } from "flowbite-svelte-icons";
 
   export let name = "";
   export let dataType = "text";
@@ -14,10 +16,21 @@
   export let minLength = undefined;
   export let error = "";
   export let id = name;
+  export let variant = "default";
 
-  // Função para lidar com a mudança de valor em campos de data
+  // Novo estado para controlar visibilidade de senha
+  let showPassword = false;
+
+  // Tipo real do input - será alterado se for password e showPassword for true
+  $: inputType = dataType === "password" && showPassword ? "text" : dataType;
+
+  // Função para alternar visibilidade da senha
+  function togglePasswordVisibility() {
+    showPassword = !showPassword;
+  }
+
+  // Função existente para tratar mudanças
   function handleChange(event) {
-    // Se for um campo de data e o valor estiver vazio, defina como undefined
     if (dataType === "date" && event.target.value === "") {
       value = undefined;
     } else {
@@ -25,11 +38,13 @@
     }
   }
 
-  // Classe CSS condicional baseada no erro
+  // Classes
+  $: themeClasses = getComponentClasses("input", variant, {
+    error: !!error,
+    disabled: isDisabled,
+  });
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
-  $: inputClass = error
-    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-    : "";
+  $: inputClass = `w-full ${themeClasses}`;
 </script>
 
 <div class="w-full">
@@ -57,20 +72,38 @@
     {/if}
   </Label>
 
-  <FlowbiteInput
-    {id}
-    type={dataType}
-    {name}
-    bind:value
-    {placeholder}
-    disabled={isDisabled}
-    required={isRequired}
-    autofocus={isAutofocus}
-    {maxlength}
-    minlength={minLength}
-    class="w-full {inputClass}"
-    on:change={handleChange}
-  />
+  <div class="relative">
+    <FlowbiteInput
+      {id}
+      type={inputType}
+      {name}
+      bind:value
+      {placeholder}
+      disabled={isDisabled}
+      required={isRequired}
+      autofocus={isAutofocus}
+      {maxlength}
+      minlength={minLength}
+      class={inputClass}
+      on:change={handleChange}
+    />
+
+    <!-- Botão para mostrar/ocultar senha - só aparece se for tipo password -->
+    {#if dataType === "password"}
+      <button
+        type="button"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+        on:click|preventDefault={togglePasswordVisibility}
+        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+      >
+        {#if showPassword}
+          <EyeSlashSolid class="w-5 h-5" />
+        {:else}
+          <EyeSolid class="w-5 h-5" />
+        {/if}
+      </button>
+    {/if}
+  </div>
 
   {#if error}
     <Helper class="mt-1 text-red-600 dark:text-red-500">{error}</Helper>

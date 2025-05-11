@@ -1,5 +1,6 @@
 <script>
   import { Label, Select as FlowbiteSelect, Helper } from "flowbite-svelte";
+  import { getComponentClasses } from "../../styles/theme";
 
   export let name = "";
   export let label = "";
@@ -12,12 +13,15 @@
   export let options = [];
   export let error = "";
   export let id = name;
+  export let variant = "default";
 
-  // Computed classes for styling
+  // Classes CSS baseadas em estado e variantes usando a função de tema
+  $: themeClasses = getComponentClasses("select", variant, {
+    error: !!error,
+    disabled: isDisabled,
+  });
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
-  $: selectClass = error
-    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-    : "";
+  $: selectClass = `w-full ${themeClasses}`;
 </script>
 
 <div class="w-full">
@@ -33,7 +37,7 @@
           class="w-4 h-4 inline"
           fill="currentColor"
           viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
+          xmlns="http://www.w3.org/licenses/svg"
         >
           <path
             fill-rule="evenodd"
@@ -54,7 +58,7 @@
     required={isRequired}
     multiple={isMultiple}
     items={options}
-    class="w-full {selectClass}"
+    class={selectClass}
   />
 
   {#if error}

@@ -4,21 +4,14 @@
   import { toastStore } from "$stores/toast";
   import { authStore } from "$stores/auth";
   import { profileService } from "$services/profile";
-  import {
-    Button,
-    Card,
-    Input,
-    Label,
-    Checkbox,
-    Alert,
-    Spinner,
-  } from "flowbite-svelte";
+  import { Card, Alert, Spinner, Checkbox, Label } from "flowbite-svelte";
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { onMount } from "svelte";
-  import GoogleLoginButton from "$lib/components/pages/auth/GoogleLoginButton.svelte";
-  import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
+  import { FormInput, FormButton } from "$lib/components/form";
+  import GoogleLoginButton from "../../../lib/components/pages/auth/GoogleLoginButton.svelte";
+  import AppleLoginButton from "../../../lib/components/pages/auth/AppleLoginButton.svelte";
 
-  // Form data and state
+  // Variáveis de estado do formulário
   let email = "";
   let password = "";
   let rememberMe = false;
@@ -27,21 +20,21 @@
   let appleLoading = false;
   let errorMessage = "";
 
-  // Handle redirects if already logged in
+  // Função para verificar papel ativo e redirecionar
   async function checkAndRedirect() {
     if ($authStore.isAuthenticated) {
       try {
-        // Check if the user needs to select a role
+        // Verifica o status do papel ativo
         const roleStatus = await authService.checkAndSetActiveRole();
 
-        // Redirect based on role status
+        // Se o usuário tem múltiplos papéis disponíveis e nenhum ativo
         if (roleStatus.needsSelection) {
           console.log("Redirecionando para seleção de papel");
           goto("/profile/role-select");
           return;
         }
 
-        // Check if the user has any profiles
+        // Verifica se o usuário possui perfis criados
         const profiles = await profileService.checkUserProfiles(
           $authStore.user.userId
         );
@@ -62,14 +55,14 @@
     }
   }
 
-  // Check if already logged in on mount
+  // Verifica autenticação ao carregar a página
   onMount(() => {
     if ($authStore.isAuthenticated) {
       checkAndRedirect();
     }
   });
 
-  // Handle login form submission
+  // Função para realizar o login
   async function handleLogin() {
     if (!email || !password) {
       errorMessage = "Por favor, preencha todos os campos";
@@ -112,21 +105,27 @@
       {/if}
 
       <form on:submit|preventDefault={handleLogin} class="w-full space-y-4">
-        <div>
-          <Label for="email" class="mb-2">Email</Label>
-          <Input
-            type="email"
-            id="email"
-            placeholder="nome@empresa.com"
-            bind:value={email}
-            required
-            disabled={loading}
-          />
-        </div>
+        <FormInput
+          name="email"
+          dataType="email"
+          label="Email"
+          placeholder="nome@empresa.com"
+          bind:value={email}
+          isRequired={true}
+          isDisabled={loading}
+        />
 
         <div>
+          <FormInput
+            name="password"
+            dataType="password"
+            label="Senha"
+            placeholder="••••••••"
+            bind:value={password}
+            isRequired={true}
+            isDisabled={loading}
+          />
           <div class="flex items-center justify-between mb-2">
-            <Label for="password">Senha</Label>
             <a
               href="/auth/forgot-password"
               class="text-sm text-blue-600 hover:underline dark:text-blue-500"
@@ -134,14 +133,6 @@
               Esqueceu sua senha?
             </a>
           </div>
-          <Input
-            type="password"
-            id="password"
-            placeholder="••••••••"
-            bind:value={password}
-            required
-            disabled={loading}
-          />
         </div>
 
         <div class="flex items-center">
@@ -149,16 +140,18 @@
           <Label for="remember" class="ml-2">Lembrar de mim</Label>
         </div>
 
-        <Button type="submit" class="w-full" color="blue" disabled={loading}>
+        <FormButton
+          actionType="submit"
+          label={loading ? "Entrando..." : "Entrar"}
+          isDisabled={loading}
+          customClass="w-full"
+        >
           {#if loading}
             <div class="flex items-center justify-center">
               <Spinner class="mr-3" size="sm" />
-              Entrando...
             </div>
-          {:else}
-            Entrar
           {/if}
-        </Button>
+        </FormButton>
 
         <div
           class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"

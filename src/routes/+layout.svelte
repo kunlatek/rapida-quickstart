@@ -6,12 +6,16 @@
   import { authStore } from "$stores/auth";
   import { profileService } from "$services/profile";
   import { goto } from "$app/navigation";
+  import ThemeProvider from "$lib/components/theme/ThemeProvider.svelte";
   import {
     accountDeletionStore,
     fetchDeletionStatus,
   } from "$stores/account-deletion";
 
   import "../app.css";
+  import "$lib/styles/flowbite.css";
+  import "$lib/styles/contentCard.css";
+  import "$lib/styles/theme.css";
 
   // Modified hasActiveRole calculation to consider the deleted account status
   let hasActiveRole = false;
@@ -92,18 +96,20 @@
   $: accountIsDeleted = $accountDeletionStore.isDeleted;
 </script>
 
-<!-- Show menu only if user has an active role AND account is not deleted -->
-<Navbar
-  showMenu={$authStore.isAuthenticated
-    ? !!$authStore.user?.activeRole && !$accountDeletionStore.isDeleted
-    : true}
-/>
+<ThemeProvider>
+  <!-- Show menu only if user has an active role AND account is not deleted -->
+  <Navbar
+    showMenu={$authStore.isAuthenticated
+      ? !!$authStore.user?.activeRole && !$accountDeletionStore.isDeleted
+      : true}
+  />
 
-<div class="flex flex-col min-h-screen">
-  <div class="flex-grow container mx-auto px-4 py-8">
-    <slot />
+  <div class="flex flex-col min-h-screen">
+    <div class="flex-grow container mx-auto px-4 py-8">
+      <slot />
+    </div>
   </div>
-</div>
 
-<Footer />
-<Toast />
+  <Footer />
+  <Toast />
+</ThemeProvider>

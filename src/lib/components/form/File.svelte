@@ -1,5 +1,6 @@
 <script>
   import { Fileupload, Label, Helper } from "flowbite-svelte";
+  import { getComponentClasses } from "../../styles/theme";
 
   export let name = "";
   export let label = "";
@@ -10,11 +11,17 @@
   export let isMultiple = false;
   export let error = "";
   export let id = name;
+  export let variant = "default";
 
-  // Label class based on error state
+  // Classes CSS baseadas em estado e variantes usando a função de tema
+  $: themeClasses = getComponentClasses("file", variant, {
+    error: !!error,
+    disabled: isDisabled,
+  });
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
+  $: fileClass = `w-full ${themeClasses}`;
 
-  // Handle file change manually
+  // Manipular mudança de arquivo
   function handleFileChange(event) {
     if (event.detail && event.detail.files) {
       value = event.detail.files;
@@ -35,7 +42,7 @@
           class="w-4 h-4 inline"
           fill="currentColor"
           viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/..."
+          xmlns="http://www.w3.org/licenses/svg"
         >
           <path
             fill-rule="evenodd"
@@ -54,7 +61,7 @@
     disabled={isDisabled}
     required={isRequired}
     multiple={isMultiple}
-    class="w-full"
+    class={fileClass}
   />
 
   {#if error}

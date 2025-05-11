@@ -2,7 +2,8 @@
   import { Label, Helper } from "flowbite-svelte";
   import { writable } from "svelte/store";
   import { onMount } from "svelte";
-    import Loading from "../common/Loading.svelte";
+  import Loading from "../common/Loading.svelte";
+  import { getComponentClasses } from "../../styles/theme";
 
   export let name = "";
   export let dataType = "text";
@@ -15,6 +16,7 @@
   export let isMultiple = false;
   export let error = "";
   export let id = name;
+  export let variant = "default";
   export let optionsApi = {
     endpoint: "",
     labelField: [],
@@ -29,6 +31,20 @@
   let showOptions = false;
   let selectedOptions = isMultiple ? [] : null;
 
+  // Classes do tema
+  $: themeClasses = getComponentClasses("autocomplete", variant, {
+    error: !!error,
+    disabled: isDisabled,
+  });
+  $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
+  $: inputClass = `${themeConfig.components.autocomplete.variants[variant]?.input || themeConfig.components.autocomplete.variants.default.input} ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`;
+  $: dropdownClass =
+    themeConfig.components.autocomplete.variants[variant]?.dropdown ||
+    themeConfig.components.autocomplete.variants.default.dropdown;
+  $: optionClass =
+    themeConfig.components.autocomplete.variants[variant]?.option ||
+    themeConfig.components.autocomplete.variants.default.option;
+
   $: if (value && typeof value === "string") {
     searchText = value;
   }
@@ -39,21 +55,12 @@
     selectedOptions = value;
   }
 
-  // Computed classes for styling
-  $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
-  $: inputClass = error
-    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-    : "";
-
   async function fetchOptions(query = "") {
     if (!optionsApi.endpoint) return;
 
     loading = true;
     try {
-      // Implementar lógica para buscar dados da API de acordo com optionsApi
-      // Aqui seria integrada a chamada de API real, mas para este exemplo
-      // vamos simular opções:
-
+      // Simulação da API - em uma implementação real, isso seria substituído por uma chamada à API real
       setTimeout(() => {
         options = [
           { label: "Opção 1", value: "option1" },
@@ -120,7 +127,7 @@
           class="w-4 h-4 inline"
           fill="currentColor"
           viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
+          xmlns="http://www.w3.org/licenses/svg"
         >
           <path
             fill-rule="evenodd"
@@ -132,7 +139,7 @@
     {/if}
   </Label>
 
-  <div class="relative">
+  <div class={themeClasses}>
     <!-- Mostrar tags selecionadas para seleção múltipla -->
     {#if isMultiple && selectedOptions.length > 0}
       <div class="flex flex-wrap gap-1 mb-2">
@@ -151,7 +158,7 @@
                 class="w-3 h-3"
                 fill="currentColor"
                 viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+                xmlns="http://www.w3.org/licenses/svg"
               >
                 <path
                   fill-rule="evenodd"
@@ -177,7 +184,7 @@
       on:blur={() => setTimeout(() => (showOptions = false), 150)}
       disabled={isDisabled}
       required={isRequired}
-      class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 {inputClass}"
+      class={inputClass}
     />
 
     <!-- Indicador de carregamento -->
@@ -187,16 +194,14 @@
 
     <!-- Lista de opções -->
     {#if showOptions && options.length > 0}
-      <div
-        class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg dark:bg-gray-700"
-      >
+      <div class={dropdownClass}>
         <ul
           class="max-h-60 py-1 overflow-auto text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
           role="listbox"
         >
           {#each options as option}
             <button
-              class="w-full text-left cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-gray-600"
+              class={optionClass}
               on:click={() => selectOption(option)}
               role="option"
               aria-selected={selectedOptions === option ||
