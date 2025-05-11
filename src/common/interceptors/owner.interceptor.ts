@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
-import { InviteService } from '../../modules/invite/invite.service';
+import { InvitationService } from '../../modules/invitation/invitation.service';
 
 @Injectable()
 export class OwnerInterceptor implements NestInterceptor {
-  constructor(private readonly inviteService: InviteService) {}
+  constructor(private readonly invitationService: InvitationService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -22,11 +22,14 @@ export class OwnerInterceptor implements NestInterceptor {
     if (request.method === 'POST' && user) {
       const body = request.body;
 
-      body.createdBy = user.sub;
+      body.createdBy = user.userId;
 
-      const invite = await this.inviteService.findByUserId(user.sub);
-      if (invite) {
-        body.ownerId = invite.createdBy;
+      const invitation = await this.invitationService.findByEmail(user.email);
+      
+      if (invitation) {
+        body.ownerId = invitation.createdBy;
+      } else {
+        body.ownerId = user.userId;
       }
     }
 

@@ -14,7 +14,7 @@ import * as jwt from 'jsonwebtoken';
 import * as jwksClient from 'jwks-rsa';
 import { UserRole } from 'src/enums/user-role.enum';
 import { SignupDto } from './dto/signup.dto';
-import { InviteService } from '../invite/invite.service';
+import { InvitationService } from '../invitation/invitation.service';
 
 /**
  * Service responsible for authentication and JWT token generation.
@@ -25,7 +25,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly errorService: ErrorService,
-    private readonly inviteService: InviteService,
+    private readonly invitationService: InvitationService,
   ) {}
 
   /**
@@ -210,7 +210,7 @@ export class AuthService {
 
   async signup(signupDto: SignupDto) {
     try {
-      const payload = this.jwtService.verify(signupDto.inviteToken);
+      const payload = this.jwtService.verify(signupDto.invitationToken);
       
       if (payload.email !== signupDto.email) {
         throw new BadRequestException('Email não corresponde ao convite');
@@ -221,7 +221,7 @@ export class AuthService {
         password: signupDto.password,
       });
 
-      await this.inviteService.acceptInvite(payload.inviteId);
+      await this.invitationService.acceptInvitation(payload.invitationId);
 
       const token = this.jwtService.sign({ 
         sub: user.id,

@@ -1,15 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
-export type InviteDocument = Invite & Document;
+export type InvitationDocument = Invitation & Document;
 
 @Schema({ timestamps: true })
-export class Invite extends Document {
+export class Invitation extends Document {
     @Prop({ required: true })
     email: string;
 
-    @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
-    createdBy: Types.ObjectId;
+    @Prop({ required: true })
+    createdBy: string;
+
+    @Prop({ required: true })
+    ownerId: string;
 
     @Prop({ required: true })
     role: string;
@@ -27,4 +30,4 @@ export class Invite extends Document {
     updatedAt: Date;
 }
 
-export const InviteSchema = SchemaFactory.createForClass(Invite); 
+export const InvitationSchema = SchemaFactory.createForClass(Invitation); 

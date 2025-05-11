@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { InviteController } from './invite.controller';
-import { InviteService } from './invite.service';
-import { Invite, InviteSchema } from './invite.schema';
+import { InvitationController } from './invitation.controller';
+import { InvitationService } from './invitation.service';
+import { Invitation, InvitationSchema } from './invitation.schema';
 import { CommonModule } from '../../common/common.module';
 import { EmailService } from './services/email.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -10,7 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Invite.name, schema: InviteSchema }]),
+    MongooseModule.forFeature([{ name: Invitation.name, schema: InvitationSchema }]),
     CommonModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -31,8 +31,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       },
     }),
   ],
-  controllers: [InviteController],
-  providers: [InviteService, EmailService],
-  exports: [InviteService],
+  controllers: [InvitationController],
+  providers: [InvitationService, EmailService],
+  exports: [InvitationService],
 })
-export class InviteModule {} 
+export class InvitationModule {} 

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { OwnerInterceptor } from './owner.interceptor';
-import { InviteModule } from '../../modules/invite/invite.module';
+import { InvitationModule } from '../../modules/invitation/invitation.module';
 
 @Module({
-  imports: [InviteModule],
+  imports: [InvitationModule],
   providers: [OwnerInterceptor],
   exports: [OwnerInterceptor],
 })

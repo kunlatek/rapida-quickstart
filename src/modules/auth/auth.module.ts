@@ -8,7 +8,7 @@ import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommonModule } from '../../common/common.module';
-import { InviteModule } from '../invite/invite.module';
+import { InvitationModule } from '../invitation/invitation.module';
 
 /**
  * Module responsible for handling authentication strategies,
@@ -38,7 +38,7 @@ import { InviteModule } from '../invite/invite.module';
       },
     }),
     CommonModule,
-    InviteModule,
+    InvitationModule,
   ],
   providers: [AuthService, EmailStrategy, JwtStrategy],
   controllers: [AuthController],

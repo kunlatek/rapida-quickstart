@@ -7,7 +7,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 // import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { OwnerInterceptor } from './common/interceptors/owner.interceptor';
-import { InviteService } from './modules/invite/invite.service';
+import { InvitationService } from './modules/invitation/invitation.service';
 
 dotenv.config();
 
@@ -56,8 +56,8 @@ async function bootstrap() {
     },
   });
 
-  const inviteService = app.get(InviteService);
-  app.useGlobalInterceptors(new OwnerInterceptor(inviteService));
+  const invitationService = app.get(InvitationService);
+  app.useGlobalInterceptors(new OwnerInterceptor(invitationService));
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

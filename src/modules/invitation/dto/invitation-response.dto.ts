@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class InviteResponseDto {
+export class InvitationResponseDto {
   @ApiProperty({
     example: '507f1f77bcf86cd799439011',
     description: 'ID do convite',
@@ -49,4 +49,10 @@ export class InviteResponseDto {
     description: 'ID do usuário que criou o convite',
   })
   createdBy: string;
+
+  @ApiProperty({
+    example: '507f1f77bcf86cd799439011',
+    description: 'ID do usuário que é o dono do convite',
+  })
+  ownerId: string;
 } 

@@ -22,14 +22,16 @@ export class EmailService {
     });
   }
 
-  async sendInviteEmail(email: string, inviteId: string): Promise<void> {
+  async sendInvitationEmail(email: string, invitationId: string): Promise<void> {
     const baseUrl = this.configService.get('BASE_URL');
     const token = this.jwtService.sign(
-      { email, inviteId },
+      { email, invitationId },
       { expiresIn: '24h' },
     );
 
-    const inviteUrl = `${baseUrl}/signup?token=${token}`;
+    console.log('🔹 token', token);
+
+    const invitationUrl = `${baseUrl}/signup?token=${token}`;
 
     await this.transporter.sendMail({
       from: this.configService.get('SMTP_FROM'),
@@ -38,7 +40,7 @@ export class EmailService {
       html: `
         <h1>Você foi convidado!</h1>
         <p>Clique no link abaixo para aceitar o convite:</p>
-        <a href="${inviteUrl}">Aceitar convite</a>
+        <a href="${invitationUrl}">Aceitar convite</a>
         <p>Este link expira em 24 horas.</p>
       `,
     });

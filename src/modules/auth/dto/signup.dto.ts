@@ -22,5 +22,5 @@ export class SignupDto {
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
   @IsString()
-  inviteToken: string;
+  invitationToken: string;
 } 
