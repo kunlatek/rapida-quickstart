@@ -13,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { AppleLoginDto } from './dto/apple-login.dto';
 import { UserRole } from 'src/enums/user-role.enum';
+import { SignupDto } from './dto/signup.dto';
 
 /**
  * Controller responsible for handling authentication routes.
@@ -98,5 +99,17 @@ export class AuthController {
   })
   async switchRole(@Req() req, @Body('role') role: UserRole) {
     return this.authService.switchActiveRole(req.user, role);
+  }
+
+  @Post('signup')
+  @ApiOperation({ summary: 'Registra um novo usuário com token de convite' })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Usuário registrado com sucesso',
+  })
+  @ApiResponse({ status: 400, description: 'Dados inválidos ou email já existe' })
+  @ApiResponse({ status: 401, description: 'Token de convite inválido ou expirado' })
+  async signup(@Body() signupDto: SignupDto) {
+    return this.authService.signup(signupDto);
   }
 }

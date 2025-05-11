@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
@@ -12,6 +13,8 @@ import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
 import * as jwksClient from 'jwks-rsa';
 import { UserRole } from 'src/enums/user-role.enum';
+import { SignupDto } from './dto/signup.dto';
+import { InviteService } from '../invite/invite.service';
 
 /**
  * Service responsible for authentication and JWT token generation.
@@ -22,6 +25,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly errorService: ErrorService,
+    private readonly inviteService: InviteService,
   ) {}
 
   /**
@@ -201,6 +205,41 @@ export class AuthService {
       throw new UnauthorizedException(
         this.errorService.getErrorMessage(ErrorCode.INVALID_CREDENTIALS),
       );
+    }
+  }
+
+  async signup(signupDto: SignupDto) {
+    try {
+      const payload = this.jwtService.verify(signupDto.inviteToken);
+      
+      if (payload.email !== signupDto.email) {
+        throw new BadRequestException('Email não corresponde ao convite');
+      }
+
+      const user = await this.userService.createUser({
+        email: signupDto.email,
+        password: signupDto.password,
+      });
+
+      await this.inviteService.acceptInvite(payload.inviteId);
+
+      const token = this.jwtService.sign({ 
+        sub: user.id,
+        email: user.email 
+      });
+
+      return {
+        user,
+        token,
+      };
+    } catch (error) {
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Token de convite inválido');
+      }
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token de convite expirado');
+      }
+      throw error;
     }
   }
 }
