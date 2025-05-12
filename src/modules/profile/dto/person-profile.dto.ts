@@ -696,11 +696,19 @@ export class CreatePersonProfileDto {
   @IsArray()
   @Type(() => RelatedFileDto)
   relatedFiles?: RelatedFileDto[];
+
+  @ApiProperty({ example: 'userId', readOnly: true })
+  @IsNotEmpty()
+  @IsString()
+  createdBy: string;
+
+  @ApiProperty({ example: 'userId', readOnly: true })
+  @IsNotEmpty()
+  @IsString()
+  ownerId: string;
 }
 
-export class UpdatePersonProfileDto extends PartialType(
-  CreatePersonProfileDto,
-) {}
+export class UpdatePersonProfileDto extends PartialType(CreatePersonProfileDto) {}
 
 export class PersonProfileFilterDto {
   @ApiPropertyOptional({

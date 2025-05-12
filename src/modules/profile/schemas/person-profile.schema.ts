@@ -172,6 +172,12 @@ export class PersonProfile extends Document {
   // 🔹 Arquivos relacionados
   @Prop({ type: [Object] })
   relatedFiles?: RelatedFileDto[];
+
+  @Prop({ required: true })
+  createdBy: string;
+
+  @Prop({ required: true })
+  ownerId: string;
 }
 
 export const PersonProfileSchema = SchemaFactory.createForClass(PersonProfile);

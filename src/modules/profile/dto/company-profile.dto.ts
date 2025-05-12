@@ -273,6 +273,16 @@ export class CreateCompanyProfileDto {
   @IsArray()
   @Type(() => RelatedFileDto)
   relatedFiles?: RelatedFileDto[];
+
+  @ApiProperty({ example: 'userId', readOnly: true })
+  @IsNotEmpty()
+  @IsString()
+  createdBy: string;
+
+  @ApiProperty({ example: 'userId', readOnly: true })
+  @IsNotEmpty()
+  @IsString()
+  ownerId: string;
 }
 
 export class UpdateCompanyProfileDto extends PartialType(

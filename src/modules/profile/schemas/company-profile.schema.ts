@@ -147,6 +147,12 @@ export class CompanyProfile {
     relatedFilesDateMonth: number;
     relatedFilesDateYear: number;
   }[];
+
+  @Prop({ required: true })
+  createdBy: string;
+
+  @Prop({ required: true })
+  ownerId: string;
 }
 
 export const CompanyProfileSchema =
