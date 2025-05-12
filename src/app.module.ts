@@ -11,7 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { RequestLoggerModule } from './common/middleware/request-logger.module';
 import { InvitationModule } from './modules/invitation/invitation.module';
 import { OwnerModule } from './common/interceptors/owner.module';
-
+import { SmsCodeModule } from './modules/smsCode/sms-code.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -27,6 +27,7 @@ import { OwnerModule } from './common/interceptors/owner.module';
     RequestLoggerModule,
     InvitationModule,
     OwnerModule,
+    SmsCodeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
