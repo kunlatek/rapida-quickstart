@@ -123,8 +123,9 @@ export class UserController {
 
     await this.userService.updatePassword(
       req.user.userId,
-      updatePasswordDto.currentPassword,
-      updatePasswordDto.newPassword
+      updatePasswordDto.newPassword,
+      updatePasswordDto.smsCode,
+      updatePasswordDto.phone
     );
 
     return { message: "Password changed successfully" };

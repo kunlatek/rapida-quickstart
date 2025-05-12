@@ -12,7 +12,7 @@ import {
   PersonProfileSchema,
 } from '../profile/schemas/person-profile.schema';
 import { CommonModule } from 'src/common/common.module';
-
+import { SmsCodeModule } from '../smsCode/sms-code.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
@@ -23,6 +23,7 @@ import { CommonModule } from 'src/common/common.module';
       { name: PersonProfile.name, schema: PersonProfileSchema },
     ]),
     CommonModule,
+    SmsCodeModule,
   ],
   controllers: [UserController],
   providers: [UserService],

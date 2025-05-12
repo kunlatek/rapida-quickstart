@@ -3,12 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdatePasswordDto {
   @ApiProperty({
-    example: 'currentP@ssw0rd!',
-    description: 'Current password',
+    example: '1234567890',
+    description: 'Phone number',
   })
   @IsNotEmpty()
   @IsString()
-  currentPassword: string;
+  phone: string;
 
   @ApiProperty({
     example: 'newP@ssw0rd!',
@@ -18,4 +18,12 @@ export class UpdatePasswordDto {
   @IsString()
   @MinLength(8)
   newPassword: string;
+
+  @ApiProperty({
+    example: '123456',
+    description: 'SMS code',
+  })
+  @IsNotEmpty()
+  @IsString()
+  smsCode: string;
 } 
