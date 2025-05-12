@@ -9,7 +9,7 @@ import { UserModule } from '../user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommonModule } from '../../common/common.module';
 import { InvitationModule } from '../invitation/invitation.module';
-
+import { EmailService } from './services/email.service';
 /**
  * Module responsible for handling authentication strategies,
  * user login, and issuing JWT tokens.
@@ -40,7 +40,7 @@ import { InvitationModule } from '../invitation/invitation.module';
     CommonModule,
     InvitationModule,
   ],
-  providers: [AuthService, EmailStrategy, JwtStrategy],
+  providers: [AuthService, EmailStrategy, JwtStrategy, EmailService],
   controllers: [AuthController],
   exports: [PassportModule, JwtStrategy, AuthService, JwtModule],
 })

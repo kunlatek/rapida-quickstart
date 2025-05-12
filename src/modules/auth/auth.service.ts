@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
@@ -15,7 +16,7 @@ import * as jwksClient from 'jwks-rsa';
 import { UserRole } from 'src/enums/user-role.enum';
 import { SignupDto } from './dto/signup.dto';
 import { InvitationService } from '../invitation/invitation.service';
-
+import { EmailService } from './services/email.service';
 /**
  * Service responsible for authentication and JWT token generation.
  */
@@ -26,6 +27,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly errorService: ErrorService,
     private readonly invitationService: InvitationService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -241,5 +243,22 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    try {
+      await this.emailService.sendForgotPasswordEmail(email);
+    } catch (error) {
+      throw new BadRequestException('Erro ao enviar email de recuperação de senha');
+    }
+
+    return {
+      message: 'Email de recuperação de senha enviado com sucesso',
+    };
   }
 }

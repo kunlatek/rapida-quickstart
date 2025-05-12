@@ -14,6 +14,7 @@ import { GoogleLoginDto } from './dto/google-login.dto';
 import { AppleLoginDto } from './dto/apple-login.dto';
 import { UserRole } from 'src/enums/user-role.enum';
 import { SignupDto } from './dto/signup.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 /**
  * Controller responsible for handling authentication routes.
@@ -111,5 +112,17 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Token de convite inválido ou expirado' })
   async signup(@Body() signupDto: SignupDto) {
     return this.authService.signup(signupDto);
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Envia um email de recuperação de senha' })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Email de recuperação de senha enviado com sucesso',
+  })
+  @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
   }
 }
