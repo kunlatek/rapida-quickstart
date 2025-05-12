@@ -204,16 +204,16 @@ export class UserService {
     return user;
   }
 
-  async updatePassword(userId: string, newPassword: string, smsCode: string, phone: string): Promise<void> {
+  async updatePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
     const user = await this.userModel.findById(userId);
     if (!user || user.deletedAt) {
       throw new NotFoundException('User not found or has been deleted');
     }
 
-    await this.smsCodeService.validateSmsCode({
-      phone,
-      code: smsCode,
-    });
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid old password');
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;

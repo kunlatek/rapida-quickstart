@@ -121,11 +121,12 @@ export class UserController {
       );
     }
 
+    const { oldPassword, newPassword } = updatePasswordDto;
+
     await this.userService.updatePassword(
       req.user.userId,
-      updatePasswordDto.newPassword,
-      updatePasswordDto.smsCode,
-      updatePasswordDto.phone
+      oldPassword,
+      newPassword
     );
 
     return { message: "Password changed successfully" };
