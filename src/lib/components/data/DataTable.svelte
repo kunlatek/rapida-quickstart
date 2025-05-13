@@ -11,6 +11,7 @@
   export let pagination = { enabled: true, pageSize: 10 };
   export let actions = [];
   export let variant = "default";
+  export let headerActions = [];
 
   let data = [];
   let loading = false;
@@ -61,7 +62,13 @@
 
       // Make the API request
       const response = await fetch(
-        `${dataSource.endpoint}?${params.toString()}`
+        `${dataSource.endpoint}?${params.toString()}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
 
       if (!response.ok) {
@@ -108,7 +115,9 @@
   }
 
   function formatCellValue(row, column) {
-    const value = row[column.key];
+    const value = column.formatValue ?
+      column.formatValue(row[column.key]) :
+      row[column.key];
 
     if (column.formatter) {
       // Handle different formatters
@@ -133,7 +142,22 @@
 
 <div class={tableClasses}>
   {#if title}
-    <h2 class="text-xl font-semibold mb-4">{title}</h2>
+    <div class="flex justify-between items-center">
+      <h2 class="text-xl font-semibold mb-4 dark:text-white pl-4 pt-4">{title}</h2>
+      {#if headerActions && headerActions.length > 0}
+        <div class="flex justify-end pr-4">
+          {#each headerActions as action}
+            <Button
+              size="xs"
+              color={action.color || "blue"}
+              on:click={() => action.handler()}
+            >
+              {action.label}
+            </Button>
+          {/each}
+        </div>
+      {/if}
+    </div>
   {/if}
 
   {#if error}
@@ -145,7 +169,7 @@
   <div class="overflow-x-auto relative">
     {#if loading}
       <div class="flex justify-center p-4">
-        <Spinner size="lg" />
+        <Spinner />
       </div>
     {:else}
       <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -189,7 +213,7 @@
             {/each}
 
             {#if actions && actions.length > 0}
-              <th scope="col" class="px-6 py-3"> Actions </th>
+              <th scope="col" class="px-6 py-3"> Ações </th>
             {/if}
           </tr>
         </thead>
@@ -201,7 +225,7 @@
                 colspan={columns.length + (actions.length > 0 ? 1 : 0)}
                 class="px-6 py-4 text-center"
               >
-                No data available
+                Nenhum dado disponível
               </td>
             </tr>
           {:else}
@@ -211,7 +235,13 @@
               >
                 {#each columns as column}
                   <td class="px-6 py-4">
-                    {formatCellValue(row, column)}
+                    {#if column.isTag}
+                      <span class="px-2 py-1 text-xs font-medium text-white bg-blue-500 rounded-full">
+                        {formatCellValue(row, column)}
+                      </span>
+                    {:else}
+                      {formatCellValue(row, column)}
+                    {/if}
                   </td>
                 {/each}
 

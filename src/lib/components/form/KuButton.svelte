@@ -51,6 +51,7 @@
   title={tooltip}
   class={buttonClass}
   {...ariaProps}
+  on:click
 >
   {#if icon}
     <span class="mr-2">
