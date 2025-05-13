@@ -16,7 +16,7 @@ export class InvitationService {
 
   async create(createInvitationDto: CreateInvitationDto): Promise<InvitationResponseDto> {
     const { createdBy, ownerId, ...invitationData } = createInvitationDto;
-    
+
     const existingInvitation = await this.invitationModel.findOne({ email: invitationData.email });
     if (existingInvitation) {
       throw new BadRequestException('An invitation already exists for this email');
@@ -38,17 +38,23 @@ export class InvitationService {
     return InvitationMapper.toDto(invitation);
   }
 
-  async findAll(ownerId: string): Promise<InvitationResponseDto[]> {
-    const invitations = await this.invitationModel.find({ $or: [{ ownerId }, { createdBy: ownerId }] }).exec();
+  async findAll(ownerId: string, page: number = 1, limit: number = 10, sortBy: string = 'createdAt', sortDir: 'asc' | 'desc' = 'desc'): Promise<InvitationResponseDto[]> {
+    const sortOptions = { [sortBy]: sortDir === 'asc' ? 1 : -1 } as const;
+    const skip = (page - 1) * limit;
+    const invitations = await this.invitationModel
+      .find({ $or: [{ ownerId }, { createdBy: ownerId }] })
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit).exec();
     return InvitationMapper.toDtoList(invitations);
   }
 
   async findOne(id: string, ownerId: string): Promise<InvitationResponseDto> {
-    const invitation = await this.invitationModel.findOne({ 
+    const invitation = await this.invitationModel.findOne({
       _id: id,
       $or: [{ ownerId }, { createdBy: ownerId }]
     }).exec();
-    
+
     if (!invitation) {
       throw new NotFoundException('Invitation not found');
     }
@@ -57,7 +63,7 @@ export class InvitationService {
 
   async findByEmail(email: string): Promise<InvitationResponseDto | null> {
     const invitation = await this.invitationModel.findOne({ email }).exec();
-    
+
     return invitation ? InvitationMapper.toDto(invitation) : null;
   }
 
@@ -89,7 +95,7 @@ export class InvitationService {
       throw new BadRequestException('Cannot delete an accepted invitation');
     }
 
-    await this.invitationModel.findOneAndDelete({ 
+    await this.invitationModel.findOneAndDelete({
       _id: id,
       ownerId
     }).exec();
@@ -119,7 +125,7 @@ export class InvitationService {
       throw new BadRequestException('Invitation already accepted');
     }
 
-    await this.invitationModel.findByIdAndUpdate(id, { 
+    await this.invitationModel.findByIdAndUpdate(id, {
       accepted: true,
       acceptedAt: new Date()
     }).exec();

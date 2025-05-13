@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, Req, Query } from '@nestjs/common';
 import { InvitationService } from './invitation.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { InvitationResponseDto } from './dto/invitation-response.dto';
@@ -23,22 +23,28 @@ export class InvitationController {
     @Get()
     @ApiSecurity('jwt')
     @ApiOperation({ summary: 'Get all invitations' })
-    @ApiResponse({ 
-        status: 200, 
+    @ApiResponse({
+        status: 200,
         description: 'List of all invitations',
         type: InvitationResponseDto,
         isArray: true
     })
-    findAll(@Req() req: any): Promise<InvitationResponseDto[]> {
-        return this.invitationService.findAll(req.user.userId);
+    findAll(
+        @Req() req: any,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number,
+        @Query('sortBy') sortBy?: string,
+        @Query('sortDir') sortDir?: 'asc' | 'desc'
+    ): Promise<InvitationResponseDto[]> {
+        return this.invitationService.findAll(req.user.userId, page, limit, sortBy, sortDir);
     }
 
     @Get(':id')
     @ApiSecurity('jwt')
     @ApiOperation({ summary: 'Get invitation by ID' })
     @ApiParam({ name: 'id', description: 'Invitation ID' })
-    @ApiResponse({ 
-        status: 200, 
+    @ApiResponse({
+        status: 200,
         description: 'Invitation found',
         type: InvitationResponseDto,
     })
@@ -52,13 +58,13 @@ export class InvitationController {
     @ApiOperation({ summary: 'Update invitation' })
     @ApiParam({ name: 'id', description: 'Invitation ID' })
     @ApiBody({ type: PartialType(CreateInvitationDto) })
-    @ApiResponse({ 
-        status: 200, 
+    @ApiResponse({
+        status: 200,
         description: 'Invitation updated successfully',
     })
     @ApiResponse({ status: 404, description: 'Invitation not found' })
     update(
-        @Param('id') id: string, 
+        @Param('id') id: string,
         @Body() updateInvitationDto: Partial<CreateInvitationDto>,
         @Req() req: any
     ): Promise<InvitationResponseDto> {
@@ -81,8 +87,8 @@ export class InvitationController {
     @HttpCode(200)
     @ApiOperation({ summary: 'Resend invitation email' })
     @ApiParam({ name: 'id', description: 'Invitation ID' })
-    @ApiResponse({ 
-        status: 200, 
+    @ApiResponse({
+        status: 200,
         description: 'Invitation email resent successfully'
     })
     @ApiResponse({ status: 404, description: 'Invitation not found' })
