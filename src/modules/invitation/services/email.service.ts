@@ -27,7 +27,7 @@ export class EmailService {
       { expiresIn: '24h' },
     );
 
-    const invitationUrl = `${baseUrl}/signup?token=${token}`;
+    const invitationUrl = `${baseUrl}/invitation-register?email=${email}&token=${token}`;
 
     await this.transporter.sendMail({
       from: process.env.SMTP_FROM,
