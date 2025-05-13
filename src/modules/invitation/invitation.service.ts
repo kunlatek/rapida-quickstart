@@ -56,10 +56,7 @@ export class InvitationService {
   }
 
   async findByEmail(email: string): Promise<InvitationResponseDto | null> {
-    const invitation = await this.invitationModel.findOne({ 
-      email,
-      accepted: true 
-    }).exec();
+    const invitation = await this.invitationModel.findOne({ email }).exec();
     
     return invitation ? InvitationMapper.toDto(invitation) : null;
   }

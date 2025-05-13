@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { CreateUserByInvitationDto, CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import {
   ApiTags,
@@ -55,6 +55,29 @@ export class UserController {
       message: "User created successfully",
       userId: user._id,
     };
+  }
+
+  @Post("invitation")
+  @ApiOperation({ summary: "Create a new user from invitation" })
+  @ApiBody({ type: CreateUserByInvitationDto })
+  @ApiResponse({
+    status: 201,
+    description: "User created successfully",
+  })
+  @ApiResponse({
+    status: 409,
+    description: "Email already exists",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Invitation not found",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Invitation already accepted",
+  })
+  async createUserByInvitation(@Body() createUserByInvitationDto: CreateUserByInvitationDto) {
+    return this.userService.createUserByInvitation(createUserByInvitationDto);
   }
 
   @Get()

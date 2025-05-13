@@ -1,15 +1,16 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { User, UserDocument } from './schemas/user.schema';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserByInvitationDto, CreateUserDto } from './dto/create-user.dto';
 import { CompanyProfile } from '../profile/schemas/company-profile.schema';
 import { UserRole } from 'src/enums/user-role.enum';
 import { PersonProfile } from '../profile/schemas/person-profile.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CascadeService } from 'src/common/services/cascade.service';
-import { SmsCodeService } from '../smsCode/sms-code.service';
+import { InvitationService } from '../invitation/invitation.service';
 
 @Injectable()
 export class UserService {
@@ -22,7 +23,7 @@ export class UserService {
     @InjectModel(PersonProfile.name)
     private personProfileModel: Model<PersonProfile>,
     private readonly cascadeService: CascadeService,
-    private readonly smsCodeService: SmsCodeService,
+    private readonly invitationService: InvitationService,
   ) { }
 
   /**
@@ -42,6 +43,46 @@ export class UserService {
     });
 
     return newUser.save();
+  }
+
+  /**
+   * Creates a new user from an invitation.
+   */
+  async createUserByInvitation(payload: CreateUserByInvitationDto): Promise<UserDocument> {
+    try {
+      const invitationPayload: any = jwt.verify(payload.token, process.env.JWT_SECRET);
+
+      if (invitationPayload.email !== payload.email) {
+        throw new BadRequestException('Email does not match invitation email');
+      }
+
+      const invitation = await this.invitationService.findByEmail(invitationPayload.email);
+      if (!invitation) {
+        throw new NotFoundException('Invitation not found');
+      }
+
+      if (invitation.accepted) {
+        throw new BadRequestException('Invitation already accepted');
+      }
+
+      const existingUser = await this.userModel.findOne({ email: payload.email });
+      if (existingUser) {
+        throw new ConflictException('Email already exists');
+      }
+
+      const hashedPassword = await bcrypt.hash(payload.password, 10);
+      console.log(hashedPassword);
+      const newUser = new this.userModel({
+        email: invitationPayload.email,
+        password: hashedPassword,
+      });
+
+      await this.invitationService.acceptInvitation(invitation.id);
+
+      return newUser.save();
+    } catch (error) {
+      throw new BadRequestException(`Failed to create user: ${error.message}`);
+    }
   }
 
   /**
@@ -143,7 +184,7 @@ export class UserService {
 
     user.deletedAt = new Date();
     await user.save();
-    
+
     // Cascade soft delete to all related documents
     await this.cascadeService.cascadeSoftDelete(id);
 

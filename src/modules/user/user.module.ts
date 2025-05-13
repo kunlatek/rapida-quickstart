@@ -13,6 +13,8 @@ import {
 } from '../profile/schemas/person-profile.schema';
 import { CommonModule } from 'src/common/common.module';
 import { SmsCodeModule } from '../smsCode/sms-code.module';
+import { InvitationModule } from '../invitation/invitation.module';
+
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
@@ -24,6 +26,7 @@ import { SmsCodeModule } from '../smsCode/sms-code.module';
     ]),
     CommonModule,
     SmsCodeModule,
+    InvitationModule,
   ],
   controllers: [UserController],
   providers: [UserService],
