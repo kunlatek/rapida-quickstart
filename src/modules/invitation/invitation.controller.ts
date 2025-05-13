@@ -30,7 +30,7 @@ export class InvitationController {
         isArray: true
     })
     findAll(@Req() req: any): Promise<InvitationResponseDto[]> {
-        return this.invitationService.findAll(req.user.id);
+        return this.invitationService.findAll(req.user.userId);
     }
 
     @Get(':id')
@@ -44,7 +44,7 @@ export class InvitationController {
     })
     @ApiResponse({ status: 404, description: 'Invitation not found' })
     findOne(@Param('id') id: string, @Req() req: any): Promise<InvitationResponseDto> {
-        return this.invitationService.findOne(id, req.user.id);
+        return this.invitationService.findOne(id, req.user.userId);
     }
 
     @Patch(':id')
@@ -62,7 +62,7 @@ export class InvitationController {
         @Body() updateInvitationDto: Partial<CreateInvitationDto>,
         @Req() req: any
     ): Promise<InvitationResponseDto> {
-        return this.invitationService.update(id, updateInvitationDto, req.user.id);
+        return this.invitationService.update(id, updateInvitationDto, req.user.userId);
     }
 
     @Delete(':id')
@@ -73,7 +73,7 @@ export class InvitationController {
     @ApiResponse({ status: 204, description: 'Invitation deleted successfully' })
     @ApiResponse({ status: 404, description: 'Invitation not found' })
     remove(@Param('id') id: string, @Req() req: any): Promise<void> {
-        return this.invitationService.remove(id, req.user.id);
+        return this.invitationService.remove(id, req.user.userId);
     }
 
     @Post(':id/resend')
@@ -87,6 +87,6 @@ export class InvitationController {
     })
     @ApiResponse({ status: 404, description: 'Invitation not found' })
     resendEmail(@Param('id') id: string, @Req() req: any): Promise<void> {
-        return this.invitationService.resendEmail(id, req.user.id);
+        return this.invitationService.resendEmail(id, req.user.userId);
     }
 }

@@ -12,12 +12,10 @@ export class EmailService {
     private readonly jwtService: JwtService,
   ) {
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get('SMTP_HOST'),
-      port: this.configService.get('SMTP_PORT'),
-      secure: true,
+      service: 'gmail',
       auth: {
-        user: this.configService.get('SMTP_USER'),
-        pass: this.configService.get('SMTP_PASS'),
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
       },
     });
   }
@@ -32,7 +30,7 @@ export class EmailService {
     const invitationUrl = `${baseUrl}/signup?token=${token}`;
 
     await this.transporter.sendMail({
-      from: this.configService.get('SMTP_FROM'),
+      from: process.env.SMTP_FROM,
       to: email,
       subject: 'Convite para participar da plataforma',
       html: `
