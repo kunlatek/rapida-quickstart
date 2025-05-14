@@ -29,14 +29,16 @@ export class InvitationController {
         type: InvitationResponseDto,
         isArray: true
     })
-    findAll(
+    async findAll(
         @Req() req: any,
         @Query('page') page?: number,
         @Query('limit') limit?: number,
         @Query('sortBy') sortBy?: string,
         @Query('sortDir') sortDir?: 'asc' | 'desc'
-    ): Promise<InvitationResponseDto[]> {
-        return this.invitationService.findAll(req.user.userId, page, limit, sortBy, sortDir);
+    ): Promise<{ data: InvitationResponseDto[], total: number }> {
+        const data = await this.invitationService.findAll(req.user.userId, page, limit, sortBy, sortDir);
+        const total = await this.invitationService.count(req.user.userId);
+        return { data, total };
     }
 
     @Get(':id')

@@ -38,7 +38,7 @@ export class InvitationService {
     return InvitationMapper.toDto(invitation);
   }
 
-  async findAll(ownerId: string, page: number = 1, limit: number = 10, sortBy: string = 'createdAt', sortDir: 'asc' | 'desc' = 'desc'): Promise<InvitationResponseDto[]> {
+  async findAll(ownerId: string, page: number = 1, limit: number = 10, sortBy: string = 'createdAt', sortDir: 'asc' | 'desc' = 'asc'): Promise<InvitationResponseDto[]> {
     const sortOptions = { [sortBy]: sortDir === 'asc' ? 1 : -1 } as const;
     const skip = (page - 1) * limit;
     const invitations = await this.invitationModel
@@ -47,6 +47,10 @@ export class InvitationService {
       .skip(skip)
       .limit(limit).exec();
     return InvitationMapper.toDtoList(invitations);
+  }
+
+  async count(ownerId: string): Promise<number> {
+    return this.invitationModel.countDocuments({ $or: [{ ownerId }, { createdBy: ownerId }] }).exec();
   }
 
   async findOne(id: string, ownerId: string): Promise<InvitationResponseDto> {
