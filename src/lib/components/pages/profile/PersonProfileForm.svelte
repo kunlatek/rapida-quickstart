@@ -9,7 +9,7 @@
     KuTab,
     KuButton,
   } from "$lib/components/form";
-  import { STATES } from "/static/constants/states";
+  import { STATES } from "../../../../../static/constants/states";
 
   export let profile = {
     personName: "",
