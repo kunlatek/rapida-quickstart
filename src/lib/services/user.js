@@ -23,6 +23,27 @@ export const userService = {
   },
 
   /**
+   * Register a new user using an invitation token
+   * @param {string} email - The user's email
+   * @param {string} password - The user's password
+   * @param {string} token - The invitation token
+   * @returns {Promise<Object>} Response from the server
+   */
+  async invitationRegister(email, password, token) {
+    try {
+      const response = await api.post("/users/invitation", {
+        email,
+        password,
+        token,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao registrar:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Soft delete user's own profile
    * @returns {Promise<Object>} Response from the server
    */

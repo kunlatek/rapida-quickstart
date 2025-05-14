@@ -58,16 +58,16 @@
   }
 </script>
 
-<div class="flex items-center justify-between">
+<div class="flex items-center justify-between px-4 py-2">
   <div class="text-sm text-gray-700 dark:text-gray-400">
-    Showing <span class="font-medium"
+    Exibindo <span class="font-medium"
       >{Math.min((currentPage - 1) * pageSize + 1, totalItems)}</span
     >
-    to
+    de
     <span class="font-medium"
       >{Math.min(currentPage * pageSize, totalItems)}</span
     >
-    of <span class="font-medium">{totalItems}</span> results
+    de <span class="font-medium">{totalItems}</span> resultados
   </div>
 
   <div class="flex items-center space-x-2">
@@ -77,7 +77,7 @@
       on:click={goToFirstPage}
       disabled={currentPage === 1}
     >
-      First
+      Primeiro
     </Button>
 
     <Button
@@ -86,7 +86,7 @@
       on:click={goToPreviousPage}
       disabled={currentPage === 1}
     >
-      Previous
+      Anterior
     </Button>
 
     {#if showPageNumbers}
@@ -107,7 +107,7 @@
       on:click={goToNextPage}
       disabled={currentPage === totalPages}
     >
-      Next
+      Próximo
     </Button>
 
     <Button
@@ -116,7 +116,7 @@
       on:click={goToLastPage}
       disabled={currentPage === totalPages}
     >
-      Last
+      Último
     </Button>
   </div>
 </div>
