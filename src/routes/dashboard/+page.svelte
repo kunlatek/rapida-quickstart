@@ -58,21 +58,21 @@
     <!-- Dashboard content -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h2 class="font-bold text-lg mb-2">Perfil</h2>
+        <h2 class="font-bold text-lg mb-2 dark:text-white">Perfil</h2>
         <p class="text-gray-600 dark:text-gray-400">
           Gerencie suas informações pessoais e profissionais.
         </p>
       </div>
 
       <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h2 class="font-bold text-lg mb-2">Configurações</h2>
+        <h2 class="font-bold text-lg mb-2 dark:text-white">Configurações</h2>
         <p class="text-gray-600 dark:text-gray-400">
           Ajuste as configurações da sua conta e preferências.
         </p>
       </div>
 
       <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h2 class="font-bold text-lg mb-2">Atividade</h2>
+        <h2 class="font-bold text-lg mb-2 dark:text-white">Atividade</h2>
         <p class="text-gray-600 dark:text-gray-400">
           Visualize sua atividade recente na plataforma.
         </p>
