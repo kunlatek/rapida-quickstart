@@ -204,4 +204,27 @@ export const authService = {
     // If no available roles
     return { hasRole: false };
   },
+
+  async forgotPassword(email) {
+    try {
+      const response = await api.post("/auth/forgot-password", { email });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao solicitar redefinição de senha:", error);
+      throw error;
+    }
+  },
+
+  async resetPassword(token, password) {
+    try {
+      const response = await api.post("/auth/reset-password", {
+        token,
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao redefinir senha:", error);
+      throw error;
+    }
+  },
 };
