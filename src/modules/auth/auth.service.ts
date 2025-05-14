@@ -5,6 +5,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { UserDocument } from '../user/schemas/user.schema';
@@ -17,6 +18,7 @@ import { UserRole } from 'src/enums/user-role.enum';
 import { SignupDto } from './dto/signup.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { EmailService } from './services/email.service';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 /**
  * Service responsible for authentication and JWT token generation.
  */
@@ -28,7 +30,7 @@ export class AuthService {
     private readonly errorService: ErrorService,
     private readonly invitationService: InvitationService,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   /**
    * Validates the user by comparing email/password.
@@ -213,7 +215,7 @@ export class AuthService {
   async signup(signupDto: SignupDto) {
     try {
       const payload = this.jwtService.verify(signupDto.invitationToken);
-      
+
       if (payload.email !== signupDto.email) {
         throw new BadRequestException('Email não corresponde ao convite');
       }
@@ -225,9 +227,9 @@ export class AuthService {
 
       await this.invitationService.acceptInvitation(payload.invitationId);
 
-      const token = this.jwtService.sign({ 
+      const token = this.jwtService.sign({
         sub: user.id,
-        email: user.email 
+        email: user.email
       });
 
       return {
@@ -259,6 +261,27 @@ export class AuthService {
 
     return {
       message: 'Email de recuperação de senha enviado com sucesso',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { token, password } = resetPasswordDto;
+
+    const decoded = this.jwtService.verify(token);
+
+    const user = await this.userService.findByEmail(decoded.email);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return {
+      message: 'Senha resetada com sucesso',
     };
   }
 }

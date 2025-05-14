@@ -15,6 +15,7 @@ import { AppleLoginDto } from './dto/apple-login.dto';
 import { UserRole } from 'src/enums/user-role.enum';
 import { SignupDto } from './dto/signup.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 /**
  * Controller responsible for handling authentication routes.
@@ -124,5 +125,14 @@ export class AuthController {
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reseta a senha do usuário' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 200, description: 'Senha resetada com sucesso' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos ou token inválido' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

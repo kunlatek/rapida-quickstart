@@ -25,7 +25,7 @@ export class EmailService {
         
         const token = this.jwtService.sign({ email }, { expiresIn: '1h' });
 
-        const url = `${baseUrl}/reset-password?token=${token}`;
+        const url = `${baseUrl}/auth/reset-password/${token}`;
 
         await this.transporter.sendMail({
             from: process.env.SMTP_FROM,
