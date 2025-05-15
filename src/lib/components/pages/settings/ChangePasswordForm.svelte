@@ -5,7 +5,7 @@
   import { userService } from "$services/user";
   import { toastStore } from "$stores/toast";
 
-  let currentPassword = "";
+  let oldPassword = "";
   let newPassword = "";
   let confirmPassword = "";
   let loading = false;
@@ -20,7 +20,7 @@
     success = "";
 
     // Validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if (!oldPassword || !newPassword || !confirmPassword) {
       error = "Por favor, preencha todos os campos";
       return;
     }
@@ -37,12 +37,12 @@
 
     try {
       loading = true;
-      await userService.changePassword(currentPassword, newPassword);
+      await userService.changePassword(oldPassword, newPassword);
       success = "Senha alterada com sucesso!";
       toastStore.success("Senha alterada com sucesso!");
 
       // Reset form
-      currentPassword = "";
+      oldPassword = "";
       newPassword = "";
       confirmPassword = "";
 
@@ -85,11 +85,11 @@
 
   <form on:submit|preventDefault={handleSubmit} class="space-y-4">
     <KuInput
-      name="currentPassword"
+      name="oldPassword"
       dataType="password"
       label="Senha Atual"
       placeholder="••••••••"
-      bind:value={currentPassword}
+      bind:value={oldPassword}
       isRequired={true}
     />
 

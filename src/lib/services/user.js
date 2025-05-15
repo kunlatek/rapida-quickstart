@@ -87,14 +87,14 @@ export const userService = {
 
   /**
    * Change user's password
-   * @param {string} currentPassword - The user's current password
+   * @param {string} oldPassword - The user's current password
    * @param {string} newPassword - The user's new password
    * @returns {Promise<Object>} Response from the server
    */
-  async changePassword(currentPassword, newPassword) {
+  async changePassword(oldPassword, newPassword) {
     try {
       const response = await api.patch("/users/change-password", {
-        currentPassword,
+        oldPassword,
         newPassword,
       });
       return response.data;
