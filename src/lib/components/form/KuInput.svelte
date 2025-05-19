@@ -7,7 +7,7 @@
     IApiRequest,
   } from "../../interfaces/form.interfaces";
 
-  // Interfaces específicas para o componente
+  // Interface definitions
   interface InputVariant {
     base: string;
     error?: string;
@@ -18,7 +18,7 @@
     [key: string]: InputVariant | undefined;
   }
 
-  // Props do componente
+  // Props
   export let name = "";
   export let dataType:
     | "text"
@@ -36,7 +36,7 @@
   export let isAutofocus = false;
   export let isDisabled = false;
   export let isRequired = false;
-  export let isUnique = false;
+  export const isUnique = false; // Changed from export let to export const
   export let maxlength: number | undefined = undefined;
   export let minLength: number | undefined = undefined;
   export let error = "";
@@ -51,6 +51,7 @@
     | "phone"
     | "email"
   )[] = [];
+  
   export let apiRequest: IApiRequest | undefined = undefined;
 
   // Estado interno

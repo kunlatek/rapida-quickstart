@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import DataTable from '$lib/components/data/DataTable.svelte';
+  import KuDataTable from '$lib/components/data/KuDataTable.svelte';
   import { invitationsService } from '$services/invitations';
   import { toastStore } from '$stores/toast';
 
@@ -59,7 +59,7 @@
 </script>
 
 <div class="p-4">
-  <DataTable
+  <KuDataTable
     {columns}
     {actions}
     {dataSource}

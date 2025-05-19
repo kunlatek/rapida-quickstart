@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { Label, Button, Alert, Radio, Textarea } from "flowbite-svelte";
   import {
@@ -10,8 +10,88 @@
     KuButton,
   } from "$lib/components/form";
   import { STATES } from "../../../../../static/constants/states";
+  import type { IFormCondition } from "../../../interfaces/form.interfaces";
 
-  export let profile = {
+  interface ITag {
+    id: string;
+    name: string;
+  }
+
+  interface ISelectOption {
+    value: string;
+    name: string;
+  }
+
+  interface IBankData {
+    bankName: string;
+    bankBranch: string;
+    bankAccount: string;
+    bankAccountType: string;
+  }
+
+  interface IPersonProfile {
+    personName: string;
+    personNickname: string;
+    gender: string;
+    birthday: string | undefined;
+    maritalStatus: string;
+    motherName: string;
+    fatherName: string;
+    personDescription: string;
+    tagId: string[];
+
+    // Documents
+    cpf: string;
+    cpfFile: File | null;
+    rg: string;
+    rgIssuingAuthority: string;
+    rgIssuanceDate: string | undefined;
+    rgState: string;
+    rgFile: File | null;
+    passport: string;
+    passportIssuanceDate: string | undefined;
+    passportExpirationDate: string | undefined;
+    passportFile: File | null;
+
+    // Contacts
+    phoneNumberOne: string;
+    phoneNumberTwo: string;
+    emailOne: string;
+    emailTwo: string;
+    linkedin: string;
+    instagram: string;
+    facebook: string;
+    x: string;
+
+    // Addresses
+    addressOneCepBrasilApi: string;
+    addressOneType: string;
+    addressOneStreet: string;
+    addressOneNumber: string;
+    addressOneComplement: string;
+    addressOneCity: string;
+    addressOneState: string;
+    addressTwoCepBrasilApi: string;
+    addressTwoType: string;
+    addressTwoStreet: string;
+    addressTwoNumber: string;
+    addressTwoComplement: string;
+    addressTwoCity: string;
+    addressTwoState: string;
+
+    // Education
+    personEducation: string;
+    personLanguages: string[];
+
+    // Banking
+    bankDataOne: IBankData;
+    bankDataTwo: IBankData;
+  }
+
+  // Mapeando a interface de erros para corresponder exatamente à estrutura do perfil
+  type ErrorsType = Record<string, string>;
+
+  export let profile: IPersonProfile = {
     personName: "",
     personNickname: "",
     gender: "",
@@ -22,20 +102,20 @@
     personDescription: "",
     tagId: [],
 
-    // Document data
+    // Documents
     cpf: "",
-    cpfFile: "",
+    cpfFile: null,
     rg: "",
     rgIssuingAuthority: "",
     rgIssuanceDate: undefined,
     rgState: "",
-    rgFile: "",
+    rgFile: null,
     passport: "",
     passportIssuanceDate: undefined,
     passportExpirationDate: undefined,
-    passportFile: "",
+    passportFile: null,
 
-    // Contact data
+    // Contacts
     phoneNumberOne: "",
     phoneNumberTwo: "",
     emailOne: "",
@@ -45,7 +125,7 @@
     facebook: "",
     x: "",
 
-    // Address data
+    // Addresses
     addressOneCepBrasilApi: "",
     addressOneType: "",
     addressOneStreet: "",
@@ -61,11 +141,11 @@
     addressTwoCity: "",
     addressTwoState: "",
 
-    // Education data
+    // Education
     personEducation: "",
     personLanguages: [],
 
-    // Bank data
+    // Banking
     bankDataOne: {
       bankName: "",
       bankBranch: "",
@@ -80,21 +160,25 @@
     },
   };
 
-  export let errors = {};
-  export let loading = false;
-  export let success = "";
+  export let errors: ErrorsType = {};
+  export let loading: boolean = false;
+  export let success: string = "";
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    submit: IPersonProfile;
+    cancel: void;
+  }>();
 
-  // Options for form fields
-  const genderOptions = [
+  // Gender options
+  const genderOptions: ISelectOption[] = [
     { value: "M", name: "Masculino" },
     { value: "F", name: "Feminino" },
     { value: "N", name: "Neutro" },
     { value: "O", name: "Outro" },
   ];
 
-  const maritalStatusOptions = [
+  // Marital status options
+  const maritalStatusOptions: ISelectOption[] = [
     { value: "single", name: "Solteiro(a)" },
     { value: "married", name: "Casado(a)" },
     { value: "divorced", name: "Divorciado(a)" },
@@ -103,7 +187,8 @@
     { value: "commonLawMarried", name: "União Estável" },
   ];
 
-  const educationLevelOptions = [
+  // Education level options
+  const educationLevelOptions: ISelectOption[] = [
     {
       value: "incompleteElementarySchool",
       name: "Ensino Fundamental Incompleto",
@@ -118,20 +203,27 @@
     { value: "doctorate", name: "Doutorado" },
   ];
 
-  const stateOptions = STATES;
+  // Convert STATES to ISelectOption format
+  const stateOptions: ISelectOption[] = STATES.map((state) => ({
+    value: state.uf,
+    name: state.stateName,
+  }));
 
-  const addressTypeOptions = [
+  // Address type options
+  const addressTypeOptions: ISelectOption[] = [
     { value: "residential", name: "Residencial" },
     { value: "commercial", name: "Comercial" },
     { value: "other", name: "Outro" },
   ];
 
-  const bankAccountTypeOptions = [
+  // Bank account type options
+  const bankAccountTypeOptions: ISelectOption[] = [
     { value: "currentAccount", name: "Conta Corrente" },
     { value: "savingsAccount", name: "Conta Poupança" },
   ];
 
-  const languageOptions = [
+  // Language options
+  const languageOptions: ISelectOption[] = [
     { value: "portuguese", name: "Português" },
     { value: "english", name: "Inglês" },
     { value: "spanish", name: "Espanhol" },
@@ -143,7 +235,8 @@
     { value: "other", name: "Outro" },
   ];
 
-  const availableTags = [
+  // Available tags
+  const availableTags: ITag[] = [
     { id: "tag1", name: "Profissional" },
     { id: "tag2", name: "Estudante" },
     { id: "tag3", name: "Empreendedor" },
@@ -151,15 +244,15 @@
     { id: "tag5", name: "Desenvolvedor" },
   ];
 
-  function handleSubmit() {
+  function handleSubmit(): void {
     dispatch("submit", profile);
   }
 
-  function handleCancel() {
+  function handleCancel(): void {
     dispatch("cancel");
   }
 
-  function toggleTag(tagId) {
+  function toggleTag(tagId: string): void {
     if (profile.tagId.includes(tagId)) {
       profile.tagId = profile.tagId.filter((id) => id !== tagId);
     } else {
@@ -167,7 +260,7 @@
     }
   }
 
-  function toggleLanguage(language) {
+  function toggleLanguage(language: string): void {
     if (!profile.personLanguages) {
       profile.personLanguages = [];
     }
@@ -182,7 +275,7 @@
   }
 
   // Tabs configuration
-  const tabs = [
+  const tabs: ITab[] = [
     { id: "main", title: "Dados Principais" },
     { id: "documents", title: "Documentos" },
     { id: "contacts", title: "Contatos e Redes" },
@@ -191,13 +284,32 @@
     { id: "banking", title: "Dados Bancários" },
   ];
 
-  let activeTabId = tabs[0].id;
+  let activeTabId: string = tabs[0].id;
 
   $: console.log("PersonProfileForm - activeTabId changed to:", activeTabId);
 
-  function handleTabChange(event) {
+  function handleTabChange(event: CustomEvent<string>): void {
     console.log("Tab change event received:", event.detail);
     activeTabId = event.detail;
+  }
+
+  // Helper function to safely get specific field errors
+  function getFieldError(field: string): string | undefined {
+    return errors[field];
+  }
+
+  // Helper function for nested fields like bankDataOne.bankName
+  function getNestedFieldError(
+    parent: string,
+    field: string
+  ): string | undefined {
+    const key = `${parent}.${field}`;
+    return errors[key];
+  }
+
+  interface ITab {
+    id: string;
+    title: string;
   }
 </script>
 
@@ -207,8 +319,8 @@
   {/if}
 
   <KuTab
-    id="person-tabs" 
-    {tabs} 
+    id="person-tabs"
+    {tabs}
     bind:activeTabId
     on:tabChange={handleTabChange}
   >
@@ -221,7 +333,7 @@
           placeholder="Nome completo"
           bind:value={profile.personName}
           isRequired={true}
-          error={errors.personName}
+          error={getFieldError("personName")}
         />
 
         <KuInput
@@ -230,7 +342,7 @@
           label="Como gosta de ser chamado"
           placeholder="Apelido ou nome social"
           bind:value={profile.personNickname}
-          error={errors.personNickname}
+          error={getFieldError("personNickname")}
         />
 
         <KuSelect
@@ -240,7 +352,7 @@
           options={genderOptions}
           bind:value={profile.gender}
           isRequired={true}
-          error={errors.gender}
+          error={getFieldError("gender")}
         />
 
         <KuInput
@@ -249,7 +361,7 @@
           label="Data de Nascimento"
           bind:value={profile.birthday}
           isRequired={true}
-          error={errors.birthday}
+          error={getFieldError("birthday")}
         />
 
         <KuSelect
@@ -258,7 +370,7 @@
           label="Estado Civil"
           options={maritalStatusOptions}
           bind:value={profile.maritalStatus}
-          error={errors.maritalStatus}
+          error={getFieldError("maritalStatus")}
         />
 
         <KuInput
@@ -267,7 +379,7 @@
           label="Nome da Mãe"
           placeholder="Nome completo da mãe"
           bind:value={profile.motherName}
-          error={errors.motherName}
+          error={getFieldError("motherName")}
         />
 
         <KuInput
@@ -276,7 +388,7 @@
           label="Nome do Pai"
           placeholder="Nome completo do pai"
           bind:value={profile.fatherName}
-          error={errors.fatherName}
+          error={getFieldError("fatherName")}
         />
       </div>
 
@@ -284,12 +396,16 @@
         <Label for="personDescription" class="mb-2">Sobre Você</Label>
         <Textarea
           id="personDescription"
-          rows="3"
+          rows={3}
           placeholder="Conte um pouco sobre você..."
           bind:value={profile.personDescription}
-          error={errors.personDescription}
           class="w-full"
         />
+        {#if getFieldError("personDescription")}
+          <p class="text-red-500 text-sm mt-1">
+            {getFieldError("personDescription")}
+          </p>
+        {/if}
       </div>
 
       <div class="mt-6">
@@ -310,8 +426,8 @@
             </button>
           {/each}
         </div>
-        {#if errors.tagId}
-          <p class="text-red-500 text-sm mt-1">{errors.tagId}</p>
+        {#if getFieldError("tagId")}
+          <p class="text-red-500 text-sm mt-1">{getFieldError("tagId")}</p>
         {/if}
       </div>
     {:else if activeTabId === "documents"}
@@ -323,14 +439,14 @@
             label="CPF"
             placeholder="123.456.789-00"
             bind:value={profile.cpf}
-            error={errors.cpf}
+            error={getFieldError("cpf")}
           />
 
           <KuFile
             name="cpfFile"
             label="Arquivo do CPF"
             bind:value={profile.cpfFile}
-            error={errors.cpfFile}
+            error={getFieldError("cpfFile")}
           />
 
           <KuInput
@@ -339,14 +455,14 @@
             label="RG"
             placeholder="12.345.678-9"
             bind:value={profile.rg}
-            error={errors.rg}
+            error={getFieldError("rg")}
           />
 
           <KuFile
             name="rgFile"
             label="Arquivo do RG"
             bind:value={profile.rgFile}
-            error={errors.rgFile}
+            error={getFieldError("rgFile")}
           />
 
           <KuInput
@@ -355,7 +471,7 @@
             label="Órgão Emissor do RG"
             placeholder="SSP"
             bind:value={profile.rgIssuingAuthority}
-            error={errors.rgIssuingAuthority}
+            error={getFieldError("rgIssuingAuthority")}
           />
 
           <KuSelect
@@ -364,7 +480,7 @@
             label="Estado Emissor"
             options={stateOptions}
             bind:value={profile.rgState}
-            error={errors.rgState}
+            error={getFieldError("rgState")}
           />
 
           <KuInput
@@ -372,7 +488,7 @@
             dataType="date"
             label="Data de Emissão"
             bind:value={profile.rgIssuanceDate}
-            error={errors.rgIssuanceDate}
+            error={getFieldError("rgIssuanceDate")}
           />
         </div>
       </KuFieldset>
@@ -385,7 +501,7 @@
             label="Passaporte"
             placeholder="AA1234567"
             bind:value={profile.passport}
-            error={errors.passport}
+            error={getFieldError("passport")}
           />
 
           <KuInput
@@ -393,7 +509,7 @@
             dataType="date"
             label="Data de Emissão do Passaporte"
             bind:value={profile.passportIssuanceDate}
-            error={errors.passportIssuanceDate}
+            error={getFieldError("passportIssuanceDate")}
           />
 
           <KuInput
@@ -401,14 +517,14 @@
             dataType="date"
             label="Data de Expiração do Passaporte"
             bind:value={profile.passportExpirationDate}
-            error={errors.passportExpirationDate}
+            error={getFieldError("passportExpirationDate")}
           />
 
           <KuFile
             name="passportFile"
             label="Arquivo do Passaporte"
             bind:value={profile.passportFile}
-            error={errors.passportFile}
+            error={getFieldError("passportFile")}
           />
         </div>
       </KuFieldset>
@@ -421,7 +537,7 @@
             label="Telefone Principal"
             placeholder="(99) 99999-9999"
             bind:value={profile.phoneNumberOne}
-            error={errors.phoneNumberOne}
+            error={getFieldError("phoneNumberOne")}
           />
 
           <KuInput
@@ -430,7 +546,7 @@
             label="Telefone Secundário"
             placeholder="(99) 99999-9999"
             bind:value={profile.phoneNumberTwo}
-            error={errors.phoneNumberTwo}
+            error={getFieldError("phoneNumberTwo")}
           />
 
           <KuInput
@@ -439,7 +555,7 @@
             label="Email Principal"
             placeholder="email@exemplo.com"
             bind:value={profile.emailOne}
-            error={errors.emailOne}
+            error={getFieldError("emailOne")}
           />
 
           <KuInput
@@ -448,7 +564,7 @@
             label="Email Alternativo"
             placeholder="email@exemplo.com"
             bind:value={profile.emailTwo}
-            error={errors.emailTwo}
+            error={getFieldError("emailTwo")}
           />
         </div>
       </KuFieldset>
@@ -459,9 +575,9 @@
             name="linkedin"
             dataType="text"
             label="LinkedIn"
-            placeholder="https://linkedin.com/in/seu_perfil"
+            placeholder="https://www.linkedin.com/in/seu-perfil"
             bind:value={profile.linkedin}
-            error={errors.linkedin}
+            error={getFieldError("linkedin")}
           />
 
           <KuInput
@@ -470,16 +586,16 @@
             label="Instagram"
             placeholder="@seu_perfil"
             bind:value={profile.instagram}
-            error={errors.instagram}
+            error={getFieldError("instagram")}
           />
 
           <KuInput
             name="facebook"
             dataType="text"
             label="Facebook"
-            placeholder="https://facebook.com/seu_perfil"
+            placeholder="https://www.facebook.com/seu-perfil"
             bind:value={profile.facebook}
-            error={errors.facebook}
+            error={getFieldError("facebook")}
           />
 
           <KuInput
@@ -488,7 +604,7 @@
             label="X / Twitter"
             placeholder="@seu_perfil"
             bind:value={profile.x}
-            error={errors.x}
+            error={getFieldError("x")}
           />
         </div>
       </KuFieldset>
@@ -501,7 +617,7 @@
             label="CEP"
             placeholder="00000-000"
             bind:value={profile.addressOneCepBrasilApi}
-            error={errors.addressOneCepBrasilApi}
+            error={getFieldError("addressOneCepBrasilApi")}
           />
 
           <KuSelect
@@ -510,7 +626,7 @@
             label="Tipo de Endereço"
             options={addressTypeOptions}
             bind:value={profile.addressOneType}
-            error={errors.addressOneType}
+            error={getFieldError("addressOneType")}
           />
 
           <KuInput
@@ -519,7 +635,7 @@
             label="Logradouro"
             placeholder="Rua, Avenida, etc."
             bind:value={profile.addressOneStreet}
-            error={errors.addressOneStreet}
+            error={getFieldError("addressOneStreet")}
           />
 
           <KuInput
@@ -528,7 +644,7 @@
             label="Número"
             placeholder="123"
             bind:value={profile.addressOneNumber}
-            error={errors.addressOneNumber}
+            error={getFieldError("addressOneNumber")}
           />
 
           <KuInput
@@ -537,7 +653,7 @@
             label="Complemento"
             placeholder="Apto, Bloco, etc."
             bind:value={profile.addressOneComplement}
-            error={errors.addressOneComplement}
+            error={getFieldError("addressOneComplement")}
           />
 
           <KuInput
@@ -546,7 +662,7 @@
             label="Cidade"
             placeholder="Cidade"
             bind:value={profile.addressOneCity}
-            error={errors.addressOneCity}
+            error={getFieldError("addressOneCity")}
           />
 
           <KuSelect
@@ -555,7 +671,7 @@
             label="Estado"
             options={stateOptions}
             bind:value={profile.addressOneState}
-            error={errors.addressOneState}
+            error={getFieldError("addressOneState")}
           />
         </div>
       </KuFieldset>
@@ -568,7 +684,7 @@
             label="CEP"
             placeholder="00000-000"
             bind:value={profile.addressTwoCepBrasilApi}
-            error={errors.addressTwoCepBrasilApi}
+            error={getFieldError("addressTwoCepBrasilApi")}
           />
 
           <KuSelect
@@ -577,7 +693,7 @@
             label="Tipo de Endereço"
             options={addressTypeOptions}
             bind:value={profile.addressTwoType}
-            error={errors.addressTwoType}
+            error={getFieldError("addressTwoType")}
           />
 
           <KuInput
@@ -586,7 +702,7 @@
             label="Logradouro"
             placeholder="Rua, Avenida, etc."
             bind:value={profile.addressTwoStreet}
-            error={errors.addressTwoStreet}
+            error={getFieldError("addressTwoStreet")}
           />
 
           <KuInput
@@ -595,7 +711,7 @@
             label="Número"
             placeholder="123"
             bind:value={profile.addressTwoNumber}
-            error={errors.addressTwoNumber}
+            error={getFieldError("addressTwoNumber")}
           />
 
           <KuInput
@@ -604,7 +720,7 @@
             label="Complemento"
             placeholder="Apto, Bloco, etc."
             bind:value={profile.addressTwoComplement}
-            error={errors.addressTwoComplement}
+            error={getFieldError("addressTwoComplement")}
           />
 
           <KuInput
@@ -613,7 +729,7 @@
             label="Cidade"
             placeholder="Cidade"
             bind:value={profile.addressTwoCity}
-            error={errors.addressTwoCity}
+            error={getFieldError("addressTwoCity")}
           />
 
           <KuSelect
@@ -622,7 +738,7 @@
             label="Estado"
             options={stateOptions}
             bind:value={profile.addressTwoState}
-            error={errors.addressTwoState}
+            error={getFieldError("addressTwoState")}
           />
         </div>
       </KuFieldset>
@@ -635,7 +751,7 @@
             label="Nível de Escolaridade"
             options={educationLevelOptions}
             bind:value={profile.personEducation}
-            error={errors.personEducation}
+            error={getFieldError("personEducation")}
           />
         </div>
 
@@ -655,8 +771,10 @@
               </button>
             {/each}
           </div>
-          {#if errors.personLanguages}
-            <p class="text-red-500 text-sm mt-1">{errors.personLanguages}</p>
+          {#if getFieldError("personLanguages")}
+            <p class="text-red-500 text-sm mt-1">
+              {getFieldError("personLanguages")}
+            </p>
           {/if}
         </div>
       </KuFieldset>
@@ -664,39 +782,39 @@
       <KuFieldset id="bank-one-section" title="Dados Bancários Principais">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <KuInput
-            name="bankDataOneName"
+            name="bankDataOne.bankName"
             dataType="text"
             label="Banco"
             placeholder="Nome ou Código do Banco"
             bind:value={profile.bankDataOne.bankName}
-            error={errors.bankDataOne?.bankName}
+            error={getFieldError("bankDataOne.bankName")}
           />
 
           <KuInput
-            name="bankDataOneBranch"
+            name="bankDataOne.bankBranch"
             dataType="text"
             label="Agência"
             placeholder="0000"
             bind:value={profile.bankDataOne.bankBranch}
-            error={errors.bankDataOne?.bankBranch}
+            error={getFieldError("bankDataOne.bankBranch")}
           />
 
           <KuInput
-            name="bankDataOneAccount"
+            name="bankDataOne.bankAccount"
             dataType="text"
             label="Conta"
             placeholder="00000-0"
             bind:value={profile.bankDataOne.bankAccount}
-            error={errors.bankDataOne?.bankAccount}
+            error={getFieldError("bankDataOne.bankAccount")}
           />
 
           <KuSelect
-            name="bankDataOneAccountType"
+            name="bankDataOne.bankAccountType"
             dataType="text"
             label="Tipo de Conta"
             options={bankAccountTypeOptions}
             bind:value={profile.bankDataOne.bankAccountType}
-            error={errors.bankDataOne?.bankAccountType}
+            error={getFieldError("bankDataOne.bankAccountType")}
           />
         </div>
       </KuFieldset>
@@ -704,46 +822,45 @@
       <KuFieldset id="bank-two-section" title="Dados Bancários Secundários">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <KuInput
-            name="bankDataTwoName"
+            name="bankDataTwo.bankName"
             dataType="text"
             label="Banco"
             placeholder="Nome ou Código do Banco"
             bind:value={profile.bankDataTwo.bankName}
-            error={errors.bankDataTwo?.bankName}
+            error={getFieldError("bankDataTwo.bankName")}
           />
 
           <KuInput
-            name="bankDataTwoBranch"
+            name="bankDataTwo.bankBranch"
             dataType="text"
             label="Agência"
             placeholder="0000"
             bind:value={profile.bankDataTwo.bankBranch}
-            error={errors.bankDataTwo?.bankBranch}
+            error={getFieldError("bankDataTwo.bankBranch")}
           />
 
           <KuInput
-            name="bankDataTwoAccount"
+            name="bankDataTwo.bankAccount"
             dataType="text"
             label="Conta"
             placeholder="00000-0"
             bind:value={profile.bankDataTwo.bankAccount}
-            error={errors.bankDataTwo?.bankAccount}
+            error={getFieldError("bankDataTwo.bankAccount")}
           />
 
           <KuSelect
-            name="bankDataTwoAccountType"
+            name="bankDataTwo.bankAccountType"
             dataType="text"
             label="Tipo de Conta"
             options={bankAccountTypeOptions}
             bind:value={profile.bankDataTwo.bankAccountType}
-            error={errors.bankDataTwo?.bankAccountType}
+            error={getFieldError("bankDataTwo.bankAccountType")}
           />
         </div>
       </KuFieldset>
     {/if}
   </KuTab>
 
-  <!-- Botões de ação -->
   <!-- Botões de ação -->
   <div class="flex justify-end space-x-4 mt-8 px-4">
     <KuButton

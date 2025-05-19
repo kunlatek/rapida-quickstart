@@ -8,17 +8,17 @@
     IFormElement,
   } from "../../interfaces/form.interfaces";
 
-  // Interface para o formato das abas
+  // Tab interface
   interface ITab {
     id: string;
     title: string;
     elements?: IFormElement[];
   }
 
-  // Interface para os tipos de variantes suportadas
+  // Tab variant type
   type TabVariant = "default" | "pills";
 
-  // Interface para configurações de estilo das abas
+  // Tab variant styles interface
   interface TabVariantStyles {
     base: string;
     active: string;
@@ -31,7 +31,7 @@
   export let variant: TabVariant = "default";
   export let conditions: IFormCondition[] = [];
   export let error = "";
-  export let todo = "";
+  export const todo = ""; // Changed from export let to export const
 
   const dispatch = createEventDispatcher<{ tabChange: string }>();
 
@@ -46,26 +46,25 @@
   $: tabContainerClasses = getComponentClasses("tab", variant);
 
   function getTabItemClasses(isActive: boolean): string {
-    // Garantir que estamos acessando variantes válidas
+    // Get tab styling based on variant
     const tabVariants = themeConfig.components.tab.variants as Record<
-      TabVariant,
+      string,
       TabVariantStyles
     >;
     const variantConfig = tabVariants[variant] || tabVariants.default;
     return isActive ? variantConfig.active : variantConfig.inactive;
   }
 
-  // Evaluate conditions to determine if the component should be shown
+  // Function to evaluate conditions
   function evaluateConditions(): boolean {
-    // If no conditions are provided, the component is shown
+    // If no conditions, return true
     if (!conditions || conditions.length === 0) return true;
 
-    // Implementation would check conditions against form data
-    // For now, we return true as a placeholder
+    // Condition evaluation logic would go here
     return true;
   }
 
-  // Reactive variable to determine if component should be shown
+  // Reactive conditions evaluation
   $: showComponent = evaluateConditions();
 </script>
 

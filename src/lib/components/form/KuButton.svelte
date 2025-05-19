@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button as FlowbiteButton } from "flowbite-svelte";
   import {
-    getComponentClasses,
     getButtonSizeClasses,
   } from "../../styles/theme";
   import type {
@@ -9,10 +8,10 @@
     IApiRequest,
   } from "../../interfaces/form.interfaces";
 
-  // ActionType para nosso componente
+  // Action type
   type ActionType = "submit" | "reset" | "link" | "apiRequest";
 
-  // Tipos esperados pelo FlowbiteButton
+  // Flowbite button type
   type FlowbiteButtonType = "submit" | "reset" | "button" | null | undefined;
   type FlowbiteButtonColor =
     | "primary"
@@ -47,9 +46,9 @@
   export let size: ButtonSize = "md";
   export let conditions: IFormCondition[] = [];
   export let apiRequest: IApiRequest | undefined = undefined;
-  export let todo = "";
+  export const todo = ""; // Changed from export let to export const
 
-  // Determine button type based on actionType, convertendo para tipo compatível
+  // Determine button type based on actionType
   $: type = (() => {
     switch (actionType) {
       case "submit":
@@ -64,7 +63,7 @@
     }
   })() as FlowbiteButtonType;
 
-  // Map variant to Flowbite color
+  // Determine color based on variant
   $: color = (() => {
     switch (variant) {
       case "primary":
@@ -82,26 +81,26 @@
     }
   })() as FlowbiteButtonColor;
 
-  // Get size classes from theme
+  // Get size classes
   $: sizeClasses = getButtonSizeClasses(size);
 
-  // Combine all button classes
+  // Combined button class
   $: buttonClass = `${sizeClasses} ${customClass}`;
 
-  // Handle API request if actionType is apiRequest
+  // Handle API request
   async function handleApiRequest() {
     if (actionType === "apiRequest" && apiRequest) {
       try {
-        // This would be implemented to handle API requests
+        // API request logic would go here
         console.log("API request would be made to:", apiRequest.endpoint);
-        // Example implementation would fetch from the endpoint
+        // Implementation goes here
       } catch (error) {
         console.error("Error making API request:", error);
       }
     }
   }
 
-  // Handle button click based on actionType
+  // Handle click event
   function handleClick(event: Event) {
     if (actionType === "apiRequest") {
       handleApiRequest();
@@ -109,17 +108,16 @@
     }
   }
 
-  // Evaluate conditions to determine if the component should be shown
+  // Function to evaluate conditions
   function evaluateConditions(): boolean {
-    // If no conditions are provided, the component is shown
+    // If no conditions, return true
     if (!conditions || conditions.length === 0) return true;
 
-    // Implementation would check conditions against form data
-    // For now, we return true as a placeholder
+    // Condition evaluation logic would go here
     return true;
   }
 
-  // Reactive variable to determine if component should be shown
+  // Reactive conditions evaluation
   $: showComponent = evaluateConditions();
 </script>
 

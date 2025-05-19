@@ -1,13 +1,14 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import { toastStore } from "$stores/toast";
-  import { Button, Card, Input, Label, Alert, Spinner } from "flowbite-svelte";
+  import { Alert, Spinner } from "flowbite-svelte"; // Card, Label não são mais usados diretamente aqui.
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { userService } from "$services/user";
   import GoogleLoginButton from "$lib/components/pages/auth/GoogleLoginButton.svelte";
   import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
+  import { mapBackendErrorToFrontendMessage } from "$lib/services/errorMapper";
+  import { KuInput, KuButton } from "$lib/components/form";
 
-  // Form data and state
   let email = "";
   let password = "";
   let confirmPassword = "";
@@ -16,27 +17,27 @@
   let googleLoading = false;
   let appleLoading = false;
 
-  // Form validation
   $: passwordMatch = password === confirmPassword;
   $: passwordLength = password.length >= 8;
   $: formIsValid =
     email && password && confirmPassword && passwordMatch && passwordLength;
 
-  // Handle registration form submission
-  async function handleRegister() {
-    // Validate fields
+  async function handleRegister(): Promise<void> {
     if (!email || !password || !confirmPassword) {
       errorMessage = "Por favor, preencha todos os campos";
+      toastStore.add(errorMessage, "error");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (!passwordMatch) {
       errorMessage = "As senhas não coincidem";
+      toastStore.add(errorMessage, "error");
       return;
     }
 
-    if (password.length < 8) {
+    if (!passwordLength) {
       errorMessage = "A senha deve ter pelo menos 8 caracteres";
+      toastStore.add(errorMessage, "error");
       return;
     }
 
@@ -46,16 +47,16 @@
 
       await userService.register(email, password);
 
-      toastStore.success(
-        "Conta criada com sucesso! Faça login para continuar."
+      toastStore.add(
+        "Conta criada com sucesso! Faça login para continuar.",
+        "success"
       );
-      goto("/auth/login");
-    } catch (error) {
+      await goto("/auth/login");
+    } catch (error: any) {
       console.error("Erro no registro:", error);
-      errorMessage =
-        error.response?.data?.message ||
-        "Erro ao criar conta. Verifique os dados e tente novamente.";
-      toastStore.error(errorMessage);
+      const mappedError = mapBackendErrorToFrontendMessage(error);
+      errorMessage = mappedError;
+      toastStore.add(mappedError, "error");
     } finally {
       loading = false;
     }
@@ -67,91 +68,108 @@
 </svelte:head>
 
 <AuthLayout>
-  <Card class="w-full max-w-md mx-auto">
+  <div
+    role="main"
+    class="w-full max-w-md mx-auto bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 md:p-8"
+  >
     <div class="flex flex-col items-center">
-      <img src="/images/logo.svg" alt="Logo" class="h-16 mb-6" />
+      <img
+        src="/images/logo.svg"
+        alt="Logo Rapida Quickstart"
+        class="h-16 mb-6"
+      />
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
         Criar nova conta
       </h2>
 
-      {#if errorMessage}
-        <Alert color="red" class="mb-4 w-full">{errorMessage}</Alert>
+      {#if errorMessage && !loading}
+        <Alert
+          color="red"
+          class="mb-4 w-full"
+          dismissable
+          on:close={() => (errorMessage = "")}
+        >
+          {errorMessage}
+        </Alert>
       {/if}
 
       <form on:submit|preventDefault={handleRegister} class="w-full space-y-4">
-        <div>
-          <Label for="email" class="mb-2">Email</Label>
-          <Input
-            type="email"
-            id="email"
-            placeholder="nome@empresa.com"
-            bind:value={email}
-            required
-            disabled={loading}
-          />
-        </div>
+        <KuInput
+          id="email"
+          name="email"
+          dataType="email"
+          label="Email"
+          placeholder="nome@empresa.com"
+          bind:value={email}
+          isRequired={true}
+          isDisabled={loading}
+          error={errorMessage && email === "" ? "Email é obrigatório" : ""}
+        />
 
         <div>
-          <Label for="password" class="mb-2">Senha</Label>
-          <Input
-            type="password"
+          <KuInput
             id="password"
+            name="password"
+            dataType="password"
+            label="Senha"
             placeholder="••••••••"
             bind:value={password}
-            required
-            disabled={loading}
-            color={password ? (passwordLength ? "green" : "red") : ""}
+            isRequired={true}
+            isDisabled={loading}
+            error={password !== "" && !passwordLength
+              ? "A senha deve ter pelo menos 8 caracteres"
+              : ""}
           />
-          <p
-            class="text-xs mt-1"
-            class:text-green-600={passwordLength}
-            class:text-red-600={password && !passwordLength}
-            class:text-gray-500={!password}
-          >
-            A senha deve ter pelo menos 8 caracteres
-          </p>
+          {#if password !== "" && !passwordLength}
+            <p class="text-xs mt-1 text-red-600 dark:text-red-500">
+              A senha deve ter pelo menos 8 caracteres
+            </p>
+          {:else if password !== "" && passwordLength}
+            <p class="text-xs mt-1 text-green-600 dark:text-green-500">
+              Força da senha adequada.
+            </p>
+          {/if}
         </div>
 
         <div>
-          <Label for="confirm-password" class="mb-2">Confirmar Senha</Label>
-          <Input
-            type="password"
+          <KuInput
             id="confirm-password"
+            name="confirmPassword"
+            dataType="password"
+            label="Confirmar Senha"
             placeholder="••••••••"
             bind:value={confirmPassword}
-            required
-            disabled={loading}
-            color={confirmPassword ? (passwordMatch ? "green" : "red") : ""}
+            isRequired={true}
+            isDisabled={loading}
+            error={confirmPassword !== "" && !passwordMatch
+              ? "As senhas não coincidem"
+              : ""}
           />
-          {#if confirmPassword && !passwordMatch}
-            <p class="text-xs text-red-600 mt-1">As senhas não coincidem</p>
+          {#if confirmPassword !== "" && !passwordMatch}
+            <p class="text-xs text-red-600 dark:text-red-500 mt-1">
+              As senhas não coincidem
+            </p>
           {/if}
         </div>
 
-        <Button
-          type="submit"
-          class="w-full"
-          color="blue"
-          disabled={loading || !formIsValid}
-        >
-          {#if loading}
-            <div class="flex items-center justify-center">
-              <Spinner class="mr-3" size="sm" />
-              Registrando...
-            </div>
-          {:else}
-            Criar Conta
-          {/if}
-        </Button>
+        <KuButton
+          actionType="submit"
+          label={loading ? "Registrando..." : "Criar Conta"}
+          isDisabled={loading || !formIsValid}
+          customClass="w-full"
+          variant="primary"
+        />
 
         <div
           class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"
         >
-          Já tem uma conta? <a
+          Já tem uma conta?
+          <a
             href="/auth/login"
             class="text-blue-600 hover:underline dark:text-blue-500"
-            >Fazer login</a
           >
+            Fazer login
+          </a>
         </div>
       </form>
 
@@ -165,13 +183,13 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <GoogleLoginButton bind:loading={googleLoading} />
           <AppleLoginButton bind:loading={appleLoading} />
         </div>
       </div>
 
-      <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+      <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
         Ao criar uma conta, você concorda com nossos
         <a
           href="/terms-of-service"
@@ -188,5 +206,5 @@
         </a>.
       </p>
     </div>
-  </Card>
+  </div>
 </AuthLayout>

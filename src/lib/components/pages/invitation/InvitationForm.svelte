@@ -1,38 +1,53 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { KuInput, KuSelect, KuButton } from "$lib/components/form";
 
-  export let invitation = {
+  interface InvitationData {
+    email: string;
+    role: string;
+  }
+
+  interface InvitationErrors {
+    email: string;
+    role: string;
+  }
+
+  export let invitation: InvitationData = {
     email: "",
     role: "",
   };
 
-  const dispatch = createEventDispatcher();
-
-  export let errors = {
+  export let errors: InvitationErrors = {
     email: "",
     role: "",
   };
-  export let loading = false;
 
-  function handleSubmit() {
+  export let loading: boolean = false;
+
+  const dispatch = createEventDispatcher<{
+    submit: InvitationData;
+    cancel: void;
+  }>();
+
+  function handleSubmit(): void {
     dispatch("submit", invitation);
   }
 
-  function handleCancel() {
+  function handleCancel(): void {
     dispatch("cancel");
   }
 
-  const rolesOptions = [
+  interface RoleOption {
+    name: string;
+    value: string;
+  }
+
+  const rolesOptions: RoleOption[] = [
     { name: "Admin", value: "admin" },
     { name: "User", value: "user" },
   ];
 
-  /**
-   * Toggle the role of the invitation
-   * @param {any} role - The role to toggle
-   */
-  function toggleRole(role) {
+  function toggleRole(role: string): void {
     invitation.role = role;
   }
 </script>
@@ -41,6 +56,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <KuInput
       name="email"
+      dataType="email"
       label="Email"
       bind:value={invitation.email}
       isRequired={true}
@@ -48,15 +64,16 @@
     />
     <KuSelect
       name="role"
+      dataType="text"
       label="Papel"
       bind:value={invitation.role}
       options={rolesOptions}
-      on:change={toggleRole}
+      on:change={() => toggleRole(invitation.role)}
       isRequired={true}
       error={errors.role}
     />
   </div>
-  
+
   <div class="flex justify-end space-x-4 mt-8 px-4">
     <KuButton
       id="submit-button"
@@ -67,7 +84,7 @@
     <KuButton
       id="cancel-button"
       label="Cancelar"
-      actionType="button"
+      actionType="reset"
       variant="secondary"
       on:click={handleCancel}
     />

@@ -1,29 +1,35 @@
-<script>
+<script lang="ts">
   import { Button } from "flowbite-svelte";
 
-  export let totalItems = 0;
-  export let pageSize = 10;
-  export let currentPage = 1;
-  export let onPageChange = () => {};
-  export let showPageNumbers = true;
-  export let maxPageNumbers = 5;
+  export let totalItems: number = 0;
+  export let pageSize: number = 10;
+  export let currentPage: number = 1;
+  export let onPageChange: (page: number) => void = () => {};
+  export let showPageNumbers: boolean = true;
+  export let maxPageNumbers: number = 5;
 
+  // Calcular número total de páginas
   $: totalPages = Math.ceil(totalItems / pageSize);
 
+  // Calcular páginas visíveis para paginação
   $: visiblePages = calculateVisiblePages(
     currentPage,
     totalPages,
     maxPageNumbers
   );
 
-  function calculateVisiblePages(current, total, max) {
+  function calculateVisiblePages(
+    current: number,
+    total: number,
+    max: number
+  ): number[] {
     if (total <= max) {
       return Array.from({ length: total }, (_, i) => i + 1);
     }
 
-    const half = Math.floor(max / 2);
-    let start = current - half;
-    let end = current + half;
+    const half: number = Math.floor(max / 2);
+    let start: number = current - half;
+    let end: number = current + half;
 
     if (start < 1) {
       start = 1;
@@ -36,24 +42,24 @@
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
-  function goToPage(page) {
+  function goToPage(page: number): void {
     if (page < 1 || page > totalPages || page === currentPage) return;
     onPageChange(page);
   }
 
-  function goToFirstPage() {
+  function goToFirstPage(): void {
     goToPage(1);
   }
 
-  function goToLastPage() {
+  function goToLastPage(): void {
     goToPage(totalPages);
   }
 
-  function goToPreviousPage() {
+  function goToPreviousPage(): void {
     goToPage(currentPage - 1);
   }
 
-  function goToNextPage() {
+  function goToNextPage(): void {
     goToPage(currentPage + 1);
   }
 </script>

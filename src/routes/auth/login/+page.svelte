@@ -1,17 +1,43 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import { authService } from "$services/auth";
-  import { toastStore } from "$stores/toast";
-  import { authStore } from "$stores/auth";
+  import { authStore as rawAuthStore } from "$stores/auth";
   import { profileService } from "$services/profile";
+  import { toastStore } from "$stores/toast"; // Usando diretamente, vamos chamar .add()
+
   import { Card, Alert, Spinner, Checkbox, Label } from "flowbite-svelte";
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { onMount } from "svelte";
   import { KuInput, KuButton } from "$lib/components/form";
-  import GoogleLoginButton from "../../../lib/components/pages/auth/GoogleLoginButton.svelte";
-  import AppleLoginButton from "../../../lib/components/pages/auth/AppleLoginButton.svelte";
+  import GoogleLoginButton from "$lib/components/pages/auth/GoogleLoginButton.svelte";
+  import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
+  import { mapBackendErrorToFrontendMessage } from "$lib/services/errorMapper";
+  import type { Writable } from "svelte/store";
 
-  // Variáveis de estado do formulário
+  // --- Interface Definitions for better Typing ---
+  interface AuthUser {
+    userId: string;
+    email: string;
+    activeRole: string | null;
+    availableRoles: string[];
+  }
+
+  interface AuthStoreType {
+    isAuthenticated: boolean;
+    user: AuthUser | null;
+    token: string | null;
+  }
+
+  const authStore = rawAuthStore as Writable<AuthStoreType>;
+
+  interface ProfileCheckResult {
+    hasPerson: boolean;
+    hasCompany: boolean;
+    personId: string | null;
+    companyId: string | null;
+  }
+
+  // --- Component State ---
   let email = "";
   let password = "";
   let rememberMe = false;
@@ -20,52 +46,73 @@
   let appleLoading = false;
   let errorMessage = "";
 
-  // Função para verificar papel ativo e redirecionar
-  async function checkAndRedirect() {
-    if ($authStore.isAuthenticated) {
+  async function checkAndRedirect(): Promise<void> {
+    if ($authStore.isAuthenticated && $authStore.user) {
       try {
-        // Verifica o status do papel ativo
         const roleStatus = await authService.checkAndSetActiveRole();
 
-        // Se o usuário tem múltiplos papéis disponíveis e nenhum ativo
         if (roleStatus.needsSelection) {
           console.log("Redirecionando para seleção de papel");
-          goto("/profile/role-select");
+          await goto("/profile/role-select");
           return;
         }
 
-        // Verifica se o usuário possui perfis criados
-        const profiles = await profileService.checkUserProfiles(
-          $authStore.user.userId
-        );
+        const userId = $authStore.user.userId;
+        if (!userId) {
+          console.error(
+            "UserID não encontrado no authStore, mesmo após verificação."
+          );
+          toastStore.add("Erro de autenticação. Tente novamente.", "error");
+          await authService.logout();
+          await goto("/auth/login");
+          return;
+        }
+
+        // Asserção de tipo explícita no resultado da Promise
+        const profiles = (await profileService.checkUserProfiles(
+          userId
+        )) as ProfileCheckResult;
 
         console.log("Verificação de perfis após login:", profiles);
 
         if (!profiles.hasPerson && !profiles.hasCompany) {
           console.log("Redirecionando para seleção de perfil");
-          goto("/profile/select");
+          await goto("/profile/select");
         } else {
           console.log("Redirecionando para dashboard");
-          goto("/dashboard");
+          await goto("/dashboard");
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Erro ao verificar perfis:", error);
-        goto("/dashboard");
+        toastStore.add(
+          "Ocorreu um erro ao verificar seus perfis. Redirecionando para o dashboard.",
+          "error"
+        );
+        await goto("/dashboard");
       }
+    } else if ($authStore.isAuthenticated && !$authStore.user) {
+      console.error(
+        "Estado de autenticação inconsistente: autenticado mas sem dados de usuário."
+      );
+      toastStore.add(
+        "Sua sessão é inválida. Por favor, faça login novamente.",
+        "error"
+      );
+      await authService.logout();
+      await goto("/auth/login");
     }
   }
 
-  // Verifica autenticação ao carregar a página
-  onMount(() => {
+  onMount(async () => {
     if ($authStore.isAuthenticated) {
-      checkAndRedirect();
+      await checkAndRedirect();
     }
   });
 
-  // Função para realizar o login
-  async function handleLogin() {
+  async function handleLogin(): Promise<void> {
     if (!email || !password) {
       errorMessage = "Por favor, preencha todos os campos";
+      toastStore.add(errorMessage, "error"); // Usando toastStore.add
       return;
     }
 
@@ -74,14 +121,13 @@
       errorMessage = "";
 
       await authService.login(email, password);
-      toastStore.success("Login realizado com sucesso!");
-      checkAndRedirect();
-    } catch (error) {
+      toastStore.add("Login realizado com sucesso!", "success"); // Usando toastStore.add
+      await checkAndRedirect();
+    } catch (error: any) {
       console.error("Erro no login:", error);
-      errorMessage =
-        error.response?.data?.message ||
-        "Erro ao fazer login. Verifique suas credenciais.";
-      toastStore.error(errorMessage);
+      const mappedError = mapBackendErrorToFrontendMessage(error);
+      errorMessage = mappedError;
+      toastStore.add(mappedError, "error"); // Usando toastStore.add
     } finally {
       loading = false;
     }
@@ -101,11 +147,13 @@
       </h2>
 
       {#if errorMessage}
-        <Alert color="red" class="mb-4 w-full">{errorMessage}</Alert>
+        <Alert color="red" class="mb-4 w-full" dismissable>{errorMessage}</Alert
+        >
       {/if}
 
       <form on:submit|preventDefault={handleLogin} class="w-full space-y-4">
         <KuInput
+          id="email"
           name="email"
           dataType="email"
           label="Email"
@@ -113,10 +161,12 @@
           bind:value={email}
           isRequired={true}
           isDisabled={loading}
+          error={errorMessage && !email ? "Email é obrigatório" : ""}
         />
 
         <div>
           <KuInput
+            id="password"
             name="password"
             dataType="password"
             label="Senha"
@@ -124,8 +174,9 @@
             bind:value={password}
             isRequired={true}
             isDisabled={loading}
+            error={errorMessage && !password ? "Senha é obrigatória" : ""}
           />
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mt-2 mb-2">
             <a
               href="/auth/forgot-password"
               class="text-sm text-blue-600 hover:underline dark:text-blue-500"
@@ -136,22 +187,20 @@
         </div>
 
         <div class="flex items-center">
-          <Checkbox id="remember" bind:checked={rememberMe} />
+          <Checkbox
+            id="remember"
+            bind:checked={rememberMe}
+            disabled={loading}
+          />
           <Label for="remember" class="ml-2">Lembrar de mim</Label>
         </div>
 
         <KuButton
           actionType="submit"
           label={loading ? "Entrando..." : "Entrar"}
-          isDisabled={loading}
+          isDisabled={loading || !email || !password}
           customClass="w-full"
-        >
-          {#if loading}
-            <div class="flex items-center justify-center">
-              <Spinner class="mr-3" size="sm" />
-            </div>
-          {/if}
-        </KuButton>
+        />
 
         <div
           class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"

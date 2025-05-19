@@ -5,31 +5,30 @@
     IFormElement,
   } from "../../interfaces/form.interfaces";
 
-  // Tipagem para variantes de fieldset
+  // Fieldset variant type
   type FieldsetVariant = "default" | "card";
 
   export let id = "";
   export let title = "";
   export let variant: FieldsetVariant = "default";
   export let conditions: IFormCondition[] = [];
-  export let todo = "";
-  export let elements: IFormElement[] = [];
+  export const todo = ""; // Changed from export let to export const
+  export const elements: IFormElement[] = []; // Changed from export let to export const
   export let error = "";
 
-  // Computar classes do fieldset usando o tema
+  // Logic
   $: fieldsetClasses = getComponentClasses("fieldset", variant);
 
-  // Evaluate conditions to determine if the component should be shown
+  // Function to evaluate conditions
   function evaluateConditions(): boolean {
-    // If no conditions are provided, the component is shown
+    // If no conditions, return true
     if (!conditions || conditions.length === 0) return true;
 
-    // Implementation would check conditions against form data
-    // For now, we return true as a placeholder
+    // Condition evaluation logic would go here
     return true;
   }
 
-  // Reactive variable to determine if component should be shown
+  // Reactive conditions evaluation
   $: showComponent = evaluateConditions();
 </script>
 

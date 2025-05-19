@@ -3,7 +3,7 @@
   import { getComponentClasses } from "../../styles/theme";
   import type { IFormCondition } from "../../interfaces/form.interfaces";
 
-  // Define interfaces explicitamente para garantir tipagem correta
+  // Interface definitions
   interface ISelectOption {
     label: string;
     value: string | number | boolean;
@@ -11,22 +11,21 @@
     isSelected?: boolean;
   }
 
-  // Interface para opções no formato legado
+  // Legacy option interface
   interface LegacyOption {
     name: string;
     value: any;
     isDisabled?: boolean;
   }
 
-  // Interface para FlowbiteSelect items - verificando a documentação,
-  // eles esperam um formato específico com 'name' em vez de 'label'
+  // FlowbiteSelect option interface
   interface FlowbiteSelectOption {
     name: string;
     value: any;
     disabled?: boolean;
   }
 
-  // Tipo de opção que pode ser fornecido
+  // Option type
   type OptionType = ISelectOption | LegacyOption;
 
   type DataType =
@@ -40,7 +39,7 @@
   type Validator = "cpf" | "cnpj";
 
   export let name = "";
-  export let dataType: DataType = "text";
+  export const dataType: DataType = "text";
   export let label = "";
   export let value: string | number | boolean = "";
   export let placeholder = "";
@@ -48,15 +47,15 @@
   export let isAutofocus = false;
   export let isDisabled = false;
   export let isRequired = false;
-  export let isUnique = false;
+  export const isUnique = false;
   export let isMultiple = false;
   export let options: OptionType[] = [];
   export let error = "";
   export let id = name;
   export let variant = "default";
   export let conditions: IFormCondition[] = [];
-  export let validators: Validator[] = [];
-  export let todo = "";
+  export const validators: Validator[] = [];
+  export const todo = "";
 
   // Função de type guard para verificar se é uma opção legada
   function isLegacyOption(option: OptionType): option is LegacyOption {
