@@ -11,6 +11,8 @@ import { PersonProfile } from '../profile/schemas/person-profile.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CascadeService } from 'src/common/services/cascade.service';
 import { InvitationService } from '../invitation/invitation.service';
+import { ErrorService } from 'src/common/services/error.service';
+import { ErrorCode } from 'src/common/constants/error-code.enum';
 
 @Injectable()
 export class UserService {
@@ -24,6 +26,7 @@ export class UserService {
     private personProfileModel: Model<PersonProfile>,
     private readonly cascadeService: CascadeService,
     private readonly invitationService: InvitationService,
+    private readonly errorService: ErrorService,
   ) { }
 
   /**
@@ -33,7 +36,9 @@ export class UserService {
   async createUser(payload: CreateUserDto): Promise<UserDocument> {
     const existingUser = await this.userModel.findOne({ email: payload.email });
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new UnauthorizedException(
+        this.errorService.getErrorMessage(ErrorCode.EMAIL_IN_USE),
+      );
     }
 
     const hashedPassword = await bcrypt.hash(payload.password, 10);
@@ -67,7 +72,9 @@ export class UserService {
 
       const existingUser = await this.userModel.findOne({ email: payload.email });
       if (existingUser) {
-        throw new ConflictException('Email already exists');
+        throw new UnauthorizedException(
+          this.errorService.getErrorMessage(ErrorCode.EMAIL_IN_USE),
+        );
       }
 
       const hashedPassword = await bcrypt.hash(payload.password, 10);
