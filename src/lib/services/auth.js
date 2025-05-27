@@ -19,22 +19,22 @@ export const authService = {
 
   async googleLogin(idToken) {
     try {
-      console.log('🔄 Iniciando login com Google');
+      console.log("🔄 Iniciando login com Google");
       const response = await api.post("/auth/google/login", { idToken });
 
       if (response.data && response.data.access_token) {
-        console.log('✅ Token JWT recebido após autenticação com Google');
+        console.log("✅ Token JWT recebido após autenticação com Google");
         this.setSession(response.data.access_token);
 
-        // Carregar perfis do usuário
+        // Load profiles after authentication
         await loadProfiles();
 
         return response.data;
       } else {
-        throw new Error('Resposta inválida do servidor');
+        throw new Error("Resposta inválida do servidor");
       }
     } catch (error) {
-      console.error('❌ Erro ao autenticar com Google:', error);
+      console.error("❌ Erro ao autenticar com Google:", error);
       throw error;
     }
   },
@@ -47,10 +47,20 @@ export const authService = {
         this.setSession(response.data.access_token);
         return response.data;
       } else {
-        throw new Error('Resposta inválida do servidor');
+        throw new Error("Resposta inválida do servidor");
       }
     } catch (error) {
       console.error("Erro ao fazer login com Apple:", error);
+      throw error;
+    }
+  },
+
+  async registerInit(email) {
+    try {
+      const response = await api.post("/auth/register-init", { email });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao iniciar registro:", error);
       throw error;
     }
   },
@@ -59,12 +69,12 @@ export const authService = {
     if (browser) {
       localStorage.setItem("token", token);
 
-      // Decode JWT token
+      // Decode token
       const decoded = jwtDecode(token);
 
       console.log("Token decodificado:", decoded);
 
-      // Extract user data from token
+      // Store user data
       const userData = {
         userId: decoded.sub,
         email: decoded.email,
@@ -83,7 +93,7 @@ export const authService = {
         token,
       });
 
-      // Load profile data if there's an active role
+      // Load profiles if user has active role
       if (userData.activeRole) {
         loadProfiles();
       }
@@ -102,7 +112,7 @@ export const authService = {
         token: null,
       });
 
-      // Clear profile store
+      // Clear profiles
       clearProfiles();
     }
   },
@@ -148,10 +158,10 @@ export const authService = {
         // Update session with new token
         this.setSession(response.data.access_token);
 
-        // Load the corresponding profile for the new role
+        // Reload profiles
         await loadProfiles(true);
 
-        // Force page reload to apply new role
+        // Reload page to ensure everything is updated
         setTimeout(() => {
           window.location.reload();
         }, 500);
@@ -174,9 +184,9 @@ export const authService = {
     const user = this.getCurrentUser();
     if (!user) return { hasRole: false };
 
-    // If user already has an active role, return success
+    // If user already has an active role
     if (user.activeRole) {
-      // Load the corresponding profile
+      // Load profiles
       await loadProfiles();
       return {
         hasRole: true,
@@ -185,14 +195,14 @@ export const authService = {
       };
     }
 
-    // If user has only one available role, activate it automatically
+    // If user has only one role, auto-select it
     if (user.availableRoles && user.availableRoles.length === 1) {
       const role = user.availableRoles[0];
       await this.switchRole(role);
       return { hasRole: true, activeRole: role, needsSelection: false };
     }
 
-    // If user has multiple available roles, indicate that they need to choose
+    // If user has multiple roles, need selection
     if (user.availableRoles && user.availableRoles.length > 1) {
       return {
         hasRole: true,
@@ -201,7 +211,7 @@ export const authService = {
       };
     }
 
-    // If no available roles
+    // No roles available
     return { hasRole: false };
   },
 

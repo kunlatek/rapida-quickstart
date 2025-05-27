@@ -47,7 +47,7 @@
       <KuInput
         name="email"
         label="Email"
-        type="email"
+        dataType="email"
         bind:value={email}
         error={errors.email}
         isRequired={true}

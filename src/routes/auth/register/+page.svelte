@@ -1,62 +1,37 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { toastStore } from "$stores/toast";
-  import { Alert, Spinner } from "flowbite-svelte"; // Card, Label não são mais usados diretamente aqui.
-  import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
-  import { userService } from "$services/user";
-  import GoogleLoginButton from "$lib/components/pages/auth/GoogleLoginButton.svelte";
-  import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
-  import { mapBackendErrorToFrontendMessage } from "$lib/services/errorMapper";
   import { KuInput, KuButton } from "$lib/components/form";
+  import { authService } from "$services/auth";
+  import { toastStore } from "$stores/toast";
+  import { goto } from "$app/navigation";
+  import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
+  import { Alert } from "flowbite-svelte";
 
   let email = "";
-  let password = "";
-  let confirmPassword = "";
   let loading = false;
   let errorMessage = "";
-  let googleLoading = false;
-  let appleLoading = false;
+  let success = false;
 
-  $: passwordMatch = password === confirmPassword;
-  $: passwordLength = password.length >= 8;
-  $: formIsValid =
-    email && password && confirmPassword && passwordMatch && passwordLength;
+  async function handleSubmit() {
+    loading = true;
+    errorMessage = "";
 
-  async function handleRegister(): Promise<void> {
-    if (!email || !password || !confirmPassword) {
-      errorMessage = "Por favor, preencha todos os campos";
-      toastStore.add(errorMessage, "error");
-      return;
-    }
-
-    if (!passwordMatch) {
-      errorMessage = "As senhas não coincidem";
-      toastStore.add(errorMessage, "error");
-      return;
-    }
-
-    if (!passwordLength) {
-      errorMessage = "A senha deve ter pelo menos 8 caracteres";
-      toastStore.add(errorMessage, "error");
+    if (!email) {
+      errorMessage = "Email é obrigatório";
+      loading = false;
       return;
     }
 
     try {
-      loading = true;
-      errorMessage = "";
-
-      await userService.register(email, password);
-
-      toastStore.add(
-        "Conta criada com sucesso! Faça login para continuar.",
-        "success"
+      const response = await authService.registerInit(email);
+      success = true;
+      toastStore.success(
+        "Email de registro enviado com sucesso! Verifique sua caixa de entrada."
       );
-      await goto("/auth/login");
     } catch (error: any) {
-      console.error("Erro no registro:", error);
-      const mappedError = mapBackendErrorToFrontendMessage(error);
-      errorMessage = mappedError;
-      toastStore.add(mappedError, "error");
+      console.error("Error sending register email:", error);
+      errorMessage =
+        error.response?.data?.message || "Erro ao enviar email de registro.";
+      toastStore.error(errorMessage);
     } finally {
       loading = false;
     }
@@ -82,6 +57,13 @@
         Criar nova conta
       </h2>
 
+      {#if success}
+        <Alert color="green" class="mb-4 w-full">
+          Email enviado com sucesso! Verifique sua caixa de entrada para
+          continuar o cadastro.
+        </Alert>
+      {/if}
+
       {#if errorMessage && !loading}
         <Alert
           color="red"
@@ -93,118 +75,43 @@
         </Alert>
       {/if}
 
-      <form on:submit|preventDefault={handleRegister} class="w-full space-y-4">
-        <KuInput
-          id="email"
-          name="email"
-          dataType="email"
-          label="Email"
-          placeholder="nome@empresa.com"
-          bind:value={email}
-          isRequired={true}
-          isDisabled={loading}
-          error={errorMessage && email === "" ? "Email é obrigatório" : ""}
-        />
+      {#if !success}
+        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mb-6">
+          Digite seu email abaixo e enviaremos um link para completar seu
+          cadastro.
+        </p>
 
-        <div>
+        <form on:submit|preventDefault={handleSubmit} class="w-full space-y-6">
           <KuInput
-            id="password"
-            name="password"
-            dataType="password"
-            label="Senha"
-            placeholder="••••••••"
-            bind:value={password}
+            name="email"
+            label="Email"
+            dataType="email"
+            bind:value={email}
+            error={errorMessage && !email ? "Email é obrigatório" : ""}
             isRequired={true}
-            isDisabled={loading}
-            error={password !== "" && !passwordLength
-              ? "A senha deve ter pelo menos 8 caracteres"
-              : ""}
+            placeholder="seu@email.com"
           />
-          {#if password !== "" && !passwordLength}
-            <p class="text-xs mt-1 text-red-600 dark:text-red-500">
-              A senha deve ter pelo menos 8 caracteres
-            </p>
-          {:else if password !== "" && passwordLength}
-            <p class="text-xs mt-1 text-green-600 dark:text-green-500">
-              Força da senha adequada.
-            </p>
-          {/if}
-        </div>
 
-        <div>
-          <KuInput
-            id="confirm-password"
-            name="confirmPassword"
-            dataType="password"
-            label="Confirmar Senha"
-            placeholder="••••••••"
-            bind:value={confirmPassword}
-            isRequired={true}
+          <KuButton
+            label={loading ? "Enviando..." : "Enviar Email de Cadastro"}
+            actionType="submit"
             isDisabled={loading}
-            error={confirmPassword !== "" && !passwordMatch
-              ? "As senhas não coincidem"
-              : ""}
+            customClass="w-full"
           />
-          {#if confirmPassword !== "" && !passwordMatch}
-            <p class="text-xs text-red-600 dark:text-red-500 mt-1">
-              As senhas não coincidem
-            </p>
-          {/if}
-        </div>
+        </form>
+      {/if}
 
-        <KuButton
-          actionType="submit"
-          label={loading ? "Registrando..." : "Criar Conta"}
-          isDisabled={loading || !formIsValid}
-          customClass="w-full"
-          variant="primary"
-        />
-
-        <div
-          class="text-sm font-medium text-gray-500 dark:text-gray-400 text-center"
-        >
+      <div class="text-sm text-center mt-6">
+        <p class="text-gray-500 dark:text-gray-400">
           Já tem uma conta?
           <a
             href="/auth/login"
-            class="text-blue-600 hover:underline dark:text-blue-500"
+            class="font-medium text-blue-600 hover:underline dark:text-blue-500"
           >
             Fazer login
           </a>
-        </div>
-      </form>
-
-      <div class="flex flex-col w-full mt-4 space-y-3">
-        <div class="relative flex items-center justify-center w-full">
-          <hr class="w-full border-gray-300 dark:border-gray-600" />
-          <span
-            class="absolute px-3 text-xs text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400"
-          >
-            ou continue com
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <GoogleLoginButton bind:loading={googleLoading} />
-          <AppleLoginButton bind:loading={appleLoading} />
-        </div>
+        </p>
       </div>
-
-      <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-        Ao criar uma conta, você concorda com nossos
-        <a
-          href="/terms-of-service"
-          class="text-blue-600 hover:underline dark:text-blue-500"
-        >
-          Termos de Serviço
-        </a>
-        e
-        <a
-          href="/privacy-policy"
-          class="text-blue-600 hover:underline dark:text-blue-500"
-        >
-          Política de Privacidade
-        </a>.
-      </p>
     </div>
   </div>
 </AuthLayout>
