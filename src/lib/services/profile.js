@@ -103,7 +103,6 @@ export const profileService = {
   /**
    * Obter um perfil de empresa pelo ID de usuário
    * @param {string} userId - ID do usuário
-   * @return {Object} - Dados do perfil de empresa
    */
   async getCompanyProfileByUserId(userId) {
     try {
@@ -154,31 +153,35 @@ export const profileService = {
    * @property {string|null} companyId - ID do perfil de empresa (se existir)
    */
   async checkUserProfiles(userId) {
-    const profiles = {
+    let profiles = {
       hasPerson: false,
       hasCompany: false,
       personId: null,
       companyId: null,
     };
+
     
     try {
-      const personProfile = await this.getPersonProfileByUserId(userId);
-      if (personProfile && personProfile._id) {
-        profiles.hasPerson = true;
-        profiles.personId = personProfile._id;
+      const response = await api.get("/users/has-profile");
+      const responseData = response.data;
+      profiles = {
+        ...profiles,
+        hasPerson: responseData.person,
+        hasCompany: responseData.company,
       }
     } catch (error) {
-      console.log("Perfil de pessoa não encontrado, criação permitida");
+      console.error("Error checking user profile:", error);
+      throw error;
     }
     
-    try {
+    if (profiles.hasPerson) {
+      const personProfile = await this.getPersonProfileByUserId(userId);
+      profiles.personId = personProfile._id;
+    }
+    
+    if (profiles.hasCompany) {
       const companyProfile = await this.getCompanyProfileByUserId(userId);
-      if (companyProfile && companyProfile._id) {
-        profiles.hasCompany = true;
-        profiles.companyId = companyProfile._id;
-      }
-    } catch (error) {
-      console.log("Perfil de empresa não encontrado, criação permitida");
+      profiles.companyId = companyProfile._id;
     }
 
     return profiles;
