@@ -260,4 +260,10 @@ export class UserService {
     user.password = hashedPassword;
     await user.save();
   }
+
+  async userHasProfile(userId: string): Promise<boolean> {
+    const company = await this.companyProfileModel.exists({ userId });
+    const person = await this.personProfileModel.exists({ userId });
+    return !!(company || person);
+  }
 }

@@ -103,6 +103,20 @@ export class UserController {
     return this.userService.findMe(userId);
   }
 
+  @Get("has-profile")
+  @ApiSecurity("jwt")
+  @UseGuards(AuthGuard("jwt"))
+  @ApiOperation({ summary: "Check if user has a profile" })
+  async userHasProfile(@Req() req) {
+    const userId = req.user?.sub ?? req.user?.userId; // Corrigido: pega ID do JWT
+    if (!userId) {
+      throw new UnauthorizedException(
+        this.errorService.getErrorMessage(ErrorCode.UNAUTHORIZED)
+      );
+    }
+    return this.userService.userHasProfile(userId);
+  }
+
   @Get(":id")
   @ApiSecurity("jwt")
   @Roles(UserRole.ADMIN)
