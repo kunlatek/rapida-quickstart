@@ -5,7 +5,7 @@
     accountDeletionStore,
     softDeleteAccount,
   } from "$stores/account-deletion";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
 
   let loading = false;
   let error = "";

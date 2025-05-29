@@ -1,7 +1,7 @@
 <script lang="ts">
   import { KuInput, KuButton } from '$lib/components/form';
   import { authService } from '$services/auth';
-  import { toastStore } from '$stores/toast';
+  import { toastStore } from '$lib/stores/toast';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
 

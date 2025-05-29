@@ -4,7 +4,7 @@
   import { authStore } from "$stores/auth";
   import { profileService } from "$services/profile";
   import { goto } from "$app/navigation";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
 
   // Verificar apenas se estamos em uma URL específica
   onMount(async () => {

@@ -5,7 +5,7 @@
     restoreAccount,
     fetchDeletionStatus,
   } from "$stores/account-deletion";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { onMount } from "svelte";
 
   export let className = "";

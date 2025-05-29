@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { authStore } from "$stores/auth";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { browser } from "$app/environment";
   import { profileService } from "$services/profile";
   import {

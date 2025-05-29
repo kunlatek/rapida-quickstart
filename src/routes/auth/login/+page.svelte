@@ -3,7 +3,7 @@
   import { authService } from "$services/auth";
   import { authStore as rawAuthStore } from "$stores/auth";
   import { profileService } from "$services/profile";
-  import { toastStore } from "$stores/toast"; // Usando diretamente, vamos chamar .add()
+  import { toastStore } from "$lib/stores/toast"; // Usando diretamente, vamos chamar .add()
 
   import { Card, Alert, Spinner, Checkbox, Label } from "flowbite-svelte";
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";

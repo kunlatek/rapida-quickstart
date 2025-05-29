@@ -5,7 +5,7 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { invitationsService } from '$services/invitations';
-  import { toastStore } from '$stores/toast';
+  import { toastStore } from '$lib/stores/toast';
   let invitation: any = null;
   let loading = true;
 

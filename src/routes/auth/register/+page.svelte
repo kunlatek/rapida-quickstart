@@ -1,10 +1,11 @@
 <script lang="ts">
   import { KuInput, KuButton } from "$lib/components/form";
   import { authService } from "$services/auth";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { Alert } from "flowbite-svelte";
+  import { mapBackendErrorToFrontendMessage } from "$lib/services/errorMapper";
 
   let email = "";
   let loading = false;
@@ -29,9 +30,8 @@
       );
     } catch (error: any) {
       console.error("Error sending register email:", error);
-      errorMessage =
-        error.response?.data?.message || "Erro ao enviar email de registro.";
-      toastStore.error(errorMessage);
+      const mappedError = mapBackendErrorToFrontendMessage(error) || "Erro ao enviar email de registro.";
+      toastStore.error(mappedError);
     } finally {
       loading = false;
     }

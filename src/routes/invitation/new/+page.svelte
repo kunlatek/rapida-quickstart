@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { invitationsService } from '$services/invitations';
-  import { toastStore } from '$stores/toast';
+  import { toastStore } from '$lib/stores/toast';
   import InvitationForm from '$lib/components/pages/invitation/InvitationForm.svelte';
   let email = '';
   let role = '';

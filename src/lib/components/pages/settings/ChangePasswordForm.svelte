@@ -3,7 +3,7 @@
   import { Button, Alert } from "flowbite-svelte";
   import { KuInput } from "$lib/components/form";
   import { userService } from "$services/user";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
 
   let oldPassword = "";
   let newPassword = "";

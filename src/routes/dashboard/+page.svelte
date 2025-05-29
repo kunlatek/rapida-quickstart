@@ -4,7 +4,7 @@
   import { profileStore, loadProfiles } from "$stores/profile";
   import { Heading } from "flowbite-svelte";
   import { goto } from "$app/navigation";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { KuLoading } from "$lib/components/common";
   import AccountRestorationNotice from "$lib/components/pages/dashboard/AccountRestorationNotice.svelte";
   import { fetchDeletionStatus } from "$stores/account-deletion";

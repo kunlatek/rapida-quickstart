@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { Alert } from "flowbite-svelte"; 
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { userService } from "$services/user";

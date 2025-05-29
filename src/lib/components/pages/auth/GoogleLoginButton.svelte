@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { authService } from "$services/auth";
     import { goto } from "$app/navigation";
-    import { toastStore } from "$stores/toast";
+    import { toastStore } from "$lib/stores/toast";
     import { Button } from "flowbite-svelte";
     import { browser } from "$app/environment";
 

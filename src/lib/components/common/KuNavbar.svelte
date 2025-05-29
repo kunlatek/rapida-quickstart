@@ -16,7 +16,7 @@
   import { profileStore } from "$stores/profile";
   import { authStore } from "$stores/auth";
   import { authService } from "$services/auth";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
   import { sineIn } from "svelte/easing";

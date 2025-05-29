@@ -1,7 +1,7 @@
 <script>
   import { goto } from "$app/navigation";
   import { authStore } from "$stores/auth";
-  import { toastStore } from "$stores/toast";
+  import { toastStore } from "$lib/stores/toast";
   import { authService } from "$services/auth";
   import { profileService } from "$services/profile";
   import CompanyProfileForm from "$components/pages/profile/CompanyProfileForm.svelte";

@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import KuDataTable from '$lib/components/data/KuDataTable.svelte';
   import { invitationsService } from '$services/invitations';
-  import { toastStore } from '$stores/toast';
+  import { toastStore } from '$lib/stores/toast';
 
   const columns = [
     { key: 'email', header: 'Email', sortable: true },
