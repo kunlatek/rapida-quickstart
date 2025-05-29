@@ -261,9 +261,9 @@ export class UserService {
     await user.save();
   }
 
-  async userHasProfile(userId: string): Promise<boolean> {
+  async userHasProfile(userId: string): Promise<{ company: boolean; person: boolean }> {
     const company = await this.companyProfileModel.exists({ userId });
     const person = await this.personProfileModel.exists({ userId });
-    return !!(company || person);
+    return { company: !!company, person: !!person };
   }
 }
