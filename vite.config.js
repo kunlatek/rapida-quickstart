@@ -10,7 +10,7 @@ export default defineConfig({
   proxy: {
    // Configuração do proxy para a API
    '/api': {
-     target: 'http://localhost:3000', //'https://api-traampo-kunlatek.ngrok.dev'
+     target: 'http://localhost:3000',
      changeOrigin: true,
      rewrite: (path) => path.replace(/^\/api/, '')
    }

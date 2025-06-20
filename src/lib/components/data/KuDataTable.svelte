@@ -3,8 +3,8 @@
   import { Button, Spinner } from "flowbite-svelte";
   import { getComponentClasses } from "../../styles/theme";
   import KuPagination from "../navigation/KuPagination.svelte";
-
-  // Interfaces para tipagem forte
+  import api from "$lib/services/api";
+  
   interface IDataSource {
     endpoint: string;
   }
@@ -19,7 +19,6 @@
     formatter?: "date" | "currency" | "number" | "boolean" | "custom";
   }
 
-  // Defina o tipo correto para color, baseado nos valores aceitos pelo componente Button
   type ButtonColor =
     | "red"
     | "yellow"
@@ -35,13 +34,13 @@
 
   interface IAction {
     label: string;
-    color?: ButtonColor; // Correção do tipo de color
+    color?: ButtonColor;
     handler: (row: any) => void;
   }
 
   interface IHeaderAction {
     label: string;
-    color?: ButtonColor; // Correção do tipo de color
+    color?: ButtonColor;
     handler: () => void;
   }
 
@@ -51,8 +50,7 @@
     pageSizeOptions?: number[];
   }
 
-  // Props com tipagem forte
-  export const id: string = ""; // Changed from export let to export const
+  export const id: string = "";
   export let title: string = "";
   export let dataSource: IDataSource = { endpoint: "" };
   export let columns: IColumn[] = [];
@@ -61,99 +59,69 @@
   export let variant: string = "default";
   export let headerActions: IHeaderAction[] = [];
 
-  // Estado local com tipagem forte
   let data: any[] = [];
   let loading: boolean = false;
   let error: string | null = null;
   let totalItems: number = 0;
   let currentPage: number = 1;
 
-  // Estado de ordenação
   let sortColumn: string | null = null;
   let sortDirection: "asc" | "desc" = "asc";
 
-  // Estado de filtros
   let filters: Record<string, string> = {};
 
-  // Classes da tabela com base no tema
   $: tableClasses = getComponentClasses("dataTable", variant);
 
-  // Inicialização do componente
   onMount(() => {
     fetchData();
   });
 
-  /**
-   * Busca dados da API com base nos parâmetros atuais
-   */
   async function fetchData(): Promise<void> {
     if (!dataSource.endpoint) return;
 
     loading = true;
+    error = null;
 
     try {
-      // Preparar parâmetros de consulta
       const params = new URLSearchParams();
 
-      // Adicionar parâmetros de paginação
       if (pagination.enabled) {
         params.append("page", currentPage.toString());
         params.append("limit", pagination.pageSize.toString());
       }
 
-      // Adicionar parâmetros de ordenação
       if (sortColumn) {
         params.append("sortBy", sortColumn);
         params.append("sortDir", sortDirection);
       }
 
-      // Adicionar parâmetros de filtro
       for (const [key, value] of Object.entries(filters)) {
         if (value) {
           params.append(key, value);
         }
       }
 
-      // Buscar dados
-      const response = await fetch(
-        `${dataSource.endpoint}?${params.toString()}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      // Use the centralized 'api' service instead of native fetch
+      const response = await api.get(dataSource.endpoint, { params });
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+      const result = response.data;
 
-      const result = await response.json();
-
-      // Processar resultados
       data = result.data || result;
       totalItems = result.total || data.length;
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching data:", err);
-      error = err instanceof Error ? err.message : "Unknown error";
+      error = err.response?.data?.message || err.message || "Unknown error";
     } finally {
       loading = false;
     }
   }
 
-  /**
-   * Manipula a ordenação de colunas
-   * @param column - A coluna a ser ordenada
-   */
   function handleSort(column: IColumn): void {
     if (column.sortable === false) return;
 
     if (sortColumn === column.key) {
-      // Alternar direção de ordenação se for a mesma coluna
       sortDirection = sortDirection === "asc" ? "desc" : "asc";
     } else {
-      // Definir nova coluna de ordenação e padrão para ascendente
       sortColumn = column.key;
       sortDirection = "asc";
     }
@@ -161,52 +129,30 @@
     fetchData();
   }
 
-  /**
-   * Manipula a filtragem de dados
-   * @param column - A coluna a ser filtrada
-   * @param value - O valor do filtro
-   */
   function handleFilter(column: IColumn, value: string): void {
     filters[column.key] = value;
-    currentPage = 1; // Resetar para a primeira página ao filtrar
+    currentPage = 1;
     fetchData();
   }
 
-  /**
-   * Manipula a mudança de página na paginação
-   * @param page - O número da página para navegar
-   */
   function handlePageChange(page: number): void {
     currentPage = page;
     fetchData();
   }
 
-  /**
-   * Trata o evento de input com segurança de tipo
-   * @param e - O evento de input
-   * @param column - A coluna a ser filtrada
-   */
   function handleInputEvent(e: Event, column: IColumn): void {
-    // Garantir que e.target não é null e é do tipo HTMLInputElement
     const target = e.target as HTMLInputElement;
     if (target) {
       handleFilter(column, target.value);
     }
   }
 
-  /**
-   * Formata o valor de uma célula com base nas regras de formatação da coluna
-   * @param row - A linha de dados
-   * @param column - A definição da coluna
-   * @returns O valor formatado
-   */
   function formatCellValue(row: any, column: IColumn): any {
     const value = column.formatValue
       ? column.formatValue(row[column.key])
       : row[column.key];
 
     if (column.formatter) {
-      // Formatar valor com base no tipo de formatador
       switch (column.formatter) {
         case "date":
           return new Date(value).toLocaleDateString();
