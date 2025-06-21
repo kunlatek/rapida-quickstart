@@ -11,8 +11,8 @@
     IApiResponseField,
     IApiResponseFieldFilter,
   } from "../../interfaces/form.interfaces";
+  import api from "$lib/services/api";
 
-  // Interface definitions
   interface AutocompleteOption {
     label: string;
     value: string | number | boolean;
@@ -32,7 +32,6 @@
     [key: string]: AutocompleteVariant | undefined;
   }
 
-  // Props
   export let name = "";
   export let dataType:
     | "text"
@@ -46,7 +45,7 @@
   export let value: string | AutocompleteOption | AutocompleteOption[] = "";
   export let placeholder = "";
   export let tooltip = "";
-  export let isAutofocus = false; // We'll handle this differently to fix a11y issues
+  export let isAutofocus = false;
   export let isDisabled = false;
   export let isRequired = false;
   export let isMultiple = false;
@@ -54,8 +53,8 @@
   export let id = name;
   export let variant = "default";
   export let conditions: IFormCondition[] = [];
-  export const validators: ("cpf" | "cnpj")[] = []; // Changed from export let to export const
-  export const relatedEntity = ""; // Changed from export let to export const
+  export const validators: ("cpf" | "cnpj")[] = [];
+  export const relatedEntity = "";
   export let optionsApi: IOptionsApi = {
     endpoint: "",
     labelField: [],
@@ -64,15 +63,14 @@
     paramType: "query",
   };
 
-  // Local state
   let options: AutocompleteOption[] = [];
   let loading = false;
   let searchText = "";
   let showOptions = false;
   let selectedOptions: AutocompleteOption[] | AutocompleteOption | null =
     isMultiple ? [] : null;
+  let debounceTimeout: number;
 
-  // Styling
   $: themeClasses = getComponentClasses("autocomplete", variant, {
     error: !!error,
     disabled: isDisabled,
@@ -94,7 +92,6 @@
     optionClass = currentVariant.option;
   }
 
-  // Sync value and search text
   $: if (value && typeof value === "string") {
     searchText = value;
   }
@@ -106,34 +103,51 @@
     searchText = (value as AutocompleteOption).label;
   }
 
-  // Fetch options
   async function fetchOptions(query = ""): Promise<void> {
     if (!optionsApi.endpoint) return;
 
     loading = true;
     try {
-      // Mock implementation for demonstration
-      setTimeout(() => {
-        options = [
-          { label: "Opção 1", value: "option1" },
-          { label: "Opção 2", value: "option2" },
-          { label: "Opção 3", value: "option3" },
-        ].filter((option) =>
-          option.label.toLowerCase().includes(query.toLowerCase())
-        );
-        loading = false;
-      }, 300);
+      const params = new URLSearchParams();
+      if (query && optionsApi.paramsToFilter.length > 0) {
+        optionsApi.paramsToFilter.forEach((param) => {
+          params.append(param, query);
+        });
+      }
 
-      // In a real implementation, this would be an API fetch
-    } catch (error) {
-      console.error("Erro ao buscar opções:", error);
+      const endpoint = optionsApi.endpoint.startsWith("/api")
+        ? optionsApi.endpoint.slice(4)
+        : optionsApi.endpoint;
+
+      const response = await api.get(endpoint, { params });
+      const items = response.data.data || response.data;
+
+      if (Array.isArray(items)) {
+        options = items.map((item) => {
+          const label = optionsApi.labelField
+            .map((field) => {
+              // Permite buscar em propriedades aninhadas, ex: 'author.name'
+              return field
+                .split(".")
+                .reduce((o, i) => (o ? o[i] : undefined), item);
+            })
+            .join(" ");
+
+          return {
+            ...item,
+            label,
+            value: item[optionsApi.valueField],
+          };
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao buscar opções:", err);
       options = [];
     } finally {
       loading = false;
     }
   }
 
-  // Select option
   function selectOption(option: AutocompleteOption): void {
     if (isMultiple) {
       const selectedOptionsArray = selectedOptions as AutocompleteOption[];
@@ -144,12 +158,10 @@
         selectedOptions = newSelectedOptions;
         value = newSelectedOptions;
 
-        // Logic to update other fields based on API response fields would go here
         if (
           optionsApi.formFieldsFilledByApiResponse &&
           optionsApi.formFieldsFilledByApiResponse.length > 0
         ) {
-          // Implementation
         }
       }
     } else {
@@ -157,19 +169,16 @@
       value = option;
       searchText = option.label;
 
-      // Logic to update other fields based on API response fields would go here
       if (
         optionsApi.formFieldsFilledByApiResponse &&
         optionsApi.formFieldsFilledByApiResponse.length > 0
       ) {
-        // Implementation
       }
     }
 
     showOptions = false;
   }
 
-  // Remove option
   function removeOption(option: AutocompleteOption): void {
     if (isMultiple) {
       const selectedOptionsArray = selectedOptions as AutocompleteOption[];
@@ -184,30 +193,25 @@
     }
   }
 
-  // Handle input changes
   function handleInput(): void {
     showOptions = true;
-    fetchOptions(searchText);
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      fetchOptions(searchText);
+    }, 700);
   }
 
-  // Function to evaluate conditions
   function evaluateConditions(): boolean {
-    // If no conditions, return true
     if (!conditions || conditions.length === 0) return true;
 
-    // Condition evaluation logic would go here
     return true;
   }
 
-  // Reactive conditions evaluation
   $: showComponent = evaluateConditions();
 
-  // Initialize
   onMount(() => {
     fetchOptions();
 
-    // Handle autofocus programmatically instead of using the attribute
-    // This is a better approach for accessibility
     if (isAutofocus && !isDisabled) {
       const inputElement = document.getElementById(id);
       if (inputElement) {
@@ -244,7 +248,6 @@
     </Label>
 
     <div class={themeClasses}>
-      <!-- Mostrar tags selecionadas para seleção múltipla -->
       {#if isMultiple && Array.isArray(selectedOptions) && selectedOptions.length > 0}
         <div class="flex flex-wrap gap-1 mb-2">
           {#each selectedOptions as option}
@@ -276,7 +279,6 @@
         </div>
       {/if}
 
-      <!-- Campo de entrada -->
       <input
         {id}
         type={dataType}
@@ -291,12 +293,10 @@
         class={inputClass}
       />
 
-      <!-- Indicador de carregamento -->
       {#if loading}
         <Loading />
       {/if}
 
-      <!-- Lista de opções -->
       {#if showOptions && options.length > 0}
         <div class={dropdownClass}>
           <ul
