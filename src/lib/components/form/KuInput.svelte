@@ -51,7 +51,7 @@
     | "phone"
     | "email"
   )[] = [];
-  
+
   export let apiRequest: IApiRequest | undefined = undefined;
 
   // Estado interno
@@ -270,6 +270,7 @@
           class={inputClass}
           on:change={handleChange}
           on:input={handleInput}
+          step={dataType === "number" ? "any" : undefined}
         />
 
         <!-- Botão para mostrar/ocultar senha - só aparece se for tipo password -->
