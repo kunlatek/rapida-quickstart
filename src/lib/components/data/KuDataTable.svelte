@@ -4,7 +4,7 @@
   import { getComponentClasses } from "../../styles/theme";
   import KuPagination from "../navigation/KuPagination.svelte";
   import api from "$lib/services/api";
-  
+
   interface IDataSource {
     endpoint: string;
   }
@@ -101,7 +101,6 @@
         }
       }
 
-      // Use the centralized 'api' service instead of native fetch
       const response = await api.get(dataSource.endpoint, { params });
 
       const result = response.data;
@@ -147,15 +146,30 @@
     }
   }
 
+  function resolveNestedValue(obj: any, path: string): any {
+    if (!path) return obj;
+    return path.split(".").reduce((p, c) => (p && p[c] ? p[c] : null), obj);
+  }
+
   function formatCellValue(row: any, column: IColumn): any {
-    const value = column.formatValue
-      ? column.formatValue(row[column.key])
-      : row[column.key];
+    let value = resolveNestedValue(row, column.key);
+
+    if (column.formatValue) {
+      return column.formatValue(value);
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .map((item) =>
+          typeof item === "object" && item !== null ? item.toString() : item
+        )
+        .join(", ");
+    }
 
     if (column.formatter) {
       switch (column.formatter) {
         case "date":
-          return new Date(value).toLocaleDateString();
+          return new Date(value).toLocaleDateString("pt-BR");
         case "currency":
           return new Intl.NumberFormat("pt-BR", {
             style: "currency",
