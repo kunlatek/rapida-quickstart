@@ -17,6 +17,7 @@
     isTag?: boolean;
     formatValue?: (value: any) => any;
     formatter?: "date" | "currency" | "number" | "boolean" | "custom";
+    displayProperty?: string;
   }
 
   type ButtonColor =
@@ -159,17 +160,25 @@
     }
 
     if (Array.isArray(value)) {
-      return value
-        .map((item) =>
-          typeof item === "object" && item !== null ? item.toString() : item
-        )
-        .join(", ");
+      if (
+        value.length > 0 &&
+        typeof value[0] === "object" &&
+        column.displayProperty
+      ) {
+        return value
+          .map((item) => resolveNestedValue(item, column.displayProperty) || "")
+          .join(", ");
+      }
+      return value.join(", ");
     }
 
     if (column.formatter) {
       switch (column.formatter) {
         case "date":
-          return new Date(value).toLocaleDateString("pt-BR");
+          if (!value) return "";
+          return new Date(value).toLocaleDateString("pt-BR", {
+            timeZone: "UTC",
+          });
         case "currency":
           return new Intl.NumberFormat("pt-BR", {
             style: "currency",
