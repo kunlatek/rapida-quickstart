@@ -78,6 +78,11 @@
 
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
 
+  $: isInputRequired =
+    isRequired &&
+    (!selectedOptions ||
+      (Array.isArray(selectedOptions) && selectedOptions.length === 0));
+
   let inputClass = "";
   let dropdownClass = "";
   let optionClass = "";
@@ -126,7 +131,6 @@
         options = items.map((item) => {
           const label = optionsApi.labelField
             .map((field) => {
-              // Permite buscar em propriedades aninhadas, ex: 'author.name'
               return field
                 .split(".")
                 .reduce((o, i) => (o ? o[i] : undefined), item);
@@ -157,6 +161,7 @@
         const newSelectedOptions = [...selectedOptionsArray, option];
         selectedOptions = newSelectedOptions;
         value = newSelectedOptions;
+        searchText = "";
 
         if (
           optionsApi.formFieldsFilledByApiResponse &&
@@ -289,7 +294,7 @@
         on:focus={() => (showOptions = true)}
         on:blur={() => setTimeout(() => (showOptions = false), 150)}
         disabled={isDisabled}
-        required={isRequired}
+        required={isInputRequired}
         class={inputClass}
       />
 
