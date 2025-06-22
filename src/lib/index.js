@@ -28,7 +28,7 @@ export { default as KuFooter } from "./components/common/KuFooter.svelte";
 export { default as KuModal } from "./components/common/KuModal.svelte";
 
 // Data Components
-export { default as DataCard } from "./components/data/DataCard.svelte";
+export { default as KuDataCard } from "./components/data/KuDataCard.svelte";
 export { default as KuDataTable } from "./components/data/KuDataTable.svelte";
 
 // Form Components
