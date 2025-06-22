@@ -166,7 +166,9 @@
         column.displayProperty
       ) {
         return value
-          .map((item) => resolveNestedValue(item, column.displayProperty) || "")
+          .map(
+            (item) => resolveNestedValue(item, column.displayProperty!) || ""
+          )
           .join(", ");
       }
       return value.join(", ");
