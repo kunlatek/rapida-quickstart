@@ -7,7 +7,6 @@
     IApiRequest,
   } from "../../interfaces/form.interfaces";
 
-  // Interface definitions
   interface InputVariant {
     base: string;
     error?: string;
@@ -18,7 +17,6 @@
     [key: string]: InputVariant | undefined;
   }
 
-  // Props
   export let name = "";
   export let dataType:
     | "text"
@@ -36,7 +34,7 @@
   export let isAutofocus = false;
   export let isDisabled = false;
   export let isRequired = false;
-  export const isUnique = false; // Changed from export let to export const
+  export const isUnique = false;
   export let maxlength: number | undefined = undefined;
   export let minLength: number | undefined = undefined;
   export let error = "";
@@ -54,11 +52,9 @@
 
   export let apiRequest: IApiRequest | undefined = undefined;
 
-  // Estado interno
   let showPassword = false;
   let validationError: string | null = null;
 
-  // Valor computado para o tipo do input
   $: inputType =
     dataType === "password" && showPassword
       ? "text"
@@ -66,7 +62,6 @@
         ? "text"
         : dataType;
 
-  // Classes de estilo
   $: themeClasses = getComponentClasses("input", variant, {
     error: !!error || !!validationError,
     disabled: isDisabled,
@@ -74,12 +69,10 @@
   $: labelClass = `mb-2 ${error || validationError ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
   $: inputClass = `w-full ${themeClasses}`;
 
-  // Toggle de visibilidade da senha
   function togglePasswordVisibility(): void {
     showPassword = !showPassword;
   }
 
-  // Validação de entrada
   function validateInput(value: string | number | undefined): string | null {
     if (
       !validators ||
@@ -119,17 +112,14 @@
     return null;
   }
 
-  // Funções auxiliares de validação
   function isValidCPF(cpf: string): boolean {
     const regex = /^\d{3}\.\d{3}\.\d{3}\-\d{2}$|^\d{11}$/;
     return regex.test(cpf);
-    // Nota: Uma validação completa incluiria verificação do dígito verificador
   }
 
   function isValidCNPJ(cnpj: string): boolean {
     const regex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$|^\d{14}$/;
     return regex.test(cnpj);
-    // Nota: Uma validação completa incluiria verificação do dígito verificador
   }
 
   function isValidCEP(cep: string): boolean {
@@ -138,16 +128,15 @@
   }
 
   function isValidPhone(phone: string): boolean {
-    const regex = /^(\+\d{1,3}\s?)?\(?\d{2,3}\)?[\s.-]?\d{4,5}[\s.-]?\d{4}$/;
+    const regex = /^(\+\d{1,3}\s?)?\(?\d{2,3}\)?[\\s.-]?\d{4,5}[\\s.-]?\d{4}$/;
     return regex.test(phone);
   }
 
   function isValidEmail(email: string): boolean {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[^\\s@]+@[^\\s@]+\.[^\\s@]+$/;
     return regex.test(email);
   }
 
-  // Tratamento de mudança no input
   function handleChange(event: Event): void {
     const targetInput = event.target as HTMLInputElement;
 
@@ -157,67 +146,43 @@
       value =
         dataType === "number" ? targetInput.valueAsNumber : targetInput.value;
 
-      // Validar input quando o valor mudar
       validationError = validateInput(value);
     }
 
-    // Se for um campo com requisição de API, disparar a requisição quando o valor mudar
     if (apiRequest && !validationError) {
       fetchDataFromApi();
     }
   }
 
-  // Tratador específico para o evento input para campos numéricos
   function handleInputForNumbers(event: Event): void {
     if (dataType === "number") {
       handleChange(event);
     }
   }
 
-  // Função para tratar o evento input para qualquer tipo (não só números)
   function handleInput(event: Event): void {
     if (dataType === "number") {
       handleInputForNumbers(event);
     }
-    // Se necessário, adicione aqui lógica para outros tipos
   }
 
-  // Função placeholder para requisição de API
   async function fetchDataFromApi(): Promise<void> {
     if (!apiRequest || !apiRequest.endpoint) return;
 
     try {
-      // Aqui seria implementada a lógica para buscar dados da API
-      // Exemplo:
-      /*
-      const response = await fetch(apiRequest.endpoint);
-      const data = await response.json();
-      
-      // Preencher outros campos do formulário com base na resposta
-      if (apiRequest.formFieldsFilledByApiResponse) {
-        apiRequest.formFieldsFilledByApiResponse.forEach(field => {
-          // Lógica para preencher campos com base na resposta
-        });
-      }
-      */
     } catch (error) {
       console.error("Erro ao buscar dados da API:", error);
     }
   }
 
-  // Avaliação de condições
   function evaluateConditions(): boolean {
-    // Se não houver condições, sempre mostrar
     if (!conditions || conditions.length === 0) return true;
 
-    // Por enquanto, implementar suporte básico - pode ser expandido depois
-    return true; // Placeholder para lógica de condição real
+    return true;
   }
 
-  // Mostrar apenas se as condições forem atendidas
   $: showComponent = evaluateConditions();
 
-  // Atualizar a validação quando o valor mudar
   $: {
     if (value !== undefined && value !== "") {
       validationError = validateInput(value);
@@ -254,7 +219,6 @@
     </Label>
 
     <div class="relative">
-      <!-- Input normal para a maioria dos tipos -->
       {#if dataType !== "wysiwyg"}
         <FlowbiteInput
           {id}
@@ -273,7 +237,6 @@
           step={dataType === "number" ? "any" : undefined}
         />
 
-        <!-- Botão para mostrar/ocultar senha - só aparece se for tipo password -->
         {#if dataType === "password"}
           <button
             type="button"
@@ -289,7 +252,6 @@
           </button>
         {/if}
       {:else}
-        <!-- Input do tipo wysiwyg - implementar editor rich text aqui -->
         <div
           class="border border-gray-300 rounded-lg p-2 dark:border-gray-600 dark:bg-gray-700"
         >
@@ -305,7 +267,6 @@
             class="w-full bg-transparent border-0 focus:ring-0 p-0 dark:text-white"
             rows="5"
           ></textarea>
-          <!-- Nota: Aqui seria implementado um editor WYSIWYG real -->
         </div>
       {/if}
     </div>
