@@ -1,0 +1,9 @@
+@import "./lib/styles/theme.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global CSS rules */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary-500;
+}

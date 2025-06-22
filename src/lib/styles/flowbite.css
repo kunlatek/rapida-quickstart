@@ -1,0 +1,18 @@
+[data-style="underline"] .active {
+  color: #3b82f6 !important; /* blue-500 */
+}
+
+/* Versão baseada em classe */
+.tabs-underline .active {
+  color: #3b82f6 !important; /* blue-500 */
+}
+
+/* Versão dark mode - atributo */
+.dark [data-style="underline"] .active {
+  color: #60fa6d !important; /* blue-400 */
+}
+
+/* Versão dark mode - classe */
+.dark .tabs-underline .active {
+  color: #60fac7 !important; /* blue-400 */
+}

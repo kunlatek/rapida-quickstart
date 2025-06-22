@@ -1,0 +1,36 @@
+flowchart TD
+    A[Usuário acessa URL raiz] --> B[Página de apresentação]
+    B --> C[Registrar conta]
+    B --> D[Fazer login]
+    
+    C --> C1[Cadastro com e-mail/senha]
+    C1 --> C12[Recuperar senha - to-do]
+    C12 --> |E-mail enviado| C1
+    C --> C2[Cadastro com Gmail]
+    C --> C3[Cadastro com AppleID]
+    C1 --> D
+    C2 --> D
+    C3 --> D
+    
+    D --> E{Verificação de perfil}
+    
+    E -->|Nenhum perfil| F[Seleção de perfil]
+    F --> F1[Criar perfil de pessoa]
+    F --> F2[Criar perfil de empresa]
+    F1 --> G
+    F2 --> G
+    
+    E -->|Um perfil| G[Define perfil como ativo]
+    E -->|Múltiplos perfis| H[Seleção de perfil ativo]
+    H --> G
+    
+    G --> I[Dashboard]
+    
+    %% Definições de estilo
+    classDef page fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef decision fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef auxFunction fill:#ffd,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5;
+    
+    class A,B,C,D,F,F1,F2,H,I page;
+    class E,G decision;
+    class C12 auxFunction;

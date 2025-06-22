@@ -1,0 +1,94 @@
+.content-card {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Para mobile (320px mínimo) */
+@media (min-width: 320px) {
+  .content-card {
+    padding: 1rem;
+    margin: 0.5rem auto;
+  }
+  
+  .form-grid {
+    grid-gap: 0.75rem;
+  }
+  
+  .tab-content {
+    padding: 1rem;
+  }
+}
+
+/* Para tablets/desktop pequeno (768px) */
+@media (min-width: 768px) {
+  .content-card {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+  
+  .form-grid {
+    grid-gap: 1rem;
+  }
+  
+  .tab-content {
+    padding: 1.5rem;
+  }
+}
+
+/* Para desktop (1024px) */
+@media (min-width: 1024px) {
+  .content-card {
+    padding: 2rem;
+    margin: 1.5rem auto;
+  }
+  
+  .form-grid {
+    grid-gap: 1.25rem;
+  }
+  
+  .tab-content {
+    padding: 2rem;
+  }
+}
+
+/* Para telas grandes/TVs (1280px) */
+@media (min-width: 1280px) {
+  .content-card {
+    padding: 2.5rem;
+    max-width: 1400px;
+    margin: 2rem auto;
+  }
+  
+  .form-grid {
+    grid-gap: 1.5rem;
+  }
+  
+  .tab-content {
+    padding: 2.5rem;
+  }
+}
+
+/* Estilos específicos para formulários */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.tab-content {
+  background-color: white;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Estilos para o tema escuro */
+.dark .content-card {
+  background-color: #1f2937;
+}
+
+.dark .tab-content {
+  background-color: #374151;
+}
