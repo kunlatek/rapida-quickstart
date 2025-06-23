@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { Button } from "flowbite-svelte";
-  import { getComponentClasses } from "../../styles/theme";
+  import { getComponentClasses } from "$lib/styles/theme";
   import { themeConfig } from "../../styles/theme";
   import type {
     IFormCondition,

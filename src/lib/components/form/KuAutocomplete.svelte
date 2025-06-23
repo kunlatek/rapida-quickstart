@@ -2,8 +2,7 @@
   import { Label, Helper } from "flowbite-svelte";
   import { onMount } from "svelte";
   import Loading from "../common/KuLoading.svelte";
-  import { getComponentClasses } from "../../styles/theme";
-  import { themeConfig } from "../../styles/theme";
+  import { getComponentClasses, themeConfig } from "$lib/styles/theme";
   import type {
     IFormAutocomplete,
     IFormCondition,

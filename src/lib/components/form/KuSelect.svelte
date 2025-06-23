@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Label, Select as FlowbiteSelect, Helper } from "flowbite-svelte";
-  import { getComponentClasses } from "../../styles/theme";
+  import { getComponentClasses } from "$lib/styles/theme";
   import type { IFormCondition } from "../../interfaces/form.interfaces";
 
   // Interface definitions

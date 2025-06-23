@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button } from "flowbite-svelte";
-  import { getComponentClasses } from "../../styles/theme";
-  import { themeConfig } from "../../styles/theme";
+  import { getComponentClasses, themeConfig } from "$lib/styles/theme";
   import type {
     IFormArray,
     IFormElement,

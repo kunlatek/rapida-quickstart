@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Label, Input as FlowbiteInput, Helper } from "flowbite-svelte";
-  import { getComponentClasses } from "../../styles/theme";
+  import { getComponentClasses } from "$lib/styles/theme";
   import { EyeSolid, EyeSlashSolid } from "flowbite-svelte-icons";
   import type {
     IFormCondition,

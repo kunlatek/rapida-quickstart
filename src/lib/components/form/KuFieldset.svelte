@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getComponentClasses } from "../../styles/theme";
+  import { getComponentClasses } from "$lib/styles/theme";
   import type {
     IFormCondition,
     IFormElement,

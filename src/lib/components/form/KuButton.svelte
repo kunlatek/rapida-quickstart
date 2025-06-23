@@ -2,7 +2,7 @@
   import { Button as FlowbiteButton } from "flowbite-svelte";
   import {
     getButtonSizeClasses,
-  } from "../../styles/theme";
+  } from "$lib/styles/theme";
   import type {
     IFormCondition,
     IApiRequest,
