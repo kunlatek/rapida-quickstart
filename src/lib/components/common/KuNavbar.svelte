@@ -11,7 +11,7 @@
     SidebarGroup,
     SidebarItem,
   } from "flowbite-svelte";
-  import { navigationMenu } from '$lib/config/navigation.js';
+  import { navigationMenu } from "$lib/config/navigation.js";
   import { UserCircleSolid } from "flowbite-svelte-icons";
   import { profileStore } from "$stores/profile";
   import { authStore } from "$stores/auth";
@@ -23,7 +23,6 @@
   import { accountDeletionStore } from "$stores/account-deletion";
   import KuModal from "./KuModal.svelte";
 
-  // Added showMenu prop declaration
   export let showMenu = true;
 
   let drawerHidden = true;
@@ -75,16 +74,6 @@
   }
 </script>
 
-{#each navigationMenu as module}
-  <SidebarItem label={module.title}>
-    </SidebarItem>
-  <SidebarGroup>
-    {#each module.subItems as item}
-      <SidebarItem href={item.route} label={item.title} />
-    {/each}
-  </SidebarGroup>
-{/each}
-
 <Navbar
   let:hidden
   let:toggle
@@ -105,7 +94,6 @@
     {#if $authStore.isAuthenticated}
       {#if showMenu && !$accountDeletionStore.isDeleted}
         <div class="flex items-center space-x-3">
-          <!-- Menu button - using inline SVG instead of imported icon -->
           <Button color="light" size="sm" on:click={openDrawer} class="mr-2">
             <svg
               class="w-5 h-5 mr-2"
@@ -123,7 +111,6 @@
           </Button>
 
           <Dropdown inline={true} class="w-44">
-            <!-- User icon for dropdown - keeping UserCircleSolid as it seems to work -->
             <div slot="trigger" class="cursor-pointer">
               <UserCircleSolid
                 size="lg"
@@ -148,9 +135,11 @@
                   >
                 </div>
                 {#each $authStore.user.availableRoles as role}
-                  <DropdownItem on:click={() => switchRole(role)}>
-                    Usar papel: {role}
-                  </DropdownItem>
+                  {#if role !== $authStore.user.activeRole}
+                    <DropdownItem on:click={() => switchRole(role)}>
+                      Usar papel: {role}
+                    </DropdownItem>
+                  {/if}
                 {/each}
                 <hr class="my-1" />
               {/if}
@@ -161,7 +150,6 @@
                 class="md:hidden text-red-600 dark:text-red-500"
               >
                 <div class="flex items-center">
-                  <!-- Logout icon - using inline SVG instead of imported icon -->
                   <svg
                     class="w-5 h-5 mr-2"
                     fill="currentColor"
@@ -186,7 +174,6 @@
           </Dropdown>
         </div>
       {:else}
-        <!-- When no active role or account is deleted, only show logout button -->
         <Button
           color="light"
           size="sm"
@@ -221,7 +208,6 @@
   </div>
 </Navbar>
 
-<!-- Drawer implemented correctly - Note: This should show regardless of showMenu prop being true -->
 {#if browser}
   <Drawer
     placement="left"
@@ -291,83 +277,26 @@
               </svelte:fragment>
             </SidebarItem>
 
-            {#if !$accountDeletionStore.isDeleted && $authStore.user?.activeRole === "person"}
-              <SidebarItem
-                href={"/profile/person/" + $profileStore?.person?._id}
-                on:click={closeDrawer}
-                label="Perfil Pessoa"
-                class="break-words"
-              >
-                <svelte:fragment slot="icon">
-                  <svg
-                    class="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </svelte:fragment>
-              </SidebarItem>
-            {/if}
-
-            {#if !$accountDeletionStore.isDeleted && $authStore.user?.activeRole === "company"}
-              <SidebarItem
-                href={"/profile/company/" + $profileStore?.company?._id}
-                on:click={closeDrawer}
-                label="Perfil Empresa"
-                class="break-words"
-              >
-                <svelte:fragment slot="icon">
-                  <svg
-                    class="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </svelte:fragment>
-              </SidebarItem>
-            {/if}
-
-            <SidebarItem
-              href="/invitation"
-              on:click={closeDrawer}
-              label="Convites"
-              class="break-words"
-            >
-              <svelte:fragment slot="icon">
-                <svg
-                  class="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
+            {#each navigationMenu as module}
+              {#if module.subItems && module.subItems.length > 0}
+                <div
+                  class="px-3 pt-4 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
-                  <path
-                    fill-rule="evenodd"
-                    d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
-                    clip-rule="evenodd"
-                  ></path>
-                  <path
-                    fill-rule="evenodd" 
-                    d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </svelte:fragment>
-            </SidebarItem>
+                  {module.title}
+                </div>
+                {#each module.subItems as item}
+                  <SidebarItem
+                    href={item.route}
+                    label={item.title}
+                    on:click={closeDrawer}
+                    class="pl-5"
+                  />
+                {/each}
+              {/if}
+            {/each}
+            <hr class="my-2 border-gray-200 dark:border-gray-700" />
 
             {#if !$accountDeletionStore.isDeleted && $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 1}
-              <hr class="my-2" />
               <div class="px-4 py-2">
                 <span
                   class="text-sm font-medium text-gray-600 dark:text-gray-400"
@@ -398,9 +327,32 @@
                   </SidebarItem>
                 {/if}
               {/each}
+              <hr class="my-2 border-gray-200 dark:border-gray-700" />
             {/if}
 
-            <hr class="my-2" />
+            {#if !$accountDeletionStore.isDeleted}
+              <SidebarItem
+                href="/settings"
+                on:click={closeDrawer}
+                label="Configurações"
+                class="break-words"
+              >
+                <svelte:fragment slot="icon">
+                  <svg
+                    class="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </svelte:fragment>
+              </SidebarItem>
+            {/if}
 
             <SidebarItem
               class="text-red-600 dark:text-red-500 break-words"
@@ -411,7 +363,6 @@
               label="Sair"
             >
               <svelte:fragment slot="icon">
-                <!-- Logout icon - using inline SVG instead of imported icon -->
                 <svg
                   class="w-5 h-5"
                   fill="currentColor"
@@ -432,36 +383,12 @@
               </svelte:fragment>
             </SidebarItem>
           {/if}
-          {#if !$accountDeletionStore.isDeleted}
-            <SidebarItem
-              href="/settings"
-              on:click={closeDrawer}
-              label="Configurações"
-              class="break-words"
-            >
-              <svelte:fragment slot="icon">
-                <svg
-                  class="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </svelte:fragment>
-            </SidebarItem>
-          {/if}
         </SidebarGroup>
       </Sidebar>
     </div>
   </Drawer>
 {/if}
 
-<!-- Logout confirmation modal -->
 <KuModal
   bind:open={showLogoutModal}
   title="Confirmação de Logout"
