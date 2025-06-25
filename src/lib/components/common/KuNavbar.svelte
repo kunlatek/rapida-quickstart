@@ -11,7 +11,7 @@
     SidebarGroup,
     SidebarItem,
   } from "flowbite-svelte";
-
+  import { navigationMenu } from '$lib/config/navigation.js';
   import { UserCircleSolid } from "flowbite-svelte-icons";
   import { profileStore } from "$stores/profile";
   import { authStore } from "$stores/auth";
@@ -74,6 +74,16 @@
     }
   }
 </script>
+
+{#each navigationMenu as module}
+  <SidebarItem label={module.title}>
+    </SidebarItem>
+  <SidebarGroup>
+    {#each module.subItems as item}
+      <SidebarItem href={item.route} label={item.title} />
+    {/each}
+  </SidebarGroup>
+{/each}
 
 <Navbar
   let:hidden
