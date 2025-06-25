@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, Spinner } from "flowbite-svelte";
-  import { getComponentClasses } from "../../styles/theme";
+  import { getComponentClasses } from "$lib/styles/theme";
   import KuPagination from "../navigation/KuPagination.svelte";
   import api from "$lib/services/api";
 

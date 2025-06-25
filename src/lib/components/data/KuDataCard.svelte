@@ -1,6 +1,6 @@
 <script>
   import { Button } from "flowbite-svelte";
-  import { getComponentClasses } from "../../styles/theme";
+  import { getComponentClasses } from "$lib/styles/theme";
 
   export let title = "";
   export let subtitle = "";
