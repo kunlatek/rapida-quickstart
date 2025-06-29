@@ -2,8 +2,7 @@ import api from "./api";
 
 export const profileService = {
   /**
-   * Criar um perfil de pessoa
-   * @param {Object} profileData - Dados do perfil de pessoa
+   * @param {import('../interfaces/profile.interfaces').IPersonProfile} profileData
    */
   async createPersonProfile(profileData) {
     try {
@@ -16,8 +15,7 @@ export const profileService = {
   },
 
   /**
-   * Obter um perfil de pessoa pelo ID
-   * @param {string} id - ID do perfil
+   * @param {string} id
    */
   async getPersonProfileById(id) {
     try {
@@ -30,8 +28,7 @@ export const profileService = {
   },
 
   /**
-   * Obter um perfil de pessoa pelo ID de usuário
-   * @param {string} userId - ID do usuário
+   * @param {string} userId
    */
   async getPersonProfileByUserId(userId) {
     try {
@@ -44,9 +41,8 @@ export const profileService = {
   },
 
   /**
-   * Atualizar um perfil de pessoa
-   * @param {string} id - ID do perfil
-   * @param {Object} profileData - Dados atualizados do perfil
+   * @param {string} id
+   * @param {Partial<import('../interfaces/profile.interfaces').IPersonProfile>} profileData
    */
   async updatePersonProfile(id, profileData) {
     try {
@@ -59,8 +55,7 @@ export const profileService = {
   },
 
   /**
-   * Excluir um perfil de pessoa
-   * @param {string} id - ID do perfil
+   * @param {string} id
    */
   async deletePersonProfile(id) {
     try {
@@ -73,8 +68,7 @@ export const profileService = {
   },
 
   /**
-   * Criar um perfil de empresa
-   * @param {Object} profileData - Dados do perfil de empresa
+   * @param {import('../interfaces/profile.interfaces').ICompanyProfile} profileData
    */
   async createCompanyProfile(profileData) {
     try {
@@ -87,8 +81,7 @@ export const profileService = {
   },
 
   /**
-   * Obter um perfil de empresa pelo ID
-   * @param {string} id - ID do perfil
+   * @param {string} id
    */
   async getCompanyProfileById(id) {
     try {
@@ -101,8 +94,7 @@ export const profileService = {
   },
 
   /**
-   * Obter um perfil de empresa pelo ID de usuário
-   * @param {string} userId - ID do usuário
+   * @param {string} userId
    */
   async getCompanyProfileByUserId(userId) {
     try {
@@ -115,9 +107,8 @@ export const profileService = {
   },
 
   /**
-   * Atualizar um perfil de empresa
-   * @param {string} id - ID do perfil
-   * @param {Object} profileData - Dados atualizados do perfil
+   * @param {string} id
+   * @param {Partial<import('../interfaces/profile.interfaces').ICompanyProfile>} profileData
    */
   async updateCompanyProfile(id, profileData) {
     try {
@@ -130,8 +121,7 @@ export const profileService = {
   },
 
   /**
-   * Excluir um perfil de empresa
-   * @param {string} id - ID do perfil
+   * @param {string} id
    */
   async deleteCompanyProfile(id) {
     try {
@@ -144,13 +134,8 @@ export const profileService = {
   },
 
   /**
-   * Verificar se o usuário possui perfis de pessoa ou empresa
-   * @param {string} userId - ID do usuário
-   * @return {Object} - Objeto contendo informações sobre os perfis
-   * @property {boolean} hasPerson - Indica se o usuário possui um perfil de pessoa
-   * @property {boolean} hasCompany - Indica se o usuário possui um perfil de empresa
-   * @property {string|null} personId - ID do perfil de pessoa (se existir)
-   * @property {string|null} companyId - ID do perfil de empresa (se existir)
+   * @param {string} userId
+   * @returns {Promise<import('../interfaces/profile.interfaces').IProfileCheckResult>}
    */
   async checkUserProfiles(userId) {
     let profiles = {
@@ -160,7 +145,6 @@ export const profileService = {
       companyId: null,
     };
 
-    
     try {
       const response = await api.get("/users/has-profile");
       const responseData = response.data;
@@ -168,17 +152,17 @@ export const profileService = {
         ...profiles,
         hasPerson: responseData.person,
         hasCompany: responseData.company,
-      }
+      };
     } catch (error) {
       console.error("Error checking user profile:", error);
       throw error;
     }
-    
+
     if (profiles.hasPerson) {
       const personProfile = await this.getPersonProfileByUserId(userId);
       profiles.personId = personProfile._id;
     }
-    
+
     if (profiles.hasCompany) {
       const companyProfile = await this.getCompanyProfileByUserId(userId);
       profiles.companyId = companyProfile._id;

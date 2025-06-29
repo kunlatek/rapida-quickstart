@@ -3,14 +3,14 @@
   import KuToast from "$lib/components/common/KuToast.svelte";
   import KuNavbar from "$lib/components/common/KuNavbar.svelte";
   import KuFooter from "$lib/components/common/KuFooter.svelte";
-  import { authStore } from "$stores/auth";
+  import { authStore } from "$lib/stores/auth";
   import { profileService } from "$services/profile";
   import { goto } from "$app/navigation";
   import ThemeProvider from "$lib/components/theme/ThemeProvider.svelte";
   import {
     accountDeletionStore,
     fetchDeletionStatus,
-  } from "$stores/account-deletion";
+  } from "$lib/stores/account-deletion";
 
   import "../app.css";
   import "$lib/styles/flowbite.css";

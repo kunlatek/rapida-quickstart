@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { authStore } from "$stores/auth";
+  import { authStore } from "$lib/stores/auth";
   import { toastStore } from "$lib/stores/toast";
   import { Card, Heading, Button } from "flowbite-svelte";
   import { UserRole } from "../../../enums/user-role.enum";

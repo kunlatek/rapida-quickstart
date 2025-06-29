@@ -1,7 +1,8 @@
-import { writable, get } from "svelte/store";
+import { writable, get, type Writable } from "svelte/store";
 import { browser } from "$app/environment";
+import type { AuthStoreType } from "$lib/interfaces/auth.interfaces";
 
-const initialState = {
+const initialState: AuthStoreType = {
   isAuthenticated: false,
   user: null,
   token: null,
@@ -18,11 +19,8 @@ if (browser) {
   }
 }
 
-// Criar o store primeiro
-const authStore = writable(initialState);
+const authStore: Writable<AuthStoreType> = writable(initialState);
 
-// Agora podemos adicionar métodos ao objeto store
-const getState = () => get(authStore);
+const getState = (): AuthStoreType => get(authStore);
 
-// Exportar o store com os métodos adicionados
 export { authStore, getState };

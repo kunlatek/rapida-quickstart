@@ -2,12 +2,12 @@
 <script>
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { authStore } from "$stores/auth";
+  import { authStore } from "$lib/stores/auth";
   import { toastStore } from "$lib/stores/toast";
   import {
     accountDeletionStore,
     fetchDeletionStatus,
-  } from "$stores/account-deletion";
+  } from "$lib/stores/account-deletion";
   import { Button, Card, Heading, Modal } from "flowbite-svelte";
   import { KuLoading } from "$components/common";
   import ChangePasswordForm from "$lib/components/pages/settings/ChangePasswordForm.svelte";

@@ -1,13 +1,13 @@
 <script>
   import { onMount } from "svelte";
-  import { authStore } from "$stores/auth";
+  import { authStore } from "$lib/stores/auth";
   import { profileStore, loadProfiles } from "$stores/profile";
   import { Heading } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import { toastStore } from "$lib/stores/toast";
   import { KuLoading } from "$lib/components/common";
   import AccountRestorationNotice from "$lib/components/pages/dashboard/AccountRestorationNotice.svelte";
-  import { fetchDeletionStatus } from "$stores/account-deletion";
+  import { fetchDeletionStatus } from "$lib/stores/account-deletion";
 
   let loading = false;
 

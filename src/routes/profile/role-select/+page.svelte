@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { authStore } from "$stores/auth";
@@ -6,7 +6,7 @@
   import { Card, Heading, Button } from "flowbite-svelte";
   import { authService } from "$services/auth";
 
-  let availableRoles = [];
+  let availableRoles: string[] = [];
 
   onMount(() => {
     console.log("Página de seleção de papel carregada", $authStore);
@@ -17,10 +17,8 @@
       return;
     }
 
-    // Get available roles
     availableRoles = $authStore.user?.availableRoles || [];
 
-    // If no roles or only one, redirect to appropriate page
     if (availableRoles.length <= 1) {
       if (availableRoles.length === 1) {
         selectRole(availableRoles[0]);
@@ -31,7 +29,7 @@
     }
   });
 
-  async function selectRole(role) {
+  async function selectRole(role: string) {
     try {
       const success = await authService.switchRole(role);
       if (success) {
@@ -70,7 +68,9 @@
           class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
         >
           <div class="mb-4">
-            <h2 class="text-xl font-semibold mb-2">Papel: {role === "company" ? "Empresa" : "Pessoa"}</h2>
+            <h2 class="text-xl font-semibold mb-2">
+              Papel: {role === "company" ? "Empresa" : "Pessoa"}
+            </h2>
             <p class="text-gray-600 dark:text-gray-400">
               Ativar este papel para acessar as funcionalidades correspondentes.
             </p>

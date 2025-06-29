@@ -1,9 +1,9 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { authService } from "$services/auth";
-  import { authStore as rawAuthStore } from "$stores/auth";
+  import { authStore as rawAuthStore } from "$lib/stores/auth";
   import { profileService } from "$services/profile";
-  import { toastStore } from "$lib/stores/toast"; // Usando diretamente, vamos chamar .add()
+  import { toastStore } from "$lib/stores/toast";
 
   import { Card, Alert, Spinner, Checkbox, Label } from "flowbite-svelte";
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
@@ -13,20 +13,10 @@
   import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
   import { mapBackendErrorToFrontendMessage } from "$lib/services/errorMapper";
   import type { Writable } from "svelte/store";
-
-  // --- Interface Definitions for better Typing ---
-  interface AuthUser {
-    userId: string;
-    email: string;
-    activeRole: string | null;
-    availableRoles: string[];
-  }
-
-  interface AuthStoreType {
-    isAuthenticated: boolean;
-    user: AuthUser | null;
-    token: string | null;
-  }
+  import type {
+    AuthStoreType,
+    AuthUser,
+  } from "$lib/interfaces/auth.interfaces";
 
   const authStore = rawAuthStore as Writable<AuthStoreType>;
 
@@ -37,7 +27,6 @@
     companyId: string | null;
   }
 
-  // --- Component State ---
   let email = "";
   let password = "";
   let rememberMe = false;
@@ -68,7 +57,6 @@
           return;
         }
 
-        // Asserção de tipo explícita no resultado da Promise
         const profiles = (await profileService.checkUserProfiles(
           userId
         )) as ProfileCheckResult;
@@ -112,7 +100,7 @@
   async function handleLogin(): Promise<void> {
     if (!email || !password) {
       errorMessage = "Por favor, preencha todos os campos";
-      toastStore.add(errorMessage, "error"); // Usando toastStore.add
+      toastStore.add(errorMessage, "error");
       return;
     }
 
@@ -121,19 +109,21 @@
       errorMessage = "";
 
       await authService.login(email, password);
-      toastStore.add("Login realizado com sucesso!", "success"); // Usando toastStore.add
+      toastStore.add("Login realizado com sucesso!", "success");
       await checkAndRedirect();
     } catch (error: any) {
       console.error("Erro no login:", error);
       const mappedError = mapBackendErrorToFrontendMessage(error);
       errorMessage = mappedError;
-      toastStore.add(mappedError, "error"); // Usando toastStore.add
+      toastStore.add(mappedError, "error");
     } finally {
       loading = false;
     }
   }
 </script>
 
+// MODIFICATION BASED ON:
+/Users/opah/Code/personal/kunlatek/rapida/rapida-quickstart/src/routes/auth/login/+page.svelte
 <svelte:head>
   <title>Login - Rapida Quickstart</title>
 </svelte:head>

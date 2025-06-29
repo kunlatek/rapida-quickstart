@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Button } from "flowbite-svelte";
   import {
     accountDeletionStore,
@@ -38,8 +38,7 @@
     }
   }
 
-  // Format date for better readability
-  function formatDate(dateString) {
+  function formatDate(dateString: string | undefined | null) {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString("pt-BR", {
@@ -49,7 +48,6 @@
     });
   }
 
-  // Calculate deletion date (90 days after deletion)
   $: deletionDate = $accountDeletionStore.deletedAt
     ? new Date(
         new Date($accountDeletionStore.deletedAt).getTime() +
@@ -83,7 +81,6 @@
           Data de exclusão: {formatDate(deletionDate?.toISOString())}
         </p>
       </div>
-
     </div>
     <div class="mt-4 flex justify-center">
       <Button color="yellow" on:click={handleRestore} disabled={restoring}>

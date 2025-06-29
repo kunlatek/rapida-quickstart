@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { authStore } from "$stores/auth";
@@ -8,8 +8,9 @@
   import {
     accountDeletionStore,
     fetchDeletionStatus,
-  } from "$stores/account-deletion";
+  } from "$lib/stores/account-deletion";
   import KuLoading from "../../lib/components/common/KuLoading.svelte";
+  import type { IProfileCheckResult } from "$lib/interfaces/profile.interfaces";
 
   let loading = true;
   let isCheckingProfiles = false;
@@ -21,10 +22,8 @@
       return;
     }
 
-    // Check if user's account is marked for deletion
     await fetchDeletionStatus();
 
-    // Only check for active role if account is not marked for deletion
     if (!$accountDeletionStore.isDeleted && !$authStore.user?.activeRole) {
       toastStore.error(
         "Você precisa selecionar um papel para acessar esta página"
@@ -33,16 +32,18 @@
       return;
     }
 
-    // Only check for profiles if account is not marked for deletion
     if (!$accountDeletionStore.isDeleted && !isCheckingProfiles) {
       isCheckingProfiles = true;
 
       try {
-        const profiles = await profileService.checkUserProfiles(
-          $authStore.user.userId
-        );
+        if (!$authStore.user) {
+          toastStore.error("Sessão inválida. Por favor, faça login novamente.");
+          goto("/auth/login");
+          return;
+        }
+        const profiles: IProfileCheckResult =
+          await profileService.checkUserProfiles($authStore.user.userId);
 
-        // Only redirect if account is not marked for deletion
         if (
           !$accountDeletionStore.isDeleted &&
           !profiles.hasPerson &&
@@ -65,12 +66,10 @@
     }
   });
 
-  // Reactive statement to handle authentication state changes
   $: if (browser && !$authStore.isAuthenticated) {
     goto("/auth/login");
   }
 
-  // Reactive statement to handle active role changes - only if account is not deleted
   $: if (
     browser &&
     $authStore.isAuthenticated &&

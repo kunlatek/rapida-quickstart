@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     Navbar,
     NavBrand,
@@ -11,7 +11,7 @@
     SidebarGroup,
     SidebarItem,
   } from "flowbite-svelte";
-  import { navigationMenu } from "$lib/config/navigation.js";
+  import { navigationMenu } from "$lib/config/navigation";
   import { UserCircleSolid } from "flowbite-svelte-icons";
   import { profileStore } from "$stores/profile";
   import { authStore } from "$stores/auth";
@@ -61,7 +61,7 @@
     showLogoutModal = false;
   }
 
-  async function switchRole(role) {
+  async function switchRole(role: string) {
     if (browser) {
       try {
         await authService.switchRole(role);
@@ -72,8 +72,16 @@
       }
     }
   }
+
+  $: profileUrl = $profileStore.person?._id
+    ? `/profile/person/${$profileStore.person._id}`
+    : $profileStore.company?._id
+      ? `/profile/company/${$profileStore.company._id}`
+      : "/profile/select";
 </script>
 
+// MODIFICATION BASED ON:
+/Users/opah/Code/personal/kunlatek/rapida/rapida-quickstart/src/lib/components/common/KuNavbar.svelte
 <Navbar
   let:hidden
   let:toggle
@@ -109,8 +117,7 @@
             </svg>
             <span class="hidden md:inline">Menu</span>
           </Button>
-
-          <Dropdown inline={true} class="w-44">
+          <Dropdown class="w-44">
             <div slot="trigger" class="cursor-pointer">
               <UserCircleSolid
                 size="lg"
@@ -118,17 +125,17 @@
               />
             </div>
 
-            <div slot="content" class="py-1">
+            <div class="py-1">
               <DropdownItem class="flex items-center space-x-2">
                 <span class="text-sm text-gray-700"
                   >{$authStore.user?.email || ""}</span
                 >
               </DropdownItem>
-              <DropdownItem>Perfil</DropdownItem>
-              <DropdownItem>Configurações</DropdownItem>
+              <DropdownItem href={profileUrl}>Perfil</DropdownItem>
+              <DropdownItem href="/settings">Configurações</DropdownItem>
               <hr class="my-1" />
 
-              {#if $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 0}
+              {#if $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 1}
                 <div class="px-4 py-2">
                   <span class="text-sm text-gray-500"
                     >Papel Ativo: {$authStore.user.activeRole || "Nenhum"}</span
@@ -137,7 +144,7 @@
                 {#each $authStore.user.availableRoles as role}
                   {#if role !== $authStore.user.activeRole}
                     <DropdownItem on:click={() => switchRole(role)}>
-                      Usar papel: {role}
+                      Usar papel: {role === "person" ? "Pessoa" : "Empresa"}
                     </DropdownItem>
                   {/if}
                 {/each}
@@ -147,7 +154,7 @@
               <DropdownItem
                 on:click={confirmLogout}
                 data-testid="logout-button"
-                class="md:hidden text-red-600 dark:text-red-500"
+                class="text-red-600 dark:text-red-500"
               >
                 <div class="flex items-center">
                   <svg
@@ -277,24 +284,42 @@
               </svelte:fragment>
             </SidebarItem>
 
-            {#each navigationMenu as module}
-              {#if module.subItems && module.subItems.length > 0}
-                <div
-                  class="px-3 pt-4 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  {module.title}
-                </div>
-                {#each module.subItems as item}
-                  <SidebarItem
-                    href={item.route}
-                    label={item.title}
-                    on:click={closeDrawer}
-                    class="pl-5"
-                  />
-                {/each}
-              {/if}
-            {/each}
+            {#if navigationMenu && navigationMenu.length > 0}
+              {#each navigationMenu as module}
+                {#if module.subItems && module.subItems.length > 0}
+                  <div
+                    class="px-3 pt-4 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                  >
+                    {module.title}
+                  </div>
+                  {#each module.subItems as item}
+                    <SidebarItem
+                      href={item.route}
+                      label={item.title}
+                      on:click={closeDrawer}
+                      class="pl-5"
+                    />
+                  {/each}
+                {/if}
+              {/each}
+            {/if}
+
             <hr class="my-2 border-gray-200 dark:border-gray-700" />
+
+            <div
+              class="px-3 pt-4 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+            >
+              Conta
+            </div>
+
+            {#if !$accountDeletionStore.isDeleted && $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 0}
+              <SidebarItem
+                href={profileUrl}
+                on:click={closeDrawer}
+                label="Meu Perfil"
+                class="break-words pl-5"
+              ></SidebarItem>
+            {/if}
 
             {#if !$accountDeletionStore.isDeleted && $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 1}
               <div class="px-4 py-2">

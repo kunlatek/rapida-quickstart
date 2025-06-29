@@ -1,6 +1,6 @@
 <script>
   import KuToast from "$lib/components/common/KuToast.svelte";
-  import { authStore } from "$stores/auth";
+  import { authStore } from "$lib/stores/auth";
   import { browser } from "$app/environment";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";

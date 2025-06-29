@@ -1,6 +1,6 @@
 <script>
   import { goto } from "$app/navigation";
-  import { authStore } from "$stores/auth";
+  import { authStore } from "$lib/stores/auth";
   import { toastStore } from "$lib/stores/toast";
   import { authService } from "$services/auth";
   import { profileService } from "$services/profile";
