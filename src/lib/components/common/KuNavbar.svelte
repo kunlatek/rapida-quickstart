@@ -80,8 +80,6 @@
       : "/profile/select";
 </script>
 
-// MODIFICATION BASED ON:
-/Users/opah/Code/personal/kunlatek/rapida/rapida-quickstart/src/lib/components/common/KuNavbar.svelte
 <Navbar
   let:hidden
   let:toggle

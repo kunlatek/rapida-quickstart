@@ -122,8 +122,6 @@
   }
 </script>
 
-// MODIFICATION BASED ON:
-/Users/opah/Code/personal/kunlatek/rapida/rapida-quickstart/src/routes/auth/login/+page.svelte
 <svelte:head>
   <title>Login - Rapida Quickstart</title>
 </svelte:head>

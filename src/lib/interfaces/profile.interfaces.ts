@@ -1,4 +1,3 @@
-// MODIFICATION BASED ON: /Users/opah/Code/personal/kunlatek/rapida/rapida-quickstart/src/lib/interfaces/profile.interfaces.ts
 export interface IProfileCheckResult {
   hasPerson: boolean;
   hasCompany: boolean;
