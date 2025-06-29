@@ -115,68 +115,6 @@
             </svg>
             <span class="hidden md:inline">Menu</span>
           </Button>
-          <Dropdown class="w-44">
-            <div slot="trigger" class="cursor-pointer">
-              <UserCircleSolid
-                size="lg"
-                class="text-gray-600 dark:text-gray-300"
-              />
-            </div>
-
-            <div class="py-1">
-              <DropdownItem class="flex items-center space-x-2">
-                <span class="text-sm text-gray-700"
-                  >{$authStore.user?.email || ""}</span
-                >
-              </DropdownItem>
-              <DropdownItem href={profileUrl}>Perfil</DropdownItem>
-              <DropdownItem href="/settings">Configurações</DropdownItem>
-              <hr class="my-1" />
-
-              {#if $authStore.user?.availableRoles && $authStore.user.availableRoles.length > 1}
-                <div class="px-4 py-2">
-                  <span class="text-sm text-gray-500"
-                    >Papel Ativo: {$authStore.user.activeRole || "Nenhum"}</span
-                  >
-                </div>
-                {#each $authStore.user.availableRoles as role}
-                  {#if role !== $authStore.user.activeRole}
-                    <DropdownItem on:click={() => switchRole(role)}>
-                      Usar papel: {role === "person" ? "Pessoa" : "Empresa"}
-                    </DropdownItem>
-                  {/if}
-                {/each}
-                <hr class="my-1" />
-              {/if}
-
-              <DropdownItem
-                on:click={confirmLogout}
-                data-testid="logout-button"
-                class="text-red-600 dark:text-red-500"
-              >
-                <div class="flex items-center">
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.293 3.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    ></path>
-                    <path
-                      fill-rule="evenodd"
-                      d="M7 8a1 1 0 011-1h7a1 1 0 110 2H8a1 1 0 01-1-1z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  Sair
-                </div>
-              </DropdownItem>
-            </div>
-          </Dropdown>
         </div>
       {:else}
         <Button
