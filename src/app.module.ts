@@ -13,6 +13,8 @@ import { InvitationModule } from "./modules/invitation/invitation.module";
 import { OwnerModule } from "./common/interceptors/owner.module";
 import { SmsCodeModule } from "./modules/smsCode/sms-code.module";
 import { CleanupModule } from "./modules/cleanup/cleanup.module";
+import { I18nModule, AcceptLanguageResolver, QueryResolver } from "nestjs-i18n";
+import * as path from "path";
 
 @Module({
   imports: [
@@ -21,6 +23,17 @@ import { CleanupModule } from "./modules/cleanup/cleanup.module";
       envFilePath: ".env",
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI),
+    I18nModule.forRoot({
+      fallbackLanguage: "en",
+      loaderOptions: {
+        path: path.join(__dirname, "/i18n/"),
+        watch: true,
+      },
+      resolvers: [
+        { use: QueryResolver, options: ["lang"] },
+        AcceptLanguageResolver,
+      ],
+    }),
     CommonModule,
     LoggingModule,
     AuthModule,
