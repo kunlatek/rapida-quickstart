@@ -12,13 +12,13 @@
     fetchDeletionStatus,
   } from "$lib/stores/account-deletion";
 
+  import { i18n } from "svelte-i18n";
+  import "$lib/i18n"; // Imports i18n.js for its side-effects (initialization)
+
   import "../app.css";
   import "$lib/styles/flowbite.css";
   import "$lib/styles/contentCard.css";
   import "$lib/styles/theme.css";
-
-  import { _, i18n as i18nStore } from "svelte-i18n";
-  import "$lib/i18n";
 
   let hasActiveRole = false;
   let accountIsDeleted = false;
@@ -89,9 +89,11 @@
   $: accountIsDeleted = $accountDeletionStore.isDeleted;
 </script>
 
-{#await $i18nStore}
-  <p>Carregando traduções...</p>
-{:then _}
+{#await $i18n}
+  <div class="flex items-center justify-center h-screen">
+    <p>Carregando...</p>
+  </div>
+{:then}
   <ThemeProvider>
     <KuNavbar
       showMenu={$authStore.isAuthenticated
@@ -108,4 +110,6 @@
     <KuFooter />
     <KuToast />
   </ThemeProvider>
+{:catch error}
+  <p style="color: red;">Erro ao carregar as traduções: {error.message}</p>
 {/await}
