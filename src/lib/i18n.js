@@ -4,7 +4,7 @@ register("en", () => import("./locales/en.json"));
 register("es", () => import("./locales/es.json"));
 register("pt", () => import("./locales/pt.json"));
 
-init({
+export const i18nLoaded = init({
   fallbackLocale: "en",
   initialLocale: getLocaleFromNavigator(),
 });

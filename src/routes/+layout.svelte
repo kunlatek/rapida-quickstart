@@ -11,9 +11,8 @@
     accountDeletionStore,
     fetchDeletionStatus,
   } from "$lib/stores/account-deletion";
-  
-  import "$lib/i18n";
-  import { i18n } from "svelte-i18n";
+
+  import { i18nLoaded } from "$lib/i18n";
 
   import "../app.css";
   import "$lib/styles/flowbite.css";
@@ -86,7 +85,7 @@
   $: accountIsDeleted = $accountDeletionStore.isDeleted;
 </script>
 
-{#await $i18n}
+{#await i18nLoaded}
   <div class="flex items-center justify-center h-screen">
     <p>Carregando...</p>
   </div>
