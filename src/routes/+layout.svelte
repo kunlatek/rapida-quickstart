@@ -11,13 +11,13 @@
     accountDeletionStore,
     fetchDeletionStatus,
   } from "$lib/stores/account-deletion";
-  import { _ } from "svelte-i18n";
-  import i18n from "$lib/i18n";
 
   import "../app.css";
   import "$lib/styles/flowbite.css";
   import "$lib/styles/contentCard.css";
   import "$lib/styles/theme.css";
+  import { _, i18n } from "svelte-i18n";
+  import "$lib/i18n";
 
   let hasActiveRole = false;
   let accountIsDeleted = false;
@@ -89,7 +89,7 @@
 </script>
 
 {#await $i18n}
-  <p>Loading i18n...</p>
+  <p>Carregando traduções...</p>
 {:then _}
   <ThemeProvider>
     <KuNavbar
