@@ -16,7 +16,8 @@
   import "$lib/styles/flowbite.css";
   import "$lib/styles/contentCard.css";
   import "$lib/styles/theme.css";
-  import { _, i18n } from "svelte-i18n";
+
+  import { _, i18n as i18nStore } from "svelte-i18n";
   import "$lib/i18n";
 
   let hasActiveRole = false;
@@ -88,7 +89,7 @@
   $: accountIsDeleted = $accountDeletionStore.isDeleted;
 </script>
 
-{#await $i18n}
+{#await $i18nStore}
   <p>Carregando traduções...</p>
 {:then _}
   <ThemeProvider>
