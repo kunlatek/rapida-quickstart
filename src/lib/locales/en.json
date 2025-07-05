@@ -1,0 +1,9 @@
+{
+  "nav": {
+    "home": "Home",
+    "create_account": "Create account",
+    "login": "Login",
+    "menu": "Menu",
+    "logout": "Logout"
+  }
+}

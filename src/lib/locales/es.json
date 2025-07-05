@@ -1,0 +1,9 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "create_account": "Crear cuenta",
+    "login": "Iniciar sesión",
+    "menu": "Menú",
+    "logout": "Cerrar sesión"
+  }
+}

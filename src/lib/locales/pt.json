@@ -1,0 +1,9 @@
+{
+  "nav": {
+    "home": "Início",
+    "create_account": "Criar conta",
+    "login": "Login",
+    "menu": "Menu",
+    "logout": "Sair"
+  }
+}

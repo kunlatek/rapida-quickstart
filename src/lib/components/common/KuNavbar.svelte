@@ -22,11 +22,23 @@
   import { sineIn } from "svelte/easing";
   import { accountDeletionStore } from "$stores/account-deletion";
   import KuModal from "./KuModal.svelte";
+  import { _, locale } from "svelte-i18n";
 
   export let showMenu = true;
 
   let drawerHidden = true;
   let showLogoutConfirm = false;
+
+  const locales = {
+    en: "English",
+    pt: "Português",
+    es: "Español",
+  };
+
+  function setLocale(newLocale) {
+    $locale = newLocale;
+    localStorage.setItem("locale", newLocale);
+  }
 
   let transitionParams = {
     x: -320,
@@ -96,7 +108,17 @@
     </span>
   </NavBrand>
 
-  <div class="flex items-center md:order-2">
+  <div class="flex items-center md:order-2 space-x-2">
+    <div>
+      <Button aria-label="Language" class="!p-2" color="light">
+        {$locale?.toUpperCase()}
+      </Button>
+      <Dropdown class="w-40">
+        {#each Object.entries(locales) as [value, name]}
+          <DropdownItem on:click={() => setLocale(value)}>{name}</DropdownItem>
+        {/each}
+      </Dropdown>
+    </div>
     {#if $authStore.isAuthenticated}
       {#if showMenu && !$accountDeletionStore.isDeleted}
         <div class="flex items-center space-x-3">
@@ -113,7 +135,7 @@
                 clip-rule="evenodd"
               ></path>
             </svg>
-            <span class="hidden md:inline">Menu</span>
+            <span class="hidden md:inline">{$_("nav.menu")}</span>
           </Button>
         </div>
       {:else}
@@ -140,13 +162,13 @@
               clip-rule="evenodd"
             ></path>
           </svg>
-          Sair
+          {$_("nav.logout")}
         </Button>
       {/if}
     {:else}
-      <Button href="/">Início</Button>
-      <Button href="/auth/register">Criar conta</Button>
-      <Button href="/auth/login">Login</Button>
+      <Button href="/">{$_("nav.home")}</Button>
+      <Button href="/auth/register">{$_("nav.create_account")}</Button>
+      <Button href="/auth/login">{$_("nav.login")}</Button>
     {/if}
   </div>
 </Navbar>
@@ -171,7 +193,7 @@
           id="drawer-label"
           class="text-lg font-semibold text-gray-800 dark:text-white"
         >
-          Menu
+          {$_("nav.menu")}
         </h5>
       </div>
       <CloseButton on:click={closeDrawer} class="dark:text-white" />
@@ -183,7 +205,7 @@
           <SidebarItem
             href="/"
             on:click={closeDrawer}
-            label="Início"
+            label={$_("nav.home")}
             class="break-words"
           >
             <svelte:fragment slot="icon">
@@ -321,7 +343,7 @@
                 confirmLogout();
                 closeDrawer();
               }}
-              label="Sair"
+              label={$_("nav.logout")}
             >
               <svelte:fragment slot="icon">
                 <svg

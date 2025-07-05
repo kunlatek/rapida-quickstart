@@ -11,19 +11,18 @@
     accountDeletionStore,
     fetchDeletionStatus,
   } from "$lib/stores/account-deletion";
+  import { _ } from "svelte-i18n";
+  import i18n from "$lib/i18n";
 
   import "../app.css";
   import "$lib/styles/flowbite.css";
   import "$lib/styles/contentCard.css";
   import "$lib/styles/theme.css";
 
-  // Modified hasActiveRole calculation to consider the deleted account status
   let hasActiveRole = false;
   let accountIsDeleted = false;
 
-  // This function detects if route is protected
   function isProtectedRoute(path) {
-    // List of public routes that don't require authentication
     const publicRoutes = [
       "/auth/login",
       "/auth/register",
@@ -31,23 +30,19 @@
       "/profile/role-select",
     ];
 
-    // Route is protected if it's not in the public routes list
     return !publicRoutes.some((route) => path.startsWith(route));
   }
 
   onMount(async () => {
     const currentPath = window.location.pathname;
 
-    // Check if account is marked for deletion
     if ($authStore.isAuthenticated) {
       await fetchDeletionStatus();
       accountIsDeleted = $accountDeletionStore.isDeleted;
     }
 
-    // Verify active role
     hasActiveRole = !!$authStore.user?.activeRole;
 
-    // Redirect to role selection if authenticated but no active role
     if (
       $authStore.isAuthenticated &&
       !hasActiveRole &&
@@ -58,7 +53,6 @@
       return;
     }
 
-    // If account is deleted and user is not on dashboard, redirect to dashboard
     if (
       $authStore.isAuthenticated &&
       $accountDeletionStore.isDeleted &&
@@ -69,7 +63,6 @@
       return;
     }
 
-    // Check for profiles
     if (
       $authStore.isAuthenticated &&
       !currentPath.includes("/profile/") &&
@@ -91,25 +84,27 @@
     }
   });
 
-  // Update reactively when auth store or deletion status changes
   $: hasActiveRole = !!$authStore.user?.activeRole;
   $: accountIsDeleted = $accountDeletionStore.isDeleted;
 </script>
 
-<ThemeProvider>
-  <!-- Show menu only if user has an active role AND account is not deleted -->
-  <KuNavbar
-    showMenu={$authStore.isAuthenticated
-      ? !!$authStore.user?.activeRole && !$accountDeletionStore.isDeleted
-      : true}
-  />
+{#await $i18n}
+  <p>Loading i18n...</p>
+{:then _}
+  <ThemeProvider>
+    <KuNavbar
+      showMenu={$authStore.isAuthenticated
+        ? !!$authStore.user?.activeRole && !$accountDeletionStore.isDeleted
+        : true}
+    />
 
-  <div class="flex flex-col min-h-screen">
-    <div class="flex-grow container mx-auto px-4 py-8">
-      <slot />
+    <div class="flex flex-col min-h-screen">
+      <div class="flex-grow container mx-auto px-4 py-8">
+        <slot />
+      </div>
     </div>
-  </div>
 
-  <KuFooter />
-  <KuToast />
-</ThemeProvider>
+    <KuFooter />
+    <KuToast />
+  </ThemeProvider>
+{/await}
