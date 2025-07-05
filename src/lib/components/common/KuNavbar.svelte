@@ -37,7 +37,9 @@
 
   function setLocale(newLocale) {
     $locale = newLocale;
-    localStorage.setItem("locale", newLocale);
+    if (browser) {
+      localStorage.setItem("locale", newLocale);
+    }
   }
 
   let transitionParams = {

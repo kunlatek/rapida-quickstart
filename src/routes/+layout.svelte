@@ -12,8 +12,10 @@
     fetchDeletionStatus,
   } from "$lib/stores/account-deletion";
 
+  // This imports the i18n configuration for its side-effects (initialization).
+  // The $i18n store becomes globally available after this runs.
+  import "$lib/i18n";
   import { i18n } from "svelte-i18n";
-  import "$lib/i18n"; // Imports i18n.js for its side-effects (initialization)
 
   import "../app.css";
   import "$lib/styles/flowbite.css";
@@ -49,7 +51,6 @@
       !hasActiveRole &&
       isProtectedRoute(currentPath)
     ) {
-      console.log("No active role, redirecting to role selection");
       goto("/profile/role-select");
       return;
     }
@@ -59,7 +60,6 @@
       $accountDeletionStore.isDeleted &&
       currentPath !== "/dashboard"
     ) {
-      console.log("Account is marked for deletion, redirecting to dashboard");
       goto("/dashboard");
       return;
     }
@@ -76,7 +76,6 @@
         );
 
         if (!profiles.hasPerson && !profiles.hasCompany) {
-          console.log("Redirecionando para seleção de perfil do layout");
           goto("/profile/select");
         }
       } catch (error) {
