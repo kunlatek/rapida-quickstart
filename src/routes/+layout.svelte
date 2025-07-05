@@ -12,8 +12,8 @@
     fetchDeletionStatus,
   } from "$lib/stores/account-deletion";
 
-  // This imports the i18n configuration for its side-effects (initialization).
-  // The $i18n store becomes globally available after this runs.
+  // This is the ONLY i18n import needed here. It runs the config file.
+  // The $i18n store will become globally available after this runs.
   import "$lib/i18n";
   import { i18n } from "svelte-i18n";
 
