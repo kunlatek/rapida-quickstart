@@ -11,9 +11,26 @@ export class UploadService {
   private readonly logger = new Logger(UploadService.name);
 
   constructor(private readonly configService: ConfigService) {
-    // Initialize Google Cloud Storage
-    // This assumes the GCS_CREDENTIALS environment variable is set with the JSON key file content
-    this.storage = new Storage();
+    const projectId = this.configService.get<string>("GCS_PROJECT_ID");
+    const clientEmail = this.configService.get<string>("GCS_CLIENT_EMAIL");
+    const privateKey = this.configService
+      .get<string>("GCS_PRIVATE_KEY")
+      ?.replace(/\\n/g, "\n");
+
+    if (!projectId || !clientEmail || !privateKey) {
+      this.logger.error(
+        "GCS credentials (PROJECT_ID, CLIENT_EMAIL, PRIVATE_KEY) are not fully configured in environment variables."
+      );
+      throw new Error("Google Cloud Storage is not properly configured.");
+    }
+
+    this.storage = new Storage({
+      projectId,
+      credentials: {
+        client_email: clientEmail,
+        private_key: privateKey,
+      },
+    });
 
     this.publicBucketName = this.configService.get<string>(
       "GCS_PUBLIC_BUCKET_NAME"
@@ -30,12 +47,6 @@ export class UploadService {
     }
   }
 
-  /**
-   * Uploads a file to the appropriate GCS bucket based on the path.
-   * @param file - The file object from Express.Multer.File.
-   * @param path - The destination path within the bucket (e.g., 'public/avatars/', 'private/documents/').
-   * @returns The public URL of the uploaded file.
-   */
   async uploadFile(file: Express.Multer.File, path: string): Promise<string> {
     if (!file) {
       throw new Error("No file provided for upload.");
@@ -47,7 +58,6 @@ export class UploadService {
       : this.privateBucketName;
     const bucket = this.storage.bucket(bucketName);
 
-    // Generate a unique filename to prevent overwrites
     const uniqueFileName = `${uuidv4()}-${file.originalname.replace(/\\s+/g, "_")}`;
     const destination = `${path}${uniqueFileName}`;
 
@@ -68,7 +78,6 @@ export class UploadService {
           `File ${uniqueFileName} uploaded to ${bucketName}/${path}`
         );
 
-        // If the bucket is public, make the file publicly readable
         if (isPublic) {
           try {
             await blob.makePublic();
@@ -77,7 +86,6 @@ export class UploadService {
               `Failed to make file public: ${e.message}`,
               e.stack
             );
-            // Even if it fails to be made public, we can still resolve with the path
           }
         }
 
@@ -89,10 +97,6 @@ export class UploadService {
     });
   }
 
-  /**
-   * Deletes a file from GCS.
-   * @param fileUrl - The full public URL of the file to delete.
-   */
   async deleteFile(fileUrl: string): Promise<void> {
     if (!fileUrl) return;
 
@@ -111,7 +115,6 @@ export class UploadService {
       await this.storage.bucket(bucketName).file(fileName).delete();
       this.logger.log(`File ${fileName} deleted from bucket ${bucketName}`);
     } catch (error) {
-      // If the file doesn't exist, GCS will throw an error, which we can ignore.
       if (error.code === 404) {
         this.logger.warn(
           `Attempted to delete a file that does not exist: ${fileUrl}`
@@ -122,7 +125,6 @@ export class UploadService {
         `Failed to delete file from GCS: ${fileUrl}`,
         error.stack
       );
-      // We don't throw here to avoid breaking a larger process if a file deletion fails
     }
   }
 }
