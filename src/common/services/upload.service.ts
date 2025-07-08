@@ -13,9 +13,7 @@ export class UploadService {
   constructor(private readonly configService: ConfigService) {
     const projectId = this.configService.get<string>("GCS_PROJECT_ID");
     const clientEmail = this.configService.get<string>("GCS_CLIENT_EMAIL");
-    const privateKey = this.configService
-      .get<string>("GCS_PRIVATE_KEY")
-      ?.replace(/\\n/g, "\n");
+    const privateKey = this.configService.get<string>("GCS_PRIVATE_KEY");
 
     if (!projectId || !clientEmail || !privateKey) {
       this.logger.error(
