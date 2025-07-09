@@ -13,14 +13,20 @@ export class UploadService {
   constructor(private readonly configService: ConfigService) {
     const projectId = this.configService.get<string>("GCS_PROJECT_ID");
     const clientEmail = this.configService.get<string>("GCS_CLIENT_EMAIL");
-    const privateKey = this.configService.get<string>("GCS_PRIVATE_KEY");
+    const privateKeyBase64 = this.configService.get<string>(
+      "GCS_PRIVATE_KEY_BASE64"
+    );
 
-    if (!projectId || !clientEmail || !privateKey) {
+    if (!projectId || !clientEmail || !privateKeyBase64) {
       this.logger.error(
-        "GCS credentials (PROJECT_ID, CLIENT_EMAIL, PRIVATE_KEY) are not fully configured in environment variables."
+        "GCS credentials (PROJECT_ID, CLIENT_EMAIL, PRIVATE_KEY_BASE64) are not fully configured in environment variables."
       );
       throw new Error("Google Cloud Storage is not properly configured.");
     }
+
+    const privateKey = Buffer.from(privateKeyBase64, "base64").toString(
+      "utf-8"
+    );
 
     this.storage = new Storage({
       projectId,
