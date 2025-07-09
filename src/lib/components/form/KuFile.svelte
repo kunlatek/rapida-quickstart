@@ -2,8 +2,8 @@
   import { Fileupload, Label, Helper } from "flowbite-svelte";
   import { getComponentClasses } from "$lib/styles/theme";
   import type { IFormCondition } from "../../interfaces/form.interfaces";
+  import { createEventDispatcher, onMount } from "svelte";
 
-  // Definindo interfaces específicas para o componente
   interface FileVariant {
     base: string;
     error?: string;
@@ -14,10 +14,9 @@
     [key: string]: FileVariant | undefined;
   }
 
-  // Props do componente
   export let name = "";
   export let label = "";
-  export let value: File | FileList | null = null;
+  export let value: FileList | null = null;
   export let placeholder = "";
   export let tooltip = "";
   export let isDisabled = false;
@@ -29,7 +28,16 @@
   export let conditions: IFormCondition[] = [];
   export let validators: ("onlyImages" | "png" | "jpg" | "pdf")[] = [];
 
-  // Estilos do componente
+  const dispatch = createEventDispatcher();
+  let inputElement: HTMLInputElement;
+
+  onMount(() => {
+    // Pega a referência do input interno para poder limpá-lo
+    inputElement = document.querySelector(
+      `input[name='${name}']`
+    ) as HTMLInputElement;
+  });
+
   $: themeClasses = getComponentClasses("file", variant, {
     error: !!error,
     disabled: isDisabled,
@@ -37,29 +45,22 @@
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
   $: fileClass = `w-full ${themeClasses}`;
 
-  // Tratamento de mudança de arquivo
-  function handleFileChange(event: Event): void {
-    // Como o evento pode ser qualquer tipo de Event, precisamos verificar a estrutura
-    // para garantir que estamos lidando com o evento correto
-    const customEvent = event as unknown as { detail?: { files?: FileList } };
-
-    if (customEvent && customEvent.detail && customEvent.detail.files) {
-      value = customEvent.detail.files;
-
+  function handleFileChange(event: CustomEvent<{ files: FileList }>): void {
+    const files = event.detail.files;
+    if (files) {
+      value = files;
       if (validators && validators.length > 0) {
-        validateFiles(customEvent.detail.files);
+        validateFiles(files);
       }
+      dispatch("change", value);
     }
   }
 
-  // Validação de arquivos
   function validateFiles(files: FileList): void {
     if (!validators || validators.length === 0) return;
 
     let isValid = true;
     let validationError = "";
-
-    // Converter FileList para Array para facilitar a iteração
     const fileArray = Array.from(files);
 
     if (validators.includes("onlyImages")) {
@@ -99,42 +100,38 @@
     }
 
     if (!isValid) {
-      // Caso a validação falhe, limpar o valor e definir o erro
       value = null;
       error = validationError;
     }
   }
 
-  // Avaliação de condições
   function evaluateConditions(): boolean {
-    // Se não houver condições, sempre mostrar
     if (!conditions || conditions.length === 0) return true;
-
-    // Por enquanto, implementar suporte básico - pode ser expandido depois
-    return true; // Placeholder para lógica de condição real
+    return true;
   }
 
-  // Mostrar apenas se as condições forem atendidas
   $: showComponent = evaluateConditions();
 
-  // Função auxiliar para determinar o valor do atributo accept
   function getAcceptAttributeFromValidators(
     validators: ("onlyImages" | "png" | "jpg" | "pdf")[]
   ): string {
     if (!validators || validators.length === 0) return "";
 
     const acceptTypes: string[] = [];
-
-    if (validators.includes("onlyImages")) {
-      acceptTypes.push("image/*");
-    } else {
-      if (validators.includes("png")) acceptTypes.push("image/png");
-      if (validators.includes("jpg")) acceptTypes.push("image/jpeg");
-    }
-
-    if (validators.includes("pdf")) acceptTypes.push("application/pdf");
+    if (validators.includes("onlyImages")) acceptTypes.push("image/*");
+    if (validators.includes("png")) acceptTypes.push(".png");
+    if (validators.includes("jpg")) acceptTypes.push(".jpg, .jpeg");
+    if (validators.includes("pdf")) acceptTypes.push(".pdf");
 
     return acceptTypes.join(",");
+  }
+
+  function clearSelection() {
+    value = null;
+    if (inputElement) {
+      inputElement.value = "";
+    }
+    dispatch("change", null);
   }
 </script>
 
@@ -167,14 +164,39 @@
     <Fileupload
       {id}
       {name}
+      bind:value
+      class={fileClass}
       {placeholder}
-      on:change={handleFileChange}
       disabled={isDisabled}
       required={isRequired}
       multiple={isMultiple}
-      class={fileClass}
       accept={getAcceptAttributeFromValidators(validators)}
     />
+
+    {#if value && value.length > 0}
+      <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+        <p class="font-semibold mb-1">Arquivo(s) selecionado(s):</p>
+        <ul class="list-disc list-inside space-y-1 pl-2">
+          {#each Array.from(value) as file}
+            <li>
+              <span class="font-medium text-gray-800 dark:text-gray-200"
+                >{file.name}</span
+              >
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                ({(file.size / 1024).toFixed(2)} KB)
+              </span>
+            </li>
+          {/each}
+        </ul>
+        <button
+          type="button"
+          on:click={clearSelection}
+          class="mt-2 text-xs font-medium text-blue-600 hover:underline dark:text-blue-500"
+        >
+          Remover
+        </button>
+      </div>
+    {/if}
 
     {#if error}
       <Helper class="mt-1 text-red-600 dark:text-red-500">{error}</Helper>
