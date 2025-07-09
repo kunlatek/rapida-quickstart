@@ -58,7 +58,7 @@ export class UploadService {
       : this.privateBucketName;
     const bucket = this.storage.bucket(bucketName);
 
-    const uniqueFileName = `${uuidv4()}-${file.originalname.replace(/\\s+/g, "_")}`;
+    const uniqueFileName = `${uuidv4()}-${file.originalname.replace(/\s+/g, "_")}`;
     const destination = `${path}${uniqueFileName}`;
 
     const blob = bucket.file(destination);
@@ -68,9 +68,16 @@ export class UploadService {
     });
 
     return new Promise((resolve, reject) => {
-      blobStream.on("error", (err) => {
-        this.logger.error(`GCS Upload Error: ${err.message}`, err.stack);
-        reject(`Unable to upload file, please try again later.`);
+      blobStream.on("error", (err: any) => {
+        if (err.message.includes("The specified bucket does not exist")) {
+          this.logger.error(
+            `GCS Upload Error: Bucket '${bucketName}' does not exist. Please create it or check the name in your .env file.`
+          );
+          reject(`Configuration Error: Bucket '${bucketName}' not found.`);
+        } else {
+          this.logger.error(`GCS Upload Error: ${err.message}`, err.stack);
+          reject(`Unable to upload file, please try again later.`);
+        }
       });
 
       blobStream.on("finish", async () => {
