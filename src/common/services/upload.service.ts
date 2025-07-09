@@ -11,11 +11,19 @@ export class UploadService {
   private readonly logger = new Logger(UploadService.name);
 
   constructor(private readonly configService: ConfigService) {
+    console.log("--- [UploadService] Reading GCS Environment Variables ---");
     const projectId = this.configService.get<string>("GCS_PROJECT_ID");
     const clientEmail = this.configService.get<string>("GCS_CLIENT_EMAIL");
     const privateKeyBase64 = this.configService.get<string>(
       "GCS_PRIVATE_KEY_BASE64"
     );
+
+    console.log(`GCS_PROJECT_ID: ${projectId ? "Loaded" : "MISSING"}`);
+    console.log(`GCS_CLIENT_EMAIL: ${clientEmail ? "Loaded" : "MISSING"}`);
+    console.log(
+      `GCS_PRIVATE_KEY_BASE64: ${privateKeyBase64 ? "Loaded (" + privateKeyBase64.substring(0, 15) + "...)" : "MISSING"}`
+    );
+    console.log("----------------------------------------------------");
 
     if (!projectId || !clientEmail || !privateKeyBase64) {
       this.logger.error(
