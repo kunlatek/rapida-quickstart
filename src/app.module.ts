@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./modules/auth/auth.module";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ProfileModule } from "./modules/profile/profile.module";
 import { CommonModule } from "./common/common.module";
@@ -18,12 +18,17 @@ import * as path from "path";
 
 @Module({
   imports: [
-    // RAPIDA-V-MODULE-IMPORT-PLACEHOLDER
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>("MONGODB_URI"),
+      }),
+    }),
     I18nModule.forRoot({
       fallbackLanguage: "en",
       loaderOptions: {
