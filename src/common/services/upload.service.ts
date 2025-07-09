@@ -47,19 +47,24 @@ export class UploadService {
     }
   }
 
-  async uploadFile(file: Express.Multer.File, path: string): Promise<string> {
+  async uploadFile(
+    file: Express.Multer.File,
+    path: string,
+    visibility: "public" | "private" = "private"
+  ): Promise<string> {
     if (!file) {
       throw new Error("No file provided for upload.");
     }
 
-    const isPublic = path.startsWith("public/");
+    const isPublic = visibility === "public";
     const bucketName = isPublic
       ? this.publicBucketName
       : this.privateBucketName;
+
     const bucket = this.storage.bucket(bucketName);
 
     const uniqueFileName = `${uuidv4()}-${file.originalname.replace(/\s+/g, "_")}`;
-    const destination = `${path}${uniqueFileName}`;
+    const destination = `${path}/${uniqueFileName}`;
 
     const blob = bucket.file(destination);
     const blobStream = blob.createWriteStream({
