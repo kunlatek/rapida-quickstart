@@ -11,30 +11,18 @@ export class UploadService {
   private readonly logger = new Logger(UploadService.name);
 
   constructor(private readonly configService: ConfigService) {
-    console.log("--- [UploadService] Reading GCS Environment Variables ---");
     const projectId = this.configService.get<string>("GCS_PROJECT_ID");
     const clientEmail = this.configService.get<string>("GCS_CLIENT_EMAIL");
-    const privateKeyBase64 = this.configService.get<string>(
-      "GCS_PRIVATE_KEY_BASE64"
-    );
+    const privateKey = this.configService
+      .get<string>("GCS_PRIVATE_KEY")
+      ?.replace(/\\n/g, "\n");
 
-    console.log(`GCS_PROJECT_ID: ${projectId ? "Loaded" : "MISSING"}`);
-    console.log(`GCS_CLIENT_EMAIL: ${clientEmail ? "Loaded" : "MISSING"}`);
-    console.log(
-      `GCS_PRIVATE_KEY_BASE64: ${privateKeyBase64 ? "Loaded (" + privateKeyBase64.substring(0, 15) + "...)" : "MISSING"}`
-    );
-    console.log("----------------------------------------------------");
-
-    if (!projectId || !clientEmail || !privateKeyBase64) {
+    if (!projectId || !clientEmail || !privateKey) {
       this.logger.error(
-        "GCS credentials (PROJECT_ID, CLIENT_EMAIL, PRIVATE_KEY_BASE64) are not fully configured in environment variables."
+        "GCS credentials (PROJECT_ID, CLIENT_EMAIL, PRIVATE_KEY) are not fully configured in environment variables."
       );
       throw new Error("Google Cloud Storage is not properly configured.");
     }
-
-    const privateKey = Buffer.from(privateKeyBase64, "base64").toString(
-      "utf-8"
-    );
 
     this.storage = new Storage({
       projectId,
