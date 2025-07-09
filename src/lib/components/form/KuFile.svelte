@@ -1,9 +1,7 @@
 <script lang="ts">
   import { Fileupload, Label, Helper } from "flowbite-svelte";
   import { getComponentClasses } from "$lib/styles/theme";
-  import type {
-    IFormCondition,
-  } from "../../interfaces/form.interfaces";
+  import type { IFormCondition } from "../../interfaces/form.interfaces";
 
   // Definindo interfaces específicas para o componente
   interface FileVariant {
