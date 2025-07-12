@@ -29,6 +29,10 @@
 	export let validators: ('onlyImages' | 'png' | 'jpg' | 'pdf')[] = [];
 
 	const dispatch = createEventDispatcher();
+    
+    // --- LINHA DE DIAGNÓSTICO ---
+    $: console.log(`[KuFile DEBUG: '${name}'] valor recebido:`, value, `| (Tipo: ${typeof value})`);
+    // --- FIM DA LINHA DE DIAGNÓSTICO ---
 
 	$: themeClasses = getComponentClasses('file', variant, {
 		error: !!error,
