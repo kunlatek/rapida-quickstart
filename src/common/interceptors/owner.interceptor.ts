@@ -18,16 +18,16 @@ export class OwnerInterceptor implements NestInterceptor {
 	): Promise<Observable<any>> {
 		const request = context.switchToHttp().getRequest<Request>();
 		const user = request.user as any;
-
+		
 		const contentType = request.headers['content-type'];
-    
+
 		if (request.method === 'POST' && user && !contentType?.includes('multipart/form-data')) {
 			const body = request.body;
 
 			body.createdBy = user.userId;
 
 			const invitation = await this.invitationService.findByEmail(user.email);
-
+			
 			if (invitation) {
 				body.ownerId = invitation.createdBy;
 			} else {
