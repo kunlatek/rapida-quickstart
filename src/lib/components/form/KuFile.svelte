@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Fileupload, Label, Helper } from 'flowbite-svelte';
+	import { Fileupload, Label, Helper, Button } from 'flowbite-svelte';
 	import { getComponentClasses } from '$lib/styles/theme';
 	import type { IFormCondition } from '../../interfaces/form.interfaces';
 	import { createEventDispatcher } from 'svelte';
+	import { LinkSolid, TrashSolid } from 'flowbite-svelte-icons';
 
 	interface FileVariant {
 		base: string;
@@ -16,7 +17,7 @@
 
 	export let name = '';
 	export let label = '';
-	export let value: FileList | null = null;
+	export let value: FileList | string | null = null;
 	export let placeholder = '';
 	export let tooltip = '';
 	export let isDisabled = false;
@@ -37,8 +38,8 @@
 	$: labelClass = `mb-2 ${error ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white'}`;
 	$: fileClass = `w-full ${themeClasses}`;
 
-	function validateFiles(files: FileList): void {
-		if (!validators || validators.length === 0) return;
+	function validateFiles(files: FileList | null): void {
+		if (!validators || validators.length === 0 || !files) return;
 
 		let isValid = true;
 		let validationError = '';
@@ -86,32 +87,48 @@
 		return true;
 	}
 
+	function removeExistingFile() {
+		value = null;
+		dispatch('change', value);
+	}
+
+	function getFileName(url: string | FileList | null): string {
+		if (typeof url === 'string') {
+			try {
+				const urlObject = new URL(url);
+				return urlObject.pathname.split('/').pop() || 'Arquivo existente';
+			} catch (e) {
+				return url.split('/').pop() || 'Arquivo existente';
+			}
+		}
+		if (url instanceof FileList && url.length > 0) {
+			return Array.from(url)
+				.map((f) => f.name)
+				.join(', ');
+		}
+		return 'Nenhum arquivo selecionado';
+	}
+
 	$: showComponent = evaluateConditions();
 
 	function getAcceptAttributeFromValidators(
 		validators: ('onlyImages' | 'png' | 'jpg' | 'pdf')[]
 	): string {
-		if (!validators || validators.length === 0) return '';
+		if (!validators || validators.length === 0) return '*/*';
 		const acceptTypes: string[] = [];
-		if (validators.includes('onlyImages')) acceptTypes.push('image/*');
-		if (validators.includes('png')) acceptTypes.push('.png');
-		if (validators.includes('jpg')) acceptTypes.push('.jpg, .jpeg');
-		if (validators.includes('pdf')) acceptTypes.push('.pdf');
-		return acceptTypes.join(',');
-	}
-
-	function clearSelection() {
-		value = null;
-		dispatch('change', null);
-	}
-
-	function handleFileChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		if (target.files) {
-			value = target.files;
-			validateFiles(value);
-			dispatch('change', value);
+		if (validators.includes('onlyImages')) {
+			acceptTypes.push('image/*');
 		}
+		if (validators.includes('png')) {
+			acceptTypes.push('image/png');
+		}
+		if (validators.includes('jpg')) {
+			acceptTypes.push('image/jpeg', 'image/jpg');
+		}
+		if (validators.includes('pdf')) {
+			acceptTypes.push('application/pdf');
+		}
+		return acceptTypes.join(',');
 	}
 </script>
 
@@ -124,6 +141,7 @@
 				<span
 					class="ml-1 text-gray-400 hover:text-gray-600 cursor-help"
 					title={tooltip}
+					aria-label={tooltip}
 				>
 					<svg
 						class="w-4 h-4 inline"
@@ -141,39 +159,36 @@
 			{/if}
 		</Label>
 
-		<Fileupload
-			{id}
-			{name}
-			bind:files={value}
-			on:change={handleFileChange}
-			class={fileClass}
-			{placeholder}
-			disabled={isDisabled}
-			required={isRequired}
-			multiple={isMultiple}
-			accept={getAcceptAttributeFromValidators(validators)}
-		/>
-		{#if value && value.length > 0}
-			<div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-				<p class="font-semibold mb-1">Arquivo(s) selecionado(s):</p>
-				<ul class="list-disc list-inside space-y-1 pl-2">
-					{#each Array.from(value) as file}
-						<li>
-							<span class="font-medium text-gray-800 dark:text-gray-200">{file.name}</span>
-							<span class="text-xs text-gray-500 dark:text-gray-400">
-								({(file.size / 1024).toFixed(2)} KB)
-							</span>
-						</li>
-					{/each}
-				</ul>
-				<button
-					type="button"
-					on:click={clearSelection}
-					class="mt-2 text-xs font-medium text-blue-600 hover:underline dark:text-blue-500"
+		{#if value && typeof value === 'string'}
+			<div
+				class="flex items-center justify-between p-2.5 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
+			>
+				<a
+					href={value}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex items-center text-blue-600 dark:text-blue-500 hover:underline"
 				>
-					Limpar seleção
-				</button>
+					<LinkSolid class="w-4 h-4 mr-2" />
+					<span class="truncate">{getFileName(value)}</span>
+				</a>
+				<Button size="xs" color="alternative" on:click={removeExistingFile}>
+					<TrashSolid class="w-4 h-4" />
+				</Button>
 			</div>
+		{:else}
+			<Fileupload
+				{id}
+				bind:value
+				{isMultiple}
+				class={fileClass}
+				on:change={() => validateFiles(value)}
+				accept={getAcceptAttributeFromValidators(validators)}
+				disabled={isDisabled}
+			/>
+			{#if value instanceof FileList && value.length > 0}
+				<Helper class="mt-2">Arquivo(s) selecionado(s): {getFileName(value)}</Helper>
+			{/if}
 		{/if}
 
 		{#if error}
