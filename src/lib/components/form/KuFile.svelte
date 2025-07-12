@@ -3,7 +3,8 @@
 	import { getComponentClasses } from '$lib/styles/theme';
 	import type { IFormCondition } from '../../interfaces/form.interfaces';
 	import { createEventDispatcher } from 'svelte';
-	import { LinkSolid, TrashSolid } from 'flowbite-svelte-icons';
+	import LinkSolid from 'flowbite-svelte-icons/LinkSolid.svelte';
+	import TrashSolid from 'flowbite-svelte-icons/TrashSolid.svelte';
 
 	interface FileVariant {
 		base: string;
@@ -18,7 +19,7 @@
 	export let name = '';
 	export let label = '';
 	export let value: FileList | string | null = null;
-	export let placeholder = '';
+	export const placeholder = '';
 	export let tooltip = '';
 	export let isDisabled = false;
 	export let isRequired = false;
