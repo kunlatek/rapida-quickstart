@@ -1,8 +1,10 @@
 <script lang="ts">
+	// START MODIFICATION: Importações e lógica atualizadas
 	import { Fileupload, Label, Helper, Button } from 'flowbite-svelte';
 	import { getComponentClasses } from '$lib/styles/theme';
 	import type { IFormCondition } from '../../interfaces/form.interfaces';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
+	// END MODIFICATION
 
 	interface FileVariant {
 		base: string;
@@ -16,7 +18,10 @@
 
 	export let name = '';
 	export let label = '';
-	export let value: FileList | string | null = null;
+	// START MODIFICATION: Prop 'value' para novos arquivos e 'initialUrl' para arquivos existentes
+	export let value: FileList | null = null;
+	export let initialUrl: string | null = null;
+	// END MODIFICATION
 	export let placeholder = '';
 	export let tooltip = '';
 	export let isDisabled = false;
@@ -29,10 +34,21 @@
 	export let validators: ('onlyImages' | 'png' | 'jpg' | 'pdf')[] = [];
 
 	const dispatch = createEventDispatcher();
-    
-    // --- LINHA DE DIAGNÓSTICO ---
-    $: console.log(`[KuFile DEBUG: '${name}'] valor recebido:`, value, `| (Tipo: ${typeof value})`);
-    // --- FIM DA LINHA DE DIAGNÓSTICO ---
+
+	// START MODIFICATION: Lógica para gerenciar a exibição
+	let displayUrl: string | null = null;
+
+	onMount(() => {
+		// Ao carregar, define a URL de exibição com base no valor inicial passado
+		displayUrl = initialUrl;
+	});
+
+	function removeExistingFile() {
+		displayUrl = null; // Limpa a exibição do arquivo antigo
+		value = null; // Garante que o valor principal seja nulo
+		dispatch('change', null);
+	}
+	// END MODIFICATION
 
 	$: themeClasses = getComponentClasses('file', variant, {
 		error: !!error,
@@ -41,8 +57,8 @@
 	$: labelClass = `mb-2 ${error ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white'}`;
 	$: fileClass = `w-full ${themeClasses}`;
 
-	function validateFiles(files: FileList | null): void {
-		if (!validators || validators.length === 0 || !files) return;
+	function validateFiles(files: FileList): void {
+		if (!validators || validators.length === 0) return;
 
 		let isValid = true;
 		let validationError = '';
@@ -90,16 +106,42 @@
 		return true;
 	}
 
-	function removeExistingFile() {
-		value = null;
-		dispatch('change', value);
+	$: showComponent = evaluateConditions();
+
+	function getAcceptAttributeFromValidators(
+		validators: ('onlyImages' | 'png' | 'jpg' | 'pdf')[]
+	): string {
+		if (!validators || validators.length === 0) return '';
+		const acceptTypes: string[] = [];
+		if (validators.includes('onlyImages')) acceptTypes.push('image/*');
+		if (validators.includes('png')) acceptTypes.push('.png');
+		if (validators.includes('jpg')) acceptTypes.push('.jpg, .jpeg');
+		if (validators.includes('pdf')) acceptTypes.push('.pdf');
+		return acceptTypes.join(',');
 	}
 
+	function clearSelection() {
+		value = null;
+		dispatch('change', null);
+	}
+
+	function handleFileChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		if (target.files) {
+			// START MODIFICATION: Limpa o displayUrl ao selecionar novo arquivo
+			displayUrl = null;
+			// END MODIFICATION
+			value = target.files;
+			validateFiles(value);
+			dispatch('change', value);
+		}
+	}
+
+	// START MODIFICATION: Adicionado para extrair nome do arquivo da URL
 	function getFileName(url: string | FileList | null): string {
 		if (typeof url === 'string') {
 			try {
-				const urlObject = new URL(url);
-				return urlObject.pathname.split('/').pop() || 'Arquivo existente';
+				return new URL(url).pathname.split('/').pop() || 'Arquivo existente';
 			} catch (e) {
 				return url.split('/').pop() || 'Arquivo existente';
 			}
@@ -111,28 +153,7 @@
 		}
 		return 'Nenhum arquivo selecionado';
 	}
-
-	$: showComponent = evaluateConditions();
-
-	function getAcceptAttributeFromValidators(
-		validators: ('onlyImages' | 'png' | 'jpg' | 'pdf')[]
-	): string {
-		if (!validators || validators.length === 0) return '*/*';
-		const acceptTypes: string[] = [];
-		if (validators.includes('onlyImages')) {
-			acceptTypes.push('image/*');
-		}
-		if (validators.includes('png')) {
-			acceptTypes.push('image/png');
-		}
-		if (validators.includes('jpg')) {
-			acceptTypes.push('image/jpeg', 'image/jpg');
-		}
-		if (validators.includes('pdf')) {
-			acceptTypes.push('application/pdf');
-		}
-		return acceptTypes.join(',');
-	}
+	// END MODIFICATION
 </script>
 
 {#if showComponent}
@@ -141,11 +162,7 @@
 			{label}
 			{#if isRequired}<span class="text-red-500">*</span>{/if}
 			{#if tooltip}
-				<span
-					class="ml-1 text-gray-400 hover:text-gray-600 cursor-help"
-					title={tooltip}
-					aria-label={tooltip}
-				>
+				<span class="ml-1 text-gray-400 hover:text-gray-600 cursor-help" title={tooltip}>
 					<svg
 						class="w-4 h-4 inline"
 						fill="currentColor"
@@ -162,12 +179,12 @@
 			{/if}
 		</Label>
 
-		{#if value && typeof value === 'string'}
+		{#if displayUrl}
 			<div
 				class="flex items-center justify-between p-2.5 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
 			>
 				<a
-					href={value}
+					href={displayUrl}
 					target="_blank"
 					rel="noopener noreferrer"
 					class="flex items-center text-blue-600 dark:text-blue-500 hover:underline"
@@ -185,7 +202,7 @@
 							d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
 						></path>
 					</svg>
-					<span class="truncate">{getFileName(value)}</span>
+					<span class="truncate">{getFileName(displayUrl)}</span>
 				</a>
 				<Button size="xs" color="alternative" on:click={removeExistingFile}>
 					<svg
@@ -206,18 +223,38 @@
 		{:else}
 			<Fileupload
 				{id}
-				bind:value
-				{isMultiple}
+				{name}
+				on:change={handleFileChange}
 				class={fileClass}
-				on:change={() => validateFiles(value)}
-				accept={getAcceptAttributeFromValidators(validators)}
+				{placeholder}
 				disabled={isDisabled}
+				required={isRequired && !initialUrl}
+				multiple={isMultiple}
+				accept={getAcceptAttributeFromValidators(validators)}
 			/>
-			{#if value instanceof FileList && value.length > 0}
-				<Helper class="mt-2">Arquivo(s) selecionado(s): {getFileName(value)}</Helper>
+			{#if value && value.length > 0}
+				<div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+					<p class="font-semibold mb-1">Arquivo(s) selecionado(s):</p>
+					<ul class="list-disc list-inside space-y-1 pl-2">
+						{#each Array.from(value) as file}
+							<li>
+								<span class="font-medium text-gray-800 dark:text-gray-200">{file.name}</span>
+								<span class="text-xs text-gray-500 dark:text-gray-400">
+									({(file.size / 1024).toFixed(2)} KB)
+								</span>
+							</li>
+						{/each}
+					</ul>
+					<button
+						type="button"
+						on:click={clearSelection}
+						class="mt-2 text-xs font-medium text-blue-600 hover:underline dark:text-blue-500"
+					>
+						Limpar seleção
+					</button>
+				</div>
 			{/if}
 		{/if}
-
 		{#if error}
 			<Helper class="mt-1 text-red-600 dark:text-red-500">{error}</Helper>
 		{/if}
