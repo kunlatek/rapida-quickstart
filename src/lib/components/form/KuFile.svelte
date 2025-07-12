@@ -3,6 +3,7 @@
 	import { getComponentClasses } from '$lib/styles/theme';
 	import type { IFormCondition } from '../../interfaces/form.interfaces';
 	import { createEventDispatcher } from 'svelte';
+	import { PaperclipSolid, TrashBinSolid } from 'flowbite-svelte-icons';
 
 	interface FileVariant {
 		base: string;
@@ -29,6 +30,10 @@
 	export let validators: ('onlyImages' | 'png' | 'jpg' | 'pdf')[] = [];
 
 	const dispatch = createEventDispatcher();
+    
+    // --- DEBUG LOG ---
+    $: console.log(`[KuFile: '${name}'] received value:`, value, `(Type: ${typeof value})`);
+    // --- END DEBUG LOG ---
 
 	$: themeClasses = getComponentClasses('file', variant, {
 		error: !!error,
@@ -168,33 +173,11 @@
 					rel="noopener noreferrer"
 					class="flex items-center text-blue-600 dark:text-blue-500 hover:underline"
 				>
-					<svg
-						class="w-4 h-4 mr-2"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-						></path><path
-							fill-rule="evenodd"
-							d="M6 3a3 3 0 013-3h2a3 3 0 013 3v1h- estrategias/8V3zM4 8a2 2 0 012-2h8a2 2 0 110 4H6a2 2 0 01-2-2z"
-							clip-rule="evenodd"
-						></path></svg
-					>
+					<PaperclipSolid class="w-4 h-4 mr-2" />
 					<span class="truncate">{getFileName(value)}</span>
 				</a>
 				<Button size="xs" color="alternative" on:click={removeExistingFile}>
-					<svg
-						class="w-4 h-4"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-							clip-rule="evenodd"
-						></path></svg
-					>
+					<TrashBinSolid class="w-4 h-4" />
 				</Button>
 			</div>
 		{:else}
