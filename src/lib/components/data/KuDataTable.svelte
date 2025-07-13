@@ -18,6 +18,14 @@
     formatValue?: (value: any) => any;
     formatter?: "date" | "currency" | "number" | "boolean" | "custom";
     displayProperty?: string;
+    type?:
+      | "title"
+      | "subtitle"
+      | "description"
+      | "video"
+      | "image"
+      | "images"
+      | "icon";
   }
 
   type ButtonColor =
@@ -302,6 +310,12 @@
                       >
                         {formatCellValue(row, column)}
                       </span>
+                    {:else if column.type === "image"}
+                      <img
+                        src={formatCellValue(row, column)}
+                        alt={column.header}
+                        class="h-16 object-cover rounded-md"
+                      />
                     {:else}
                       {formatCellValue(row, column)}
                     {/if}
