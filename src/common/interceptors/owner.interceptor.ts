@@ -19,17 +19,19 @@ export class OwnerInterceptor implements NestInterceptor {
 		const request = context.switchToHttp().getRequest<Request>();
 		const user = request.user as any;
 
-		if (request.method === 'POST' && user) {
+		if ((request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') && user) {
 			const body = request.body;
 
-			body.createdBy = user.userId;
+			if (request.method === 'POST') {
+				body.createdBy = user.userId;
 
-			const invitation = await this.invitationService.findByEmail(user.email);
-
-			if (invitation) {
-				body.ownerId = invitation.createdBy;
-			} else {
-				body.ownerId = user.userId;
+				const invitation = await this.invitationService.findByEmail(user.email);
+	
+				if (invitation) {
+					body.ownerId = invitation.createdBy;
+				} else {
+					body.ownerId = user.userId;
+				}
 			}
 		}
 
