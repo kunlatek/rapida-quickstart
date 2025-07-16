@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Label, Select as FlowbiteSelect, Helper, CloseButton, Checkbox, Input } from 'flowbite-svelte';
+	import { Label, Select as FlowbiteSelect, Helper, Checkbox, Input } from 'flowbite-svelte';
 	import { getComponentClasses } from '$lib/styles/theme';
 	import type { IFormCondition } from '../../interfaces/form.interfaces';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -49,7 +49,7 @@
 	export const todo = '';
 
 	const dispatch = createEventDispatcher();
-	
+
 	let mainElement: HTMLElement;
 	let showDropdown = false;
 	let searchTerm = '';
@@ -78,10 +78,11 @@
 		? processedOptions.filter((opt) => opt.name.toLowerCase().includes(searchTerm.toLowerCase()))
 		: processedOptions;
 
-	$: selectedItems = Array.isArray(value)
-		? processedOptions.filter((opt) => value.includes(opt.value))
-		: [];
-	
+	$: selectedItems =
+		value && Array.isArray(value)
+			? processedOptions.filter((opt) => value.includes(opt.value))
+			: [];
+
 	function removeItem(itemValue: any) {
 		if (isDisabled || !Array.isArray(value)) return;
 		value = value.filter((v) => v !== itemValue);
@@ -156,37 +157,75 @@
 							<span class="text-gray-500 dark:text-gray-400">{placeholder}</span>
 						{/if}
 						{#each selectedItems as item (item.value)}
-							<span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+							<span
+								class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300"
+							>
 								{item.name}
-								<button type="button" on:click|stopPropagation={() => removeItem(item.value)} class="inline-flex items-center p-0.5 ms-2 text-sm text-blue-400 bg-transparent rounded-sm hover:bg-blue-200 hover:text-blue-900 dark:hover:bg-blue-800 dark:hover:text-blue-300">
-									<svg class="w-2 h-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-										<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+								<button
+									type="button"
+									on:click|stopPropagation={() => removeItem(item.value)}
+									class="inline-flex items-center p-0.5 ms-2 text-sm text-blue-400 bg-transparent rounded-sm hover:bg-blue-200 hover:text-blue-900 dark:hover:bg-blue-800 dark:hover:text-blue-300"
+								>
+									<svg
+										class="w-2 h-2"
+										aria-hidden="true"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 14 14"
+									>
+										<path
+											stroke="currentColor"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+										/>
 									</svg>
+									<span class="sr-only">Remover item</span>
 								</button>
 							</span>
 						{/each}
 					</div>
-					<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+					<svg
+						class="w-4 h-4 text-gray-500 dark:text-gray-400"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"
+						></path>
 					</svg>
 				</button>
 
 				{#if showDropdown}
-					<div transition:fly={{ y: -5, duration: 200 }} class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg dark:bg-gray-700 border dark:border-gray-600">
+					<div
+						transition:fly={{ y: -5, duration: 200 }}
+						class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg dark:bg-gray-700 border dark:border-gray-600"
+					>
 						<div class="p-2">
 							<Input type="text" bind:value={searchTerm} placeholder="Pesquisar..." class="w-full text-sm" />
 						</div>
-						<ul class="max-h-60 py-1 overflow-auto text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+						<ul
+							class="max-h-60 py-1 overflow-auto text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+						>
 							{#each filteredOptions as option (option.value)}
 								<li class="px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-600">
 									<Label class="flex items-center w-full cursor-pointer">
-										<Checkbox class="mr-2" bind:group={value} value={option.value} disabled={option.disabled || isDisabled} />
+										<Checkbox
+											class="mr-2"
+											bind:group={value}
+											value={option.value}
+											disabled={option.disabled || isDisabled}
+										/>
 										<span class="text-gray-900 dark:text-white">{option.name}</span>
 									</Label>
 								</li>
 							{:else}
-								<li class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Nenhuma opção encontrada.</li>
-							{/if}
+								<li class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+									Nenhuma opção encontrada.
+								</li>
+							{/each}
 						</ul>
 					</div>
 				{/if}
@@ -205,7 +244,6 @@
 				autofocus={isAutofocus}
 			/>
 		{/if}
-
 		{#if error}
 			<Helper class="mt-1 text-red-600 dark:text-red-500">{error}</Helper>
 		{/if}
