@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Label, Select as FlowbiteSelect, Helper, CloseButton } from 'flowbite-svelte';
+	import { Label, Select as FlowbiteSelect, Helper, CloseButton, Checkbox, Input } from 'flowbite-svelte';
 	import { getComponentClasses } from '$lib/styles/theme';
 	import type { IFormCondition } from '../../interfaces/form.interfaces';
 	import { createEventDispatcher, onMount } from 'svelte';
+	import { fly } from 'svelte/transition';
 
 	interface ISelectOption {
 		label: string;
@@ -32,7 +33,7 @@
 	export const dataType: DataType = 'text';
 	export let label = '';
 	export let value: string | number | boolean | any[] = [];
-	export let placeholder = '';
+	export let placeholder = 'Selecione uma ou mais opções';
 	export let tooltip = '';
 	export let isAutofocus = false;
 	export let isDisabled = false;
@@ -48,6 +49,10 @@
 	export const todo = '';
 
 	const dispatch = createEventDispatcher();
+	
+	let mainElement: HTMLElement;
+	let showDropdown = false;
+	let searchTerm = '';
 
 	function isLegacyOption(option: OptionType): option is LegacyOption {
 		return 'name' in option && !('label' in option);
@@ -69,6 +74,26 @@
 		}
 	});
 
+	$: filteredOptions = searchTerm
+		? processedOptions.filter((opt) => opt.name.toLowerCase().includes(searchTerm.toLowerCase()))
+		: processedOptions;
+
+	$: selectedItems = Array.isArray(value)
+		? processedOptions.filter((opt) => value.includes(opt.value))
+		: [];
+	
+	function removeItem(itemValue: any) {
+		if (isDisabled || !Array.isArray(value)) return;
+		value = value.filter((v) => v !== itemValue);
+		dispatch('change', value);
+	}
+
+	function handleOutsideClick(event: MouseEvent) {
+		if (showDropdown && mainElement && !mainElement.contains(event.target as Node)) {
+			showDropdown = false;
+		}
+	}
+
 	$: themeClasses = getComponentClasses('select', variant, {
 		error: !!error,
 		disabled: isDisabled
@@ -80,7 +105,6 @@
 
 	function evaluateConditions(): boolean {
 		if (!conditions || conditions.length === 0) return true;
-
 		return true;
 	}
 
@@ -90,28 +114,13 @@
 		}
 	});
 
-	$: selectedItems = value && Array.isArray(value) ? processedOptions.filter(opt => value.includes(opt.value)) : [];
-    $: availableItems = processedOptions.filter(opt => !value || !Array.isArray(value) || !value.includes(opt.value));
-
-    function selectItem(itemValue: any) {
-        if (isDisabled) return;
-        if (!value.includes(itemValue)) {
-            value = [...value, itemValue];
-            dispatch('change', value);
-        }
-    }
-
-    function removeItem(itemValue: any) {
-        if (isDisabled) return;
-        value = Array.isArray(value) ? value.filter(v => v !== itemValue) : [];
-        dispatch('change', value);
-    }
-
 	$: showComponent = evaluateConditions();
 </script>
 
+<svelte:window on:click={handleOutsideClick} />
+
 {#if showComponent}
-	<div class="w-full">
+	<div class="w-full" bind:this={mainElement}>
 		<Label for={id} class={labelClass}>
 			{label}
 			{#if isRequired}<span class="text-red-500">*</span>{/if}
@@ -134,42 +143,53 @@
 		</Label>
 
 		{#if isMultiple}
-			<div class="w-full p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg">
-				<div class="flex flex-wrap gap-2 min-h-[2.1rem] items-center">
-					{#if selectedItems.length === 0}
-						<span class="text-gray-500 dark:text-gray-400 px-2 text-sm">Nenhum item selecionado</span>
-					{/if}
-					{#each selectedItems as item (item.value)}
-						<span class="bg-blue-100 text-blue-800 text-sm font-medium inline-flex items-center px-2.5 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-							{item.name}
-							<button type="button" on:click={() => removeItem(item.value)} disabled={isDisabled} class="inline-flex items-center p-1 ms-2 text-sm text-blue-400 bg-transparent rounded-sm hover:bg-blue-200 hover:text-blue-900 dark:hover:bg-blue-800 dark:hover:text-blue-300">
-								<svg class="w-2 h-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-									<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-								</svg>
-								<span class="sr-only">Remover item</span>
-							</button>
-						</span>
-					{/each}
-				</div>
+			<div class="relative">
+				<button
+					type="button"
+					on:click={() => !isDisabled && (showDropdown = !showDropdown)}
+					class="flex items-center justify-between w-full p-2.5 text-left {themeClasses}"
+					class:cursor-not-allowed={isDisabled}
+					class:opacity-50={isDisabled}
+				>
+					<div class="flex flex-wrap gap-1">
+						{#if selectedItems.length === 0}
+							<span class="text-gray-500 dark:text-gray-400">{placeholder}</span>
+						{/if}
+						{#each selectedItems as item (item.value)}
+							<span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+								{item.name}
+								<button type="button" on:click|stopPropagation={() => removeItem(item.value)} class="inline-flex items-center p-0.5 ms-2 text-sm text-blue-400 bg-transparent rounded-sm hover:bg-blue-200 hover:text-blue-900 dark:hover:bg-blue-800 dark:hover:text-blue-300">
+									<svg class="w-2 h-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+										<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+									</svg>
+								</button>
+							</span>
+						{/each}
+					</div>
+					<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+					</svg>
+				</button>
 
-				{#if availableItems.length > 0}
-					<hr class="my-2 border-gray-200 dark:border-gray-600" />
+				{#if showDropdown}
+					<div transition:fly={{ y: -5, duration: 200 }} class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg dark:bg-gray-700 border dark:border-gray-600">
+						<div class="p-2">
+							<Input type="text" bind:value={searchTerm} placeholder="Pesquisar..." class="w-full text-sm" />
+						</div>
+						<ul class="max-h-60 py-1 overflow-auto text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+							{#each filteredOptions as option (option.value)}
+								<li class="px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-600">
+									<Label class="flex items-center w-full cursor-pointer">
+										<Checkbox class="mr-2" bind:group={value} value={option.value} disabled={option.disabled || isDisabled} />
+										<span class="text-gray-900 dark:text-white">{option.name}</span>
+									</Label>
+								</li>
+							{:else}
+								<li class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Nenhuma opção encontrada.</li>
+							{/if}
+						</ul>
+					</div>
 				{/if}
-				
-				<div class="flex flex-wrap gap-2">
-					{#each availableItems as item (item.value)}
-						<button
-							type="button"
-							on:click={() => selectItem(item.value)}
-							disabled={isDisabled || item.disabled}
-							class="px-3 py-1 text-sm font-medium rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
-							class:cursor-not-allowed={isDisabled || item.disabled}
-							class:opacity-50={isDisabled || item.disabled}
-						>
-							+ {item.name}
-						</button>
-					{/each}
-				</div>
 			</div>
 		{:else}
 			<FlowbiteSelect
@@ -185,6 +205,7 @@
 				autofocus={isAutofocus}
 			/>
 		{/if}
+
 		{#if error}
 			<Helper class="mt-1 text-red-600 dark:text-red-500">{error}</Helper>
 		{/if}
