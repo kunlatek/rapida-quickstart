@@ -79,10 +79,27 @@
 		: processedOptions;
 
 	$: selectedItems =
-		value && Array.isArray(value)
+		Array.isArray(value) && value
 			? processedOptions.filter((opt) => value.includes(opt.value))
 			: [];
 
+	// START MODIFICATION: Replaced bind:group with manual handler for robustness
+	function handleCheckboxChange(isChecked: boolean, itemValue: any) {
+		if (isDisabled) return;
+		let currentValue = Array.isArray(value) ? [...value] : [];
+
+		if (isChecked) {
+			if (!currentValue.includes(itemValue)) {
+				currentValue.push(itemValue);
+			}
+		} else {
+			currentValue = currentValue.filter((v) => v !== itemValue);
+		}
+		value = currentValue;
+		dispatch('change', value);
+	}
+	// END MODIFICATION
+	
 	function removeItem(itemValue: any) {
 		if (isDisabled || !Array.isArray(value)) return;
 		value = value.filter((v) => v !== itemValue);
@@ -214,8 +231,8 @@
 									<Label class="flex items-center w-full cursor-pointer">
 										<Checkbox
 											class="mr-2"
-											bind:group={value}
-											value={option.value}
+											checked={Array.isArray(value) && value.includes(option.value)}
+											on:change={(e) => handleCheckboxChange(e.currentTarget.checked, option.value)}
 											disabled={option.disabled || isDisabled}
 										/>
 										<span class="text-gray-900 dark:text-white">{option.name}</span>
