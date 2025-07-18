@@ -25,8 +25,7 @@
 
 	let fileInput: HTMLInputElement;
 	let isDragOver = false;
-
-	// State to handle multiple files
+	
 	let previewItems: {
 		url: string;
 		name: string;
@@ -51,9 +50,8 @@
 	function getFileName(url: string | null): string {
 		if (!url) return 'Arquivo existente';
 		try {
-			// Tenta decodificar o nome do arquivo a partir da URL do GCS
 			const decodedName = decodeURIComponent(url.split('/').pop() || '');
-			// Remove o UUID e o traço inicial, se houver
+			
 			return decodedName.replace(/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}-/, '');
 		} catch (e) {
 			return url.split('/').pop() || 'Arquivo';
@@ -76,7 +74,6 @@
 		if (isMultiple) {
 			previewItems = [...previewItems, ...newItems];
 		} else {
-			// Revoga URLs de objetos antigos para evitar vazamentos de memória
 			previewItems.forEach(item => {
 				if(item.url.startsWith('blob:')) URL.revokeObjectURL(item.url);
 			});
@@ -116,7 +113,7 @@
 		}
 		
 		previewItems.splice(index, 1);
-		previewItems = [...previewItems]; // Trigger reactivity
+		previewItems = [...previewItems];
 		updateValue();
 	}
 
