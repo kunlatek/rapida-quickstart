@@ -138,8 +138,7 @@
   error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"
   }`;
   $: selectClass = `w-full ${themeClasses}`;
- 
-  // START MODIFICATION
+  
   function evaluateConditions(state: Record<string, any>): boolean {
      if (!conditions || conditions.length === 0) return true;
  
@@ -185,7 +184,7 @@
                  } else {
                      if (element.logicalOperator === '||') {
                          overallResult = overallResult || currentResult;
-                     } else { // Default to AND
+                     } else {
                          overallResult = overallResult && currentResult;
                      }
                  }
@@ -197,7 +196,6 @@
   }
  
   $: showComponent = evaluateConditions(formState);
-  // END MODIFICATION
  
   onMount(() => {
   if (isMultiple && !Array.isArray(value)) {
