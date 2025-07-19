@@ -1,18 +1,11 @@
 <script lang="ts">
-  import {
-    Label,
-    Input as FlowbiteInput,
-    Helper,
-    Spinner,
-  } from "flowbite-svelte";
+  import { Label, Input as FlowbiteInput, Helper } from "flowbite-svelte";
   import { getComponentClasses } from "$lib/styles/theme";
   import { EyeSolid, EyeSlashSolid } from "flowbite-svelte-icons";
   import type {
     IFormCondition,
     IApiRequest,
   } from "../../interfaces/form.interfaces";
-  import { createEventDispatcher } from "svelte";
-  import api from "$lib/services/api";
 
   interface InputVariant {
     base: string;
@@ -58,13 +51,9 @@
   )[] = [];
 
   export let apiRequest: IApiRequest | undefined = undefined;
-  export let formState: Record<string, any> = {};
-
-  const dispatch = createEventDispatcher();
 
   let showPassword = false;
   let validationError: string | null = null;
-  let isApiLoading = false;
 
   $: inputType =
     dataType === "password" && showPassword
@@ -134,17 +123,17 @@
   }
 
   function isValidCEP(cep: string): boolean {
-    const regex = /^\d{5}\-?\d{3}$/;
+    const regex = /^\d{5}\-\d{3}$|^\d{8}$/;
     return regex.test(cep);
   }
 
   function isValidPhone(phone: string): boolean {
-    const regex = /^(\+\d{1,3}\s?)?\(?\d{2,3}\)?[\s.-]?\d{4,5}[\s.-]?\d{4}$/;
+    const regex = /^(\+\d{1,3}\s?)?\(?\d{2,3}\)?[\\s.-]?\d{4,5}[\\s.-]?\d{4}$/;
     return regex.test(phone);
   }
 
   function isValidEmail(email: string): boolean {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[^\\s@]+@[^\\s@]+\.[^\\s@]+$/;
     return regex.test(email);
   }
 
@@ -159,9 +148,7 @@
 
       validationError = validateInput(value);
     }
-  }
 
-  function handleBlur(): void {
     if (apiRequest && !validationError) {
       fetchDataFromApi();
     }
@@ -180,103 +167,21 @@
   }
 
   async function fetchDataFromApi(): Promise<void> {
-    if (!apiRequest || !apiRequest.endpoint || !value) return;
+    if (!apiRequest || !apiRequest.endpoint) return;
 
-    isApiLoading = true;
     try {
-      let url = apiRequest.endpoint;
-      if (apiRequest.paramType === "path") {
-        url += String(value).replace(/\D/g, "");
-      } else {
-      }
-
-      const response = await api.get(url);
-      const responseData = response.data;
-
-      if (responseData && apiRequest.formFieldsFilledByApiResponse) {
-        const updates: Record<string, any> = {};
-        apiRequest.formFieldsFilledByApiResponse.forEach((mapping) => {
-          let extractedValue = responseData;
-          mapping.propertiesFromApiToFillFormField.forEach((prop) => {
-            extractedValue = extractedValue?.[prop];
-          });
-          if (extractedValue !== undefined) {
-            updates[mapping.formFieldName] = extractedValue;
-          }
-        });
-
-        if (Object.keys(updates).length > 0) {
-          dispatch("apirequestsuccess", updates);
-        }
-      }
     } catch (error) {
       console.error("Erro ao buscar dados da API:", error);
-    } finally {
-      isApiLoading = false;
     }
   }
 
-  function evaluateConditions(state: Record<string, any>): boolean {
+  function evaluateConditions(): boolean {
     if (!conditions || conditions.length === 0) return true;
 
-    for (const condition of conditions) {
-      if (condition.type === "form" && condition.elements) {
-        let overallResult = true;
-        let firstElement = true;
-
-        for (const element of condition.elements) {
-          const formValue = state[element.key];
-          let currentResult = false;
-
-          switch (element.comparisonOperator) {
-            case "===":
-              currentResult = formValue === element.value;
-              break;
-            case "!==":
-              currentResult = formValue !== element.value;
-              break;
-            case ">":
-              currentResult = formValue > element.value;
-              break;
-            case ">=":
-              currentResult = formValue >= element.value;
-              break;
-            case "<":
-              currentResult = formValue < element.value;
-              break;
-            case "<=":
-              currentResult = formValue <= element.value;
-              break;
-            case "in":
-              currentResult =
-                Array.isArray(element.value) &&
-                element.value.includes(formValue);
-              break;
-            case "nin":
-              currentResult =
-                Array.isArray(element.value) &&
-                !element.value.includes(formValue);
-              break;
-          }
-
-          if (firstElement) {
-            overallResult = currentResult;
-            firstElement = false;
-          } else {
-            if (element.logicalOperator === "||") {
-              overallResult = overallResult || currentResult;
-            } else {
-              overallResult = overallResult && currentResult;
-            }
-          }
-        }
-        if (!overallResult) return false;
-      }
-    }
     return true;
   }
 
-  $: showComponent = evaluateConditions(formState);
+  $: showComponent = evaluateConditions();
 
   $: {
     if (value !== undefined && value !== "") {
@@ -329,16 +234,9 @@
           class={inputClass}
           on:change={handleChange}
           on:input={handleInput}
-          on:blur={handleBlur}
           step={dataType === "number" ? "any" : undefined}
         />
-        {#if isApiLoading}
-          <div
-            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
-          >
-            <Spinner size={4} />
-          </div>
-        {/if}
+
         {#if dataType === "password"}
           <button
             type="button"
