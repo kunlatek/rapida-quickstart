@@ -27,13 +27,13 @@
     | "svg"
     | "gif"
   )[] = [];
+  export let formState: Record<string, any> = {};
 
   const dispatch = createEventDispatcher();
 
   let fileInput: HTMLInputElement;
   let isDragOver = false;
 
-  // State to handle multiple files
   let previewItems: {
     url: string;
     name: string;
@@ -58,9 +58,8 @@
   function getFileName(url: string | null): string {
     if (!url) return "Arquivo existente";
     try {
-      // Tenta decodificar o nome do arquivo a partir da URL do GCS
       const decodedName = decodeURIComponent(url.split("/").pop() || "");
-      // Remove o UUID e o traço inicial, se houver
+
       return decodedName.replace(
         /^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}-/,
         ""
@@ -86,7 +85,6 @@
     if (isMultiple) {
       previewItems = [...previewItems, ...newItems];
     } else {
-      // Revoga URLs de objetos antigos para evitar vazamentos de memória
       previewItems.forEach((item) => {
         if (item.url.startsWith("blob:")) URL.revokeObjectURL(item.url);
       });
@@ -127,7 +125,7 @@
     }
 
     previewItems.splice(index, 1);
-    previewItems = [...previewItems]; // Trigger reactivity
+    previewItems = [...previewItems];
     updateValue();
   }
 
@@ -163,12 +161,67 @@
   });
   $: labelClass = `mb-2 ${error ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
 
-  function evaluateConditions(): boolean {
+  function evaluateConditions(state: Record<string, any>): boolean {
     if (!conditions || conditions.length === 0) return true;
+
+    for (const condition of conditions) {
+      if (condition.type === "form" && condition.elements) {
+        let overallResult = true;
+        let firstElement = true;
+
+        for (const element of condition.elements) {
+          const formValue = state[element.key];
+          let currentResult = false;
+
+          switch (element.comparisonOperator) {
+            case "===":
+              currentResult = formValue === element.value;
+              break;
+            case "!==":
+              currentResult = formValue !== element.value;
+              break;
+            case ">":
+              currentResult = formValue > element.value;
+              break;
+            case ">=":
+              currentResult = formValue >= element.value;
+              break;
+            case "<":
+              currentResult = formValue < element.value;
+              break;
+            case "<=":
+              currentResult = formValue <= element.value;
+              break;
+            case "in":
+              currentResult =
+                Array.isArray(element.value) &&
+                element.value.includes(formValue);
+              break;
+            case "nin":
+              currentResult =
+                Array.isArray(element.value) &&
+                !element.value.includes(formValue);
+              break;
+          }
+
+          if (firstElement) {
+            overallResult = currentResult;
+            firstElement = false;
+          } else {
+            if (element.logicalOperator === "||") {
+              overallResult = overallResult || currentResult;
+            } else {
+              overallResult = overallResult && currentResult;
+            }
+          }
+        }
+        if (!overallResult) return false;
+      }
+    }
     return true;
   }
 
-  $: showComponent = evaluateConditions();
+  $: showComponent = evaluateConditions(formState);
 </script>
 
 {#if showComponent}

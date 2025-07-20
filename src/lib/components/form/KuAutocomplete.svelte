@@ -61,6 +61,7 @@
     paramsToFilter: [],
     paramType: "query",
   };
+  export let formState: Record<string, any> = {};
 
   let options: AutocompleteOption[] = [];
   let loading = false;
@@ -205,13 +206,67 @@
     }, 700);
   }
 
-  function evaluateConditions(): boolean {
+  function evaluateConditions(state: Record<string, any>): boolean {
     if (!conditions || conditions.length === 0) return true;
 
+    for (const condition of conditions) {
+      if (condition.type === "form" && condition.elements) {
+        let overallResult = true;
+        let firstElement = true;
+
+        for (const element of condition.elements) {
+          const formValue = state[element.key];
+          let currentResult = false;
+
+          switch (element.comparisonOperator) {
+            case "===":
+              currentResult = formValue === element.value;
+              break;
+            case "!==":
+              currentResult = formValue !== element.value;
+              break;
+            case ">":
+              currentResult = formValue > element.value;
+              break;
+            case ">=":
+              currentResult = formValue >= element.value;
+              break;
+            case "<":
+              currentResult = formValue < element.value;
+              break;
+            case "<=":
+              currentResult = formValue <= element.value;
+              break;
+            case "in":
+              currentResult =
+                Array.isArray(element.value) &&
+                element.value.includes(formValue);
+              break;
+            case "nin":
+              currentResult =
+                Array.isArray(element.value) &&
+                !element.value.includes(formValue);
+              break;
+          }
+
+          if (firstElement) {
+            overallResult = currentResult;
+            firstElement = false;
+          } else {
+            if (element.logicalOperator === "||") {
+              overallResult = overallResult || currentResult;
+            } else {
+              overallResult = overallResult && currentResult;
+            }
+          }
+        }
+        if (!overallResult) return false;
+      }
+    }
     return true;
   }
 
-  $: showComponent = evaluateConditions();
+  $: showComponent = evaluateConditions(formState);
 
   onMount(() => {
     fetchOptions();
