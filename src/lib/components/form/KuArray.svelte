@@ -8,7 +8,6 @@
     IArrayVariants,
   } from "../../interfaces/form.interfaces";
 
-  // Props do componente
   export let id = "";
   export let title = "";
   export let items: any[] = [];
@@ -17,32 +16,26 @@
   export let conditions: IFormCondition[] = [];
   export let elements: IFormElement[] = [];
 
-  // Get classes from theme
   $: containerClasses = getComponentClasses("array", variant);
 
-  // Declarando a variável itemClasses
   let itemClasses: string;
 
-  // Corrigindo o acesso ao themeConfig com tipagem adequada
   $: {
     const arrayVariants = themeConfig.components.array
       .variants as IArrayVariants;
     itemClasses = arrayVariants[variant]?.item || arrayVariants.default.item;
   }
 
-  // Function to create a new item based on elements or first item
   function addItem(): void {
     const newItem: Record<string, any> = {};
 
     if (elements && elements.length > 0) {
-      // Create item based on defined elements
       elements.forEach((element) => {
         if (element.name) {
           newItem[element.name] = "";
         }
       });
     } else if (items.length > 0) {
-      // Fallback to existing item structure
       Object.keys(items[0]).forEach((key) => {
         newItem[key] = "";
       });
@@ -55,16 +48,12 @@
     items = items.filter((_, i) => i !== index);
   }
 
-  // Basic condition evaluation function
   function evaluateConditions(): boolean {
-    // If no conditions, always show
     if (!conditions || conditions.length === 0) return true;
 
-    // For now, implement basic support - can be expanded later
-    return true; // Placeholder for actual condition logic
+    return true;
   }
 
-  // Only show if conditions are met
   $: showComponent = evaluateConditions();
 </script>
 
@@ -97,7 +86,7 @@
         </div>
 
         <div class="space-y-3">
-          <slot {item} {index} {elements}></slot>
+          <slot name="item" {item} {index} {elements}></slot>
         </div>
       </div>
     {/each}
@@ -107,3 +96,4 @@
     {/if}
   </div>
 {/if}
+  
