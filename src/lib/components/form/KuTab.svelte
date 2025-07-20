@@ -12,6 +12,7 @@
     id: string;
     title: string;
     elements?: IFormElement[];
+    conditions?: IFormCondition[];
   }
 
   type TabVariant = "default" | "pills";
@@ -52,10 +53,13 @@
     return isActive ? variantConfig.active : variantConfig.inactive;
   }
 
-  function evaluateConditions(state: Record<string, any>): boolean {
-    if (!conditions || conditions.length === 0) return true;
+  function evaluateConditions(
+    c: IFormCondition[] | undefined,
+    state: Record<string, any>
+  ): boolean {
+    if (!c || c.length === 0) return true;
 
-    for (const condition of conditions) {
+    for (const condition of c) {
       if (condition.type === "form" && condition.elements) {
         let overallResult = true;
         let firstElement = true;
@@ -102,7 +106,6 @@
             if (element.logicalOperator === "||") {
               overallResult = overallResult || currentResult;
             } else {
-              // Default to AND
               overallResult = overallResult && currentResult;
             }
           }
@@ -113,13 +116,27 @@
     return true;
   }
 
-  $: showComponent = evaluateConditions(formState);
+  $: showComponent = evaluateConditions(conditions, formState);
+  $: visibleTabs = tabs.filter((tab) =>
+    evaluateConditions(tab.conditions, formState)
+  );
+
+  $: {
+    if (
+      visibleTabs.length > 0 &&
+      !visibleTabs.some((t) => t.id === activeTabId)
+    ) {
+      setActiveTab(visibleTabs[0].id);
+    } else if (visibleTabs.length === 0) {
+      activeTabId = "";
+    }
+  }
 </script>
 
 {#if showComponent}
   <div {id} class={tabContainerClasses}>
     <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
-      {#each tabs as tab}
+      {#each visibleTabs as tab}
         <li class="mr-2">
           <Button
             type="button"
@@ -139,7 +156,9 @@
   </div>
 
   <div class="mt-4">
-    <slot {activeTabId} />
+    {#if visibleTabs.some((t) => t.id === activeTabId)}
+      <slot {activeTabId} />
+    {/if}
   </div>
 
   {#if error}
