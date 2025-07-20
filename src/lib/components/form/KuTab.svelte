@@ -8,17 +8,14 @@
     IFormElement,
   } from "../../interfaces/form.interfaces";
 
-  // Tab interface
   interface ITab {
     id: string;
     title: string;
     elements?: IFormElement[];
   }
 
-  // Tab variant type
   type TabVariant = "default" | "pills";
 
-  // Tab variant styles interface
   interface TabVariantStyles {
     base: string;
     active: string;
@@ -31,7 +28,8 @@
   export let variant: TabVariant = "default";
   export let conditions: IFormCondition[] = [];
   export let error = "";
-  export const todo = ""; // Changed from export let to export const
+  export const todo = "";
+  export let formState: Record<string, any> = {};
 
   const dispatch = createEventDispatcher<{ tabChange: string }>();
 
@@ -46,7 +44,6 @@
   $: tabContainerClasses = getComponentClasses("tab", variant);
 
   function getTabItemClasses(isActive: boolean): string {
-    // Get tab styling based on variant
     const tabVariants = themeConfig.components.tab.variants as Record<
       string,
       TabVariantStyles
@@ -55,17 +52,68 @@
     return isActive ? variantConfig.active : variantConfig.inactive;
   }
 
-  // Function to evaluate conditions
-  function evaluateConditions(): boolean {
-    // If no conditions, return true
+  function evaluateConditions(state: Record<string, any>): boolean {
     if (!conditions || conditions.length === 0) return true;
 
-    // Condition evaluation logic would go here
+    for (const condition of conditions) {
+      if (condition.type === "form" && condition.elements) {
+        let overallResult = true;
+        let firstElement = true;
+
+        for (const element of condition.elements) {
+          const formValue = state[element.key];
+          let currentResult = false;
+
+          switch (element.comparisonOperator) {
+            case "===":
+              currentResult = formValue === element.value;
+              break;
+            case "!==":
+              currentResult = formValue !== element.value;
+              break;
+            case ">":
+              currentResult = formValue > element.value;
+              break;
+            case ">=":
+              currentResult = formValue >= element.value;
+              break;
+            case "<":
+              currentResult = formValue < element.value;
+              break;
+            case "<=":
+              currentResult = formValue <= element.value;
+              break;
+            case "in":
+              currentResult =
+                Array.isArray(element.value) &&
+                element.value.includes(formValue);
+              break;
+            case "nin":
+              currentResult =
+                Array.isArray(element.value) &&
+                !element.value.includes(formValue);
+              break;
+          }
+
+          if (firstElement) {
+            overallResult = currentResult;
+            firstElement = false;
+          } else {
+            if (element.logicalOperator === "||") {
+              overallResult = overallResult || currentResult;
+            } else {
+              // Default to AND
+              overallResult = overallResult && currentResult;
+            }
+          }
+        }
+        if (!overallResult) return false;
+      }
+    }
     return true;
   }
 
-  // Reactive conditions evaluation
-  $: showComponent = evaluateConditions();
+  $: showComponent = evaluateConditions(formState);
 </script>
 
 {#if showComponent}
