@@ -1,99 +1,120 @@
 <script lang="ts">
-  import { Button } from "flowbite-svelte";
-  import { getComponentClasses, themeConfig } from "$lib/styles/theme";
-  import type {
-    IFormArray,
-    IFormElement,
-    IFormCondition,
-    IArrayVariants,
-  } from "../../interfaces/form.interfaces";
+	import { Button } from 'flowbite-svelte';
+	import { getComponentClasses, themeConfig } from '$lib/styles/theme';
+	import type {
+		IFormArray,
+		IFormElement,
+		IFormCondition,
+		IArrayVariants
+	} from '../../interfaces/form.interfaces';
+	import KuInput from './KuInput.svelte';
+	import KuSelect from './KuSelect.svelte';
+	import KuAutocomplete from './KuAutocomplete.svelte';
+	import KuFile from './KuFile.svelte';
 
-  export let id = "";
-  export let title = "";
-  export let items: any[] = [];
-  export let error = "";
-  export let variant: string = "default";
-  export let conditions: IFormCondition[] = [];
-  export let elements: IFormElement[] = [];
+	export let id = '';
+	export let title = '';
+	export let items: any[] = [];
+	export let error = '';
+	export let variant: string = 'default';
+	export let conditions: IFormCondition[] = [];
+	export let elements: IFormElement[] = [];
+	export let formState: Record<string, any> = {};
 
-  $: containerClasses = getComponentClasses("array", variant);
+	const componentMap = {
+		input: KuInput,
+		select: KuSelect,
+		autocomplete: KuAutocomplete,
+		file: KuFile
+	};
 
-  let itemClasses: string;
+	$: containerClasses = getComponentClasses('array', variant);
 
-  $: {
-    const arrayVariants = themeConfig.components.array
-      .variants as IArrayVariants;
-    itemClasses = arrayVariants[variant]?.item || arrayVariants.default.item;
-  }
+	let itemClasses: string;
 
-  function addItem(): void {
-    const newItem: Record<string, any> = {};
+	$: {
+		const arrayVariants = themeConfig.components.array.variants as IArrayVariants;
+		itemClasses = arrayVariants[variant]?.item || arrayVariants.default.item;
+	}
 
-    if (elements && elements.length > 0) {
-      elements.forEach((element) => {
-        if (element.name) {
-          newItem[element.name] = "";
-        }
-      });
-    } else if (items.length > 0) {
-      Object.keys(items[0]).forEach((key) => {
-        newItem[key] = "";
-      });
-    }
+	function addItem(): void {
+		const newItem: Record<string, any> = {};
 
-    items = [...items, newItem];
-  }
+		if (elements && elements.length > 0) {
+			elements.forEach((element) => {
+				if ('name' in element && element.name) {
+					const isMultiple = 'isMultiple' in element && element.isMultiple;
+					newItem[element.name] = isMultiple ? [] : '';
+				}
+			});
+		} else if (items.length > 0) {
+			Object.keys(items[0]).forEach((key) => {
+				newItem[key] = '';
+			});
+		}
 
-  function removeItem(index: number): void {
-    items = items.filter((_, i) => i !== index);
-  }
+		items = [...items, newItem];
+	}
 
-  function evaluateConditions(): boolean {
-    if (!conditions || conditions.length === 0) return true;
+	function removeItem(index: number): void {
+		items = items.filter((_, i) => i !== index);
+	}
 
-    return true;
-  }
+	function evaluateConditions(): boolean {
+		if (!conditions || conditions.length === 0) return true;
 
-  $: showComponent = evaluateConditions();
+		return true;
+	}
+
+	$: showComponent = evaluateConditions();
 </script>
 
 {#if showComponent}
-  <div {id} class={containerClasses}>
-    <div class="flex justify-between items-center mb-3">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white">{title}</h3>
-      <Button size="xs" on:click={addItem}>Adicionar Item</Button>
-    </div>
+	<div {id} class={containerClasses}>
+		<div class="flex justify-between items-center mb-3">
+			<h3 class="text-lg font-medium text-gray-900 dark:text-white">{title}</h3>
+			<Button size="xs" on:click={addItem}>Adicionar Item</Button>
+		</div>
 
-    {#if items.length === 0}
-      <p class="text-gray-500 dark:text-gray-400 text-sm">
-        Nenhum item adicionado
-      </p>
-    {/if}
+		{#if items.length === 0}
+			<p class="text-gray-500 dark:text-gray-400 text-sm">Nenhum item adicionado</p>
+		{/if}
 
-    {#each items as item, index}
-      <div class={itemClasses}>
-        <div class="flex justify-between items-center mb-2">
-          <h4 class="text-md font-medium text-gray-800 dark:text-white">
-            Item {index + 1}
-          </h4>
-          <button
-            type="button"
-            class="text-red-600 dark:text-red-500 hover:underline text-sm"
-            on:click={() => removeItem(index)}
-          >
-            Remover
-          </button>
-        </div>
+		{#each items as item, index}
+			<div class={itemClasses}>
+				<div class="flex justify-between items-center mb-2">
+					<h4 class="text-md font-medium text-gray-800 dark:text-white">
+						Item {index + 1}
+					</h4>
+					<button
+						type="button"
+						class="text-red-600 dark:text-red-500 hover:underline text-sm"
+						on:click={() => removeItem(index)}
+					>
+						Remover
+					</button>
+				</div>
+                
+				<div class="space-y-3">
+					{#each elements as element}
+						{@const component = componentMap[element.type]}
+						{#if component}
+							<svelte:component
+								this={component}
+								{...element}
+								bind:value={item[element.name]}
+								{formState}
+							/>
+						{:else}
+							<slot name="item" {item} {index} {elements}></slot>
+						{/if}
+					{/each}
+				</div>
+				</div>
+		{/each}
 
-        <div class="space-y-3">
-          <slot name="item" {item} {index} {elements}></slot>
-        </div>
-      </div>
-    {/each}
-
-    {#if error}
-      <p class="text-red-500 text-sm mt-1">{error}</p>
-    {/if}
-  </div>
+		{#if error}
+			<p class="text-red-500 text-sm mt-1">{error}</p>
+		{/if}
+	</div>
 {/if}
-  
