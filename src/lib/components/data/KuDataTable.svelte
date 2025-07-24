@@ -156,8 +156,23 @@
   }
 
   function resolveNestedValue(obj: any, path: string): any {
-    if (!path) return obj;
-    return path.split(".").reduce((p, c) => (p && p[c] ? p[c] : null), obj);
+    // START MODIFICATION
+    const parts = path.split(".");
+    let current = obj;
+    for (let i = 0; i < parts.length; i++) {
+      if (current === null || typeof current === "undefined") {
+        return null;
+      }
+      const part = parts[i];
+      if (Array.isArray(current)) {
+        return current
+          .map((item) => (item ? item[part] : null))
+          .filter((item) => item != null);
+      }
+      current = current[part];
+    }
+    return current;
+    // END MODIFICATION
   }
 
   function formatCellValue(row: any, column: IColumn): any {
