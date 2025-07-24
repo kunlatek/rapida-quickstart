@@ -151,35 +151,61 @@
           const formValue = state[element.key];
           let currentResult = false;
 
-          switch (element.comparisonOperator) {
-            case "===":
-              currentResult = formValue === element.value;
-              break;
-            case "!==":
-              currentResult = formValue !== element.value;
-              break;
-            case ">":
-              currentResult = formValue > element.value;
-              break;
-            case ">=":
-              currentResult = formValue >= element.value;
-              break;
-            case "<":
-              currentResult = formValue < element.value;
-              break;
-            case "<=":
-              currentResult = formValue <= element.value;
-              break;
-            case "in":
-              currentResult =
-                Array.isArray(element.value) &&
-                element.value.includes(formValue);
-              break;
-            case "nin":
-              currentResult =
-                Array.isArray(element.value) &&
-                !element.value.includes(formValue);
-              break;
+          if (Array.isArray(formValue)) {
+            switch (element.comparisonOperator) {
+              case "===":
+              case "in":
+                currentResult = formValue.some((item) =>
+                  typeof item === "object" && item !== null
+                    ? item.value === element.value ||
+                      item.label === element.value
+                    : item === element.value
+                );
+                break;
+              case "!==":
+              case "nin":
+                currentResult = !formValue.some((item) =>
+                  typeof item === "object" && item !== null
+                    ? item.value === element.value ||
+                      item.label === element.value
+                    : item === element.value
+                );
+                break;
+              default:
+                currentResult = false;
+                break;
+            }
+          } else {
+            switch (element.comparisonOperator) {
+              case "===":
+                currentResult = formValue === element.value;
+                break;
+              case "!==":
+                currentResult = formValue !== element.value;
+                break;
+              case ">":
+                currentResult = formValue > element.value;
+                break;
+              case ">=":
+                currentResult = formValue >= element.value;
+                break;
+              case "<":
+                currentResult = formValue < element.value;
+                break;
+              case "<=":
+                currentResult = formValue <= element.value;
+                break;
+              case "in":
+                currentResult =
+                  Array.isArray(element.value) &&
+                  element.value.includes(formValue);
+                break;
+              case "nin":
+                currentResult =
+                  Array.isArray(element.value) &&
+                  !element.value.includes(formValue);
+                break;
+            }
           }
 
           if (firstElement) {
@@ -189,7 +215,6 @@
             if (element.logicalOperator === "||") {
               overallResult = overallResult || currentResult;
             } else {
-              // Default to AND
               overallResult = overallResult && currentResult;
             }
           }
