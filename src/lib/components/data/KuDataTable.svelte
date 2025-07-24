@@ -156,7 +156,6 @@
   }
 
   function resolveNestedValue(obj: any, path: string): any {
-    // START MODIFICATION
     const parts = path.split(".");
     let current = obj;
     for (let i = 0; i < parts.length; i++) {
@@ -172,7 +171,6 @@
       current = current[part];
     }
     return current;
-    // END MODIFICATION
   }
 
   function formatCellValue(row: any, column: IColumn): any {
