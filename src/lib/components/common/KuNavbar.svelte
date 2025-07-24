@@ -106,7 +106,7 @@
     <span
       class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
     >
-      Rapida Quickstart
+      Sugesto Backoffice
     </span>
   </NavBrand>
 
