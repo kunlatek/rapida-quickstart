@@ -74,8 +74,8 @@
   let totalItems: number = 0;
   let currentPage: number = 1;
 
-  let sortColumn: string | null = null;
-  let sortDirection: "asc" | "desc" = "asc";
+  let sortColumn: string | null = "updatedAt";
+  let sortDirection: "asc" | "desc" = "desc";
 
   let filters: Record<string, string> = {};
 
