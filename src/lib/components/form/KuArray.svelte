@@ -94,22 +94,24 @@
 						Remover
 					</button>
 				</div>
-                
+ 
 				<div class="space-y-3">
-					{#each elements as element}
-						{@const component = componentMap[element.type]}
-						{#if component}
-							<svelte:component
-								this={component}
-								{...element}
-								bind:value={item[element.name]}
-								{formState}
-							/>
-						{:else}
-							<slot name="item" {item} {index} {elements}></slot>
-						{/if}
-					{/each}
-				</div>
+					{#if elements && elements.length > 0}
+						{#each elements as element}
+							{@const component = componentMap[element.type]}
+							{#if component}
+								<svelte:component
+									this={component}
+									{...element}
+									bind:value={item[element.name]}
+									{formState}
+								/>
+							{/if}
+						{/each}
+					{:else}
+						<slot name="item" {item} {index}></slot>
+					{/if}
+					</div>
 				</div>
 		{/each}
 
