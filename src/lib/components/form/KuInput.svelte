@@ -14,8 +14,35 @@
   import { createEventDispatcher, onMount } from "svelte";
   import api from "$lib/services/api";
 
-  import Quill from "quill";
-  import "quill/dist/quill.snow.css";
+  import { browser } from "$app/environment";
+  let quillEditor: any;
+  let editorContainer: HTMLDivElement;
+
+  onMount(async () => {
+    if (browser && dataType === "wysiwyg" && editorContainer) {
+      const { default: Quill } = await import("quill");
+      await import("quill/dist/quill.snow.css");
+
+      quillEditor = new Quill(editorContainer, {
+        theme: "snow",
+        placeholder: placeholder || "Digite algo aqui...",
+      });
+
+      if (value) {
+        quillEditor.root.innerHTML = value as string;
+      }
+
+      quillEditor.on("text-change", () => {
+        value = quillEditor.root.innerHTML;
+      });
+    }
+  });
+
+  $: {
+    if (quillEditor && value !== quillEditor.root.innerHTML) {
+      quillEditor.root.innerHTML = value as string;
+    }
+  }
 
   interface InputVariant {
     base: string;
@@ -69,32 +96,6 @@
   let validationError: string | null = null;
   let isApiLoading = false;
 
-  let quillEditor: Quill;
-  let editorContainer: HTMLDivElement;
-
-  onMount(() => {
-    if (dataType === "wysiwyg" && editorContainer) {
-      quillEditor = new Quill(editorContainer, {
-        theme: "snow",
-        placeholder: placeholder || "Digite algo aqui...",
-      });
-
-      if (value) {
-        quillEditor.root.innerHTML = value as string;
-      }
-
-      quillEditor.on("text-change", () => {
-        value = quillEditor.root.innerHTML;
-      });
-    }
-  });
-
-  $: {
-    if (quillEditor && value !== quillEditor.root.innerHTML) {
-      quillEditor.root.innerHTML = value as string;
-    }
-  }
-
   $: inputType =
     dataType === "password" && showPassword
       ? "text"
@@ -107,7 +108,6 @@
     disabled: isDisabled,
   });
   $: labelClass = `mb-2 ${error || validationError ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
-  frontend / arteioBackoffice / src / lib / components / form / KuInput.svelte;
   $: inputClass = `w-full ${themeClasses}`;
 
   function togglePasswordVisibility(): void {
@@ -138,7 +138,7 @@
       return "CEP inválido";
     }
 
-    if (validators.includes("onlyNumbers") && !/^\\d+$/.test(stringValue)) {
+    if (validators.includes("onlyNumbers") && !/^\d+$/.test(stringValue)) {
       return "Apenas números são permitidos";
     }
 
