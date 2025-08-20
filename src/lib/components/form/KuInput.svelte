@@ -106,8 +106,9 @@
     error: !!error || !!validationError,
     disabled: isDisabled,
   });
-  $: labelClass = `mb-2 ${error || validationError ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`; // MODIFICATION BASED ON: /Users/opah/Code/personal/kunlatek/rapida/rapida-v/generated/frontend/arteioBackoffice/src/lib/components/form/KuInput.svelte
-  $: inputClass = `w-full ${themeClasses}`; // MODIFICATION BASED ON: /Users/opah/Code/personal/kunlatek/rapida/rapida-v/generated/frontend/arteioBackoffice/src/lib/components/form/KuInput.svelte
+  $: labelClass = `mb-2 ${error || validationError ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
+  frontend / arteioBackoffice / src / lib / components / form / KuInput.svelte;
+  $: inputClass = `w-full ${themeClasses}`;
 
   function togglePasswordVisibility(): void {
     showPassword = !showPassword;
@@ -158,9 +159,7 @@
   }
 
   function isValidCNPJ(cnpj: string): boolean {
-    // START MODIFICATION
     const regex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$|^\d{14}$/;
-    // END MODIFICATION
     return regex.test(cnpj);
   }
 
@@ -344,8 +343,6 @@
   }
 </script>
 
-// MODIFICATION BASED ON:
-/Users/opah/Code/personal/kunlatek/rapida/rapida-v/generated/frontend/arteioBackoffice/src/lib/components/form/KuInput.svelte
 {#if showComponent}
   <div class="w-full">
     <Label for={id} class={labelClass}>
