@@ -11,8 +11,11 @@
     IFormCondition,
     IApiRequest,
   } from "../../interfaces/form.interfaces";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   import api from "$lib/services/api";
+
+  import Quill from "quill";
+  import "quill/dist/quill.snow.css";
 
   interface InputVariant {
     base: string;
@@ -66,6 +69,32 @@
   let validationError: string | null = null;
   let isApiLoading = false;
 
+  let quillEditor: Quill;
+  let editorContainer: HTMLDivElement;
+
+  onMount(() => {
+    if (dataType === "wysiwyg" && editorContainer) {
+      quillEditor = new Quill(editorContainer, {
+        theme: "snow",
+        placeholder: placeholder || "Digite algo aqui...",
+      });
+
+      if (value) {
+        quillEditor.root.innerHTML = value as string;
+      }
+
+      quillEditor.on("text-change", () => {
+        value = quillEditor.root.innerHTML;
+      });
+    }
+  });
+
+  $: {
+    if (quillEditor && value !== quillEditor.root.innerHTML) {
+      quillEditor.root.innerHTML = value as string;
+    }
+  }
+
   $: inputType =
     dataType === "password" && showPassword
       ? "text"
@@ -77,8 +106,8 @@
     error: !!error || !!validationError,
     disabled: isDisabled,
   });
-  $: labelClass = `mb-2 ${error || validationError ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`;
-  $: inputClass = `w-full ${themeClasses}`;
+  $: labelClass = `mb-2 ${error || validationError ? "text-red-600 dark:text-red-500" : "text-gray-900 dark:text-white"}`; // MODIFICATION BASED ON: /Users/opah/Code/personal/kunlatek/rapida/rapida-v/generated/frontend/arteioBackoffice/src/lib/components/form/KuInput.svelte
+  $: inputClass = `w-full ${themeClasses}`; // MODIFICATION BASED ON: /Users/opah/Code/personal/kunlatek/rapida/rapida-v/generated/frontend/arteioBackoffice/src/lib/components/form/KuInput.svelte
 
   function togglePasswordVisibility(): void {
     showPassword = !showPassword;
@@ -108,7 +137,7 @@
       return "CEP inválido";
     }
 
-    if (validators.includes("onlyNumbers") && !/^\d+$/.test(stringValue)) {
+    if (validators.includes("onlyNumbers") && !/^\\d+$/.test(stringValue)) {
       return "Apenas números são permitidos";
     }
 
@@ -129,22 +158,24 @@
   }
 
   function isValidCNPJ(cnpj: string): boolean {
-    const regex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$|^\d{14}$/;
+    // START MODIFICATION
+    const regex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$|^\d{14}$/;
+    // END MODIFICATION
     return regex.test(cnpj);
   }
 
   function isValidCEP(cep: string): boolean {
-    const regex = /^\d{5}\-?\d{3}$/;
+    const regex = /^\d{5}-?\d{3}$/;
     return regex.test(cep);
   }
 
   function isValidPhone(phone: string): boolean {
-    const regex = /^(\+\d{1,3}\s?)?\(?\d{2,3}\)?[\s.-]?\d{4,5}[\s.-]?\d{4}$/;
+    const regex = /^(\+\d{1,3}\s?)?\(?\d{2,3}\)?[ \s.-]?\d{4,5}[ \s.-]?\d{4}$/;
     return regex.test(phone);
   }
 
   function isValidEmail(email: string): boolean {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
     return regex.test(email);
   }
 
@@ -313,6 +344,8 @@
   }
 </script>
 
+// MODIFICATION BASED ON:
+/Users/opah/Code/personal/kunlatek/rapida/rapida-v/generated/frontend/arteioBackoffice/src/lib/components/form/KuInput.svelte
 {#if showComponent}
   <div class="w-full">
     <Label for={id} class={labelClass}>
@@ -381,21 +414,11 @@
         {/if}
       {:else}
         <div
-          class="border border-gray-300 rounded-lg p-2 dark:border-gray-600 dark:bg-gray-700"
-        >
-          <textarea
-            {id}
-            {name}
-            bind:value
-            {placeholder}
-            disabled={isDisabled}
-            required={isRequired}
-            {maxlength}
-            minlength={minLength}
-            class="w-full bg-transparent border-0 focus:ring-0 p-0 dark:text-white"
-            rows="5"
-          ></textarea>
-        </div>
+          bind:this={editorContainer}
+          class="min-h-[150px] border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 {isDisabled
+            ? 'opacity-70 cursor-not-allowed'
+            : ''}"
+        ></div>
       {/if}
     </div>
 

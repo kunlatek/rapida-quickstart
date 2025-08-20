@@ -30,6 +30,7 @@
     "flowbite-svelte-icons": "^2.1.1",
     "jwt-decode": "^4.0.0",
     "svelte-i18n": "^4.0.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "quill": "^2.0.2"
   }
 }
