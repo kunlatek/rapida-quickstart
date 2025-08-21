@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { goto } from "svelte-kit/navigation";
   import { authService } from "$services/auth";
   import { authStore as rawAuthStore } from "$lib/stores/auth";
   import { profileService } from "$services/profile";
@@ -9,8 +9,8 @@
   import AuthLayout from "$lib/components/layout/AuthLayout.svelte";
   import { onMount } from "svelte";
   import { KuInput, KuButton } from "$lib/components/form";
-  import GoogleLoginButton from "$lib/components/pages/auth/GoogleLoginButton.svelte";
-  import AppleLoginButton from "$lib/components/pages/auth/AppleLoginButton.svelte";
+  import GoogleLoginButton from "$REMOVED_BASE64_CONTENT.svelte";
+  import AppleLoginButton from "$REMOVED_BASE64_CONTENT.svelte";
   import { mapBackendErrorToFrontendMessage } from "$lib/services/errorMapper";
   import type { Writable } from "svelte/store";
   import type {
@@ -123,7 +123,7 @@
 </script>
 
 <svelte:head>
-  <title>Login - Rapida Quickstart</title>
+  <title>Login - Sugesto Backoffice</title>
 </svelte:head>
 
 <AuthLayout>
@@ -162,7 +162,7 @@
             bind:value={password}
             isRequired={true}
             isDisabled={loading}
-            error={errorMessage && !password ? "Senha é obrigatória" : ""}
+            error={errorMessage && !password ? "Senha é obrigatório" : ""}
           />
           <div class="flex items-center justify-between mt-2 mb-2">
             <a
