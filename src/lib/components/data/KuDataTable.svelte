@@ -26,6 +26,7 @@
       | "image"
       | "images"
       | "icon";
+    isHtml?: boolean;
   }
 
   type ButtonColor =
@@ -67,12 +68,21 @@
   export let actions: IAction[] = [];
   export let variant: string = "default";
   export let headerActions: IHeaderAction[] = [];
+  export let pageSize: number = 10;
+  export let onPageChange: (page: number) => void = () => {};
+  export let currentPage: number = 1;
 
   let data: any[] = [];
   let loading: boolean = false;
   let error: string | null = null;
   let totalItems: number = 0;
-  let currentPage: number = 1;
+
+  $: totalPages = Math.ceil(totalItems / pageSize);
+  $: visiblePages = calculateVisiblePages(
+    currentPage,
+    totalPages,
+    maxPageNumbers
+  );
 
   let sortColumn: string | null = "updatedAt";
   let sortDirection: "asc" | "desc" = "desc";
@@ -123,6 +133,57 @@
       loading = false;
     }
   }
+  let maxPageNumbers: number = 5;
+
+  function calculateVisiblePages(
+    current: number,
+    total: number,
+    max: number
+  ): number[] {
+    if (total <= max) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const half: number = Math.floor(max / 2);
+    let start: number = current - half;
+    let end: number = current + half;
+
+    if (start < 1) {
+      start = 1;
+      end = max;
+    } else if (end > total) {
+      end = total;
+      start = total - max + 1;
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+  function goToPage(page: number): void {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    onPageChange(page);
+  }
+
+  function goToFirstPage(): void {
+    goToPage(1);
+  }
+
+  function goToLastPage(): void {
+    goToPage(totalPages);
+  }
+
+  function goToPreviousPage(): void {
+    goToPage(currentPage - 1);
+  }
+
+  function goToNextPage(): void {
+    goToPage(currentPage + 1);
+  }
+
+  function handlePageChange(page: number): void {
+    currentPage = page;
+    fetchData();
+  }
 
   function handleSort(column: IColumn): void {
     if (column.sortable === false) return;
@@ -140,11 +201,6 @@
   function handleFilter(column: IColumn, value: string): void {
     filters[column.key] = value;
     currentPage = 1;
-    fetchData();
-  }
-
-  function handlePageChange(page: number): void {
-    currentPage = page;
     fetchData();
   }
 
@@ -329,6 +385,8 @@
                         alt={column.header}
                         class="h-16 object-cover rounded-md"
                       />
+                    {:else if column.isHtml}
+                      {@html formatCellValue(row, column)}
                     {:else}
                       {formatCellValue(row, column)}
                     {/if}
