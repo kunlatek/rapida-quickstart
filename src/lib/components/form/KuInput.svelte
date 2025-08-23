@@ -138,7 +138,7 @@
       return "CEP inválido";
     }
 
-    if (validators.includes("onlyNumbers") && !/^\d+$/.test(stringValue)) {
+    if (validators.includes("onlyNumbers") && !/^\\d+$/.test(stringValue)) {
       return "Apenas números são permitidos";
     }
 
@@ -174,7 +174,7 @@
   }
 
   function isValidEmail(email: string): boolean {
-    const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   }
 
@@ -415,6 +415,7 @@
           class="min-h-[150px] border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 {isDisabled
             ? 'opacity-70 cursor-not-allowed'
             : ''}"
+          data-name={name}
         ></div>
       {/if}
     </div>
