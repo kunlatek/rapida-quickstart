@@ -1,13 +1,17 @@
 <script lang="ts">
   import { Button as FlowbiteButton } from "flowbite-svelte";
-  import { getButtonSizeClasses } from "$lib/styles/theme";
+  import {
+    getButtonSizeClasses,
+  } from "$lib/styles/theme";
   import type {
     IFormCondition,
     IApiRequest,
   } from "../../interfaces/form.interfaces";
 
+  // Action type
   type ActionType = "submit" | "reset" | "link" | "apiRequest";
 
+  // Flowbite button type
   type FlowbiteButtonType = "submit" | "reset" | "button" | null | undefined;
   type FlowbiteButtonColor =
     | "primary"
@@ -20,7 +24,6 @@
     | "light"
     | "dark"
     | "none"
-    | "alternative"
     | undefined;
 
   type ButtonSize = "sm" | "md" | "lg";
@@ -43,8 +46,9 @@
   export let size: ButtonSize = "md";
   export let conditions: IFormCondition[] = [];
   export let apiRequest: IApiRequest | undefined = undefined;
-  export const todo = "";
+  export const todo = ""; // Changed from export let to export const
 
+  // Determine button type based on actionType
   $: type = (() => {
     switch (actionType) {
       case "submit":
@@ -59,6 +63,7 @@
     }
   })() as FlowbiteButtonType;
 
+  // Determine color based on variant
   $: color = (() => {
     switch (variant) {
       case "primary":
@@ -76,20 +81,26 @@
     }
   })() as FlowbiteButtonColor;
 
+  // Get size classes
   $: sizeClasses = getButtonSizeClasses(size);
 
+  // Combined button class
   $: buttonClass = `${sizeClasses} ${customClass}`;
 
+  // Handle API request
   async function handleApiRequest() {
     if (actionType === "apiRequest" && apiRequest) {
       try {
+        // API request logic would go here
         console.log("API request would be made to:", apiRequest.endpoint);
+        // Implementation goes here
       } catch (error) {
         console.error("Error making API request:", error);
       }
     }
   }
 
+  // Handle click event
   function handleClick(event: Event) {
     if (actionType === "apiRequest") {
       handleApiRequest();
@@ -97,12 +108,16 @@
     }
   }
 
+  // Function to evaluate conditions
   function evaluateConditions(): boolean {
+    // If no conditions, return true
     if (!conditions || conditions.length === 0) return true;
 
+    // Condition evaluation logic would go here
     return true;
   }
 
+  // Reactive conditions evaluation
   $: showComponent = evaluateConditions();
 </script>
 
