@@ -146,3 +146,132 @@ Content-Type: application/json
   "password": "password123",
   "invitationToken": "invitation-token-here"
 }
+
+### 21. Create Person Profile
+POST {{baseUrl}}/api/person-profiles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "personName": "João Silva",
+  "personNickname": "João",
+  "gender": "Male",
+  "birthday": "1990-01-01T00:00:00Z",
+  "maritalStatus": "Single",
+  "motherName": "Maria Silva",
+  "fatherName": "José Silva",
+  "tagId": ["developer", "senior"],
+  "personDescription": "Experienced software developer",
+  "cpf": "12345678901",
+  "phoneNumberOne": "+5511999999999",
+  "emailOne": "joao@example.com"
+}
+
+### 22. Get Person Profile by User ID
+GET {{baseUrl}}/api/person-profiles/user/64f8b1234567890abcdef123
+Authorization: Bearer {{token}}
+
+### 23. Update Person Profile
+PUT {{baseUrl}}/api/person-profiles/64f8b1234567890abcdef123
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "personName": "João Silva Santos",
+  "personDescription": "Senior software developer with 10+ years experience"
+}
+
+### 24. Create Company Profile
+POST {{baseUrl}}/api/company-profiles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "cnpj": "12345678000195",
+  "companyName": "Tech Solutions Ltda",
+  "businessName": "Tech Solutions",
+  "legalNature": "LTDA",
+  "companyDescription": "Software development company",
+  "tagId": ["technology", "software"],
+  "partners": [
+    {
+      "partnerName": "João Silva",
+      "partnerDocument": "12345678901",
+      "partnerEmail": "joao@techsolutions.com",
+      "participationPercentage": 50,
+      "isMainPartner": true
+    }
+  ]
+}
+
+### 25. Get Company Profile by User ID
+GET {{baseUrl}}/api/company-profiles/user/64f8b1234567890abcdef123
+Authorization: Bearer {{token}}
+
+### 26. Create Invitation
+POST {{baseUrl}}/api/invitations
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "newuser@example.com",
+  "role": "Person",
+  "message": "Welcome to our platform!",
+  "expirationDays": 7
+}
+
+### 27. Get Invitation by Token
+GET {{baseUrl}}/api/invitations/token/invitation-token-here
+
+### 28. Accept Invitation
+POST {{baseUrl}}/api/invitations/accept/invitation-token-here
+
+### 29. Resend Invitation
+POST {{baseUrl}}/api/invitations/64f8b1234567890abcdef123/resend
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "message": "Reminder: You're invited to join our platform!"
+}
+
+### 30. Create SMS Code
+POST {{baseUrl}}/api/sms-codes
+Content-Type: application/json
+
+{
+  "phoneNumber": "+5511999999999",
+  "expirationMinutes": 5
+}
+
+### 31. Verify SMS Code
+POST {{baseUrl}}/api/sms-codes/verify
+Content-Type: application/json
+
+{
+  "phoneNumber": "+5511999999999",
+  "code": "123456"
+}
+
+### 32. Check Phone Verification
+GET {{baseUrl}}/api/sms-codes/check/+5511999999999
+
+### 33. Remove Test Users
+POST {{baseUrl}}/api/cleanup/test-users
+Authorization: Bearer {{token}}
+
+### 34. Remove Expired Invitations
+POST {{baseUrl}}/api/cleanup/expired-invitations
+Authorization: Bearer {{token}}
+
+### 35. Remove Expired SMS Codes
+POST {{baseUrl}}/api/cleanup/expired-sms-codes
+Authorization: Bearer {{token}}
+
+### 36. Perform Full Cleanup
+POST {{baseUrl}}/api/cleanup/full
+Authorization: Bearer {{token}}
+
+### 37. Get Cleanup Status
+GET {{baseUrl}}/api/cleanup/status
+Authorization: Bearer {{token}}

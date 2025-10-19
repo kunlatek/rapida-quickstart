@@ -125,6 +125,11 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPersonProfileService, PersonProfileService>();
+builder.Services.AddScoped<ICompanyProfileService, CompanyProfileService>();
+builder.Services.AddScoped<IInvitationService, InvitationService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
+builder.Services.AddScoped<ICleanupService, CleanupService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
