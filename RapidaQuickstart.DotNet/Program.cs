@@ -21,7 +21,17 @@ builder.Services.AddSwaggerGen(c =>
     { 
         Title = "Rapida Quickstart API", 
         Version = "v1",
-        Description = "API documentation for Rapida Quickstart"
+        Description = "Complete API documentation for Rapida Quickstart - .NET version",
+        Contact = new OpenApiContact
+        {
+            Name = "Rapida Quickstart Team",
+            Email = "support@rapidaquickstart.com"
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT License",
+            Url = new Uri("https://opensource.org/licenses/MIT")
+        }
     });
     
     // Add JWT authentication to Swagger
@@ -30,8 +40,9 @@ builder.Services.AddSwaggerGen(c =>
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
     
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -48,6 +59,14 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+
+    // Include XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 // Configure JWT Authentication
@@ -128,6 +147,24 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Rapida Quickstart API v1");
         c.RoutePrefix = "api"; // Swagger UI at /api
+        c.DocumentTitle = "Rapida Quickstart API Documentation";
+        c.DefaultModelsExpandDepth(-1); // Hide models section by default
+        c.DisplayRequestDuration();
+        c.EnableDeepLinking();
+        c.EnableFilter();
+        c.ShowExtensions();
+        c.EnableValidator();
+    });
+}
+else
+{
+    // Enable Swagger in production for API documentation
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Rapida Quickstart API v1");
+        c.RoutePrefix = "api";
+        c.DocumentTitle = "Rapida Quickstart API Documentation";
     });
 }
 

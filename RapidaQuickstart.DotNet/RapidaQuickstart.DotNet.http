@@ -1,6 +1,148 @@
-@RapidaQuickstart.DotNet_HostAddress = http://localhost:5185
+### Rapida Quickstart API - HTTP Requests Examples
 
-GET {{RapidaQuickstart.DotNet_HostAddress}}/weatherforecast/
-Accept: application/json
+### Base URL
+@baseUrl = http://localhost:5000
 
-###
+### Variables
+@token = your-jwt-token-here
+
+### 1. Root - Hello World
+GET {{baseUrl}}/api?lang=en
+Content-Type: application/json
+
+### 2. Register Init - Send registration email
+POST {{baseUrl}}/api/auth/register-init
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+
+### 3. Signup - Complete registration
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "registerToken": "your-register-token"
+}
+
+### 4. Login - Local authentication
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### 5. Google Login
+POST {{baseUrl}}/api/auth/google/login
+Content-Type: application/json
+
+{
+  "idToken": "google-id-token-here"
+}
+
+### 6. Apple Login
+POST {{baseUrl}}/api/auth/apple/login
+Content-Type: application/json
+
+{
+  "idToken": "apple-id-token-here"
+}
+
+### 7. Switch Role (requires authentication)
+POST {{baseUrl}}/api/auth/switch-role
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "role": "ADMIN"
+}
+
+### 8. Forgot Password
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+
+### 9. Reset Password
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "reset-token-here",
+  "newPassword": "newpassword123"
+}
+
+### 10. Create User (Admin only)
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "newuser@example.com",
+  "password": "password123"
+}
+
+### 11. Get Current User
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{token}}
+
+### 12. Get All Users (Admin only)
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{token}}
+
+### 13. Get User by ID (Admin only)
+GET {{baseUrl}}/api/users/64f8b1234567890abcdef123
+Authorization: Bearer {{token}}
+
+### 14. Check if User Has Profile
+GET {{baseUrl}}/api/users/has-profile
+Authorization: Bearer {{token}}
+
+### 15. Change Password
+PATCH {{baseUrl}}/api/users/change-password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "oldPassword": "oldpassword123",
+  "newPassword": "newpassword123"
+}
+
+### 16. Restore Own Profile
+PATCH {{baseUrl}}/api/users/restore
+Authorization: Bearer {{token}}
+
+### 17. Update User (Admin only)
+PATCH {{baseUrl}}/api/users/64f8b1234567890abcdef123
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "updated@example.com",
+  "isEmailVerified": true
+}
+
+### 18. Soft Delete Own Profile
+DELETE {{baseUrl}}/api/users
+Authorization: Bearer {{token}}
+
+### 19. Soft Delete User (Admin only)
+DELETE {{baseUrl}}/api/users/64f8b1234567890abcdef123
+Authorization: Bearer {{token}}
+
+### 20. Create User by Invitation
+POST {{baseUrl}}/api/users/invitation
+Content-Type: application/json
+
+{
+  "email": "invited@example.com",
+  "password": "password123",
+  "invitationToken": "invitation-token-here"
+}

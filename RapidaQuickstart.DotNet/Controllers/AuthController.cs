@@ -9,6 +9,9 @@ using System.Security.Claims;
 
 namespace RapidaQuickstart.DotNet.Controllers
 {
+    /// <summary>
+    /// Authentication and authorization endpoints
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -24,6 +27,13 @@ namespace RapidaQuickstart.DotNet.Controllers
             _errorService = errorService;
         }
 
+        /// <summary>
+        /// Login via Google using ID Token
+        /// </summary>
+        /// <param name="dto">Google login credentials</param>
+        /// <returns>JWT access token and user information</returns>
+        /// <response code="200">Returns JWT access token after validating Google ID Token</response>
+        /// <response code="400">Invalid Google ID Token</response>
         [HttpPost("google/login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
         {
@@ -52,6 +62,14 @@ namespace RapidaQuickstart.DotNet.Controllers
             }
         }
 
+        /// <summary>
+        /// Local login with email and password
+        /// </summary>
+        /// <param name="dto">Login credentials</param>
+        /// <returns>JWT access token and user information</returns>
+        /// <response code="200">Returns JWT access token on successful login</response>
+        /// <response code="401">Invalid credentials</response>
+        /// <response code="400">Invalid request data</response>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
@@ -70,6 +88,14 @@ namespace RapidaQuickstart.DotNet.Controllers
             }
         }
 
+        /// <summary>
+        /// Switch active role and receive new JWT token
+        /// </summary>
+        /// <param name="dto">Role to switch to</param>
+        /// <returns>New JWT access token with selected role active</returns>
+        /// <response code="200">Returns new JWT access token with selected role active</response>
+        /// <response code="401">Unauthorized or user doesn't have the requested role</response>
+        /// <response code="400">Invalid request data</response>
         [HttpPost("switch-role")]
         [Authorize]
         public async Task<IActionResult> SwitchRole([FromBody] SwitchRoleDto dto)
