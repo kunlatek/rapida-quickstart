@@ -30,12 +30,18 @@ namespace RapidaQuickstart.DotNet.Services
         private readonly IMongoCollection<User> _users;
         private readonly IEmailService _emailService;
         private readonly IJwtService _jwtService;
+        private readonly IInvitationService _invitationService;
+        private readonly IPersonProfileService _personProfileService;
+        private readonly ICompanyProfileService _companyProfileService;
 
-        public UserService(IMongoDbService mongoDbService, IEmailService emailService, IJwtService jwtService)
+        public UserService(IMongoDbService mongoDbService, IEmailService emailService, IJwtService jwtService, IInvitationService invitationService, IPersonProfileService personProfileService, ICompanyProfileService companyProfileService)
         {
             _users = mongoDbService.GetCollection<User>("users");
             _emailService = emailService;
             _jwtService = jwtService;
+            _invitationService = invitationService;
+            _personProfileService = personProfileService;
+            _companyProfileService = companyProfileService;
         }
 
         public async Task<User> CreateUserAsync(CreateUserDto dto)
@@ -63,8 +69,43 @@ namespace RapidaQuickstart.DotNet.Services
 
         public async Task<User> CreateUserByInvitationAsync(CreateUserByInvitationDto dto)
         {
-            // This will be implemented when we create the invitation service
-            throw new NotImplementedException("Will be implemented with invitation service");
+            // Find invitation by token
+            var invitation = await _invitationService.FindInvitationByTokenAsync(dto.InvitationToken);
+            if (invitation == null || invitation.IsExpired || invitation.IsAccepted)
+            {
+                throw new InvalidOperationException("Invalid or expired invitation");
+            }
+
+            // Check if email matches invitation
+            if (invitation.Email != dto.Email)
+            {
+                throw new InvalidOperationException("Email does not match invitation");
+            }
+
+            // Check if user already exists
+            if (await EmailExistsAsync(dto.Email))
+            {
+                throw new InvalidOperationException("Email already exists");
+            }
+
+            var user = new User
+            {
+                Email = dto.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                Roles = new List<UserRole> { invitation.Role },
+                ActiveRole = invitation.Role,
+                Provider = Provider.LOCAL,
+                IsEmailVerified = true, // Invited users are considered verified
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _users.InsertOneAsync(user);
+
+            // Mark invitation as accepted
+            await _invitationService.AcceptInvitationAsync(dto.InvitationToken, user.Id);
+
+            return user;
         }
 
         public async Task<List<User>> GetAllUsersAsync()
@@ -104,7 +145,14 @@ namespace RapidaQuickstart.DotNet.Services
 
         public async Task<bool> UserHasProfileAsync(string userId)
         {
-            // This will be implemented when we create the profile services
+            // Check if user has a person profile
+            var personProfile = await _personProfileService.FindProfileByUserIdAsync(userId);
+            if (personProfile != null) return true;
+
+            // Check if user has a company profile
+            var companyProfile = await _companyProfileService.FindProfileByUserIdAsync(userId);
+            if (companyProfile != null) return true;
+
             return false;
         }
 
@@ -121,6 +169,21 @@ namespace RapidaQuickstart.DotNet.Services
             if (dto.IsEmailVerified.HasValue)
             {
                 update = update.Set(u => u.IsEmailVerified, dto.IsEmailVerified.Value);
+            }
+
+            if (dto.ActiveRole.HasValue)
+            {
+                update = update.Set(u => u.ActiveRole, dto.ActiveRole.Value);
+            }
+
+            if (!string.IsNullOrEmpty(dto.PasswordResetToken))
+            {
+                update = update.Set(u => u.PasswordResetToken, dto.PasswordResetToken);
+            }
+
+            if (dto.PasswordResetExpires.HasValue)
+            {
+                update = update.Set(u => u.PasswordResetExpires, dto.PasswordResetExpires.Value);
             }
 
             await _users.UpdateOneAsync(u => u.Id == id, update);

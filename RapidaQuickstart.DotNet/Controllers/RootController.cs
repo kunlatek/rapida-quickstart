@@ -17,8 +17,8 @@ namespace RapidaQuickstart.DotNet.Controllers
         [HttpGet]
         public IActionResult GetHello()
         {
-            var message = _localizer["Hello World"];
-            return Ok(message);
+            var message = _localizer["translation.hello"];
+            return Ok(new { message = message.Value });
         }
     }
 }

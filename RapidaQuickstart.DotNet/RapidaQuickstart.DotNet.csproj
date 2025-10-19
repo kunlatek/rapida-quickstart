@@ -21,6 +21,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <PackageReference Include="Twilio" Version="7.13.4" />
+    <PackageReference Include="Scrutor" Version="5.0.1" />
   </ItemGroup>
 
 </Project>

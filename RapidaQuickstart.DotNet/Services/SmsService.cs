@@ -3,6 +3,9 @@ using MongoDB.Bson;
 using RapidaQuickstart.DotNet.Common.Services;
 using RapidaQuickstart.DotNet.DTOs;
 using RapidaQuickstart.DotNet.Models;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 using System.Security.Cryptography;
 
 namespace RapidaQuickstart.DotNet.Services
@@ -195,26 +198,35 @@ namespace RapidaQuickstart.DotNet.Services
 
         private async Task SendSmsAsync(string phoneNumber, string code)
         {
-            // In a real implementation, you would use Twilio or another SMS service
-            // For now, we'll just log the SMS code
-            Console.WriteLine($"SMS Code for {phoneNumber}: {code}");
-            
-            // Example Twilio implementation (commented out):
-            /*
-            var accountSid = _configuration["Twilio:AccountSid"];
-            var authToken = _configuration["Twilio:AuthToken"];
-            var fromNumber = _configuration["Twilio:FromNumber"];
-            
-            TwilioClient.Init(accountSid, authToken);
-            
-            var message = MessageResource.Create(
-                body: $"Your verification code is: {code}",
-                from: new PhoneNumber(fromNumber),
-                to: new PhoneNumber(phoneNumber)
-            );
-            */
-            
-            await Task.CompletedTask;
+            try
+            {
+                var accountSid = _configuration["Twilio:AccountSid"];
+                var authToken = _configuration["Twilio:AuthToken"];
+                var fromNumber = _configuration["Twilio:FromNumber"];
+                
+                if (string.IsNullOrEmpty(accountSid) || string.IsNullOrEmpty(authToken) || string.IsNullOrEmpty(fromNumber))
+                {
+                    // Fallback to console logging if Twilio is not configured
+                    Console.WriteLine($"SMS Code for {phoneNumber}: {code}");
+                    return;
+                }
+                
+                TwilioClient.Init(accountSid, authToken);
+                
+                var message = await MessageResource.CreateAsync(
+                    body: $"Your verification code is: {code}",
+                    from: new PhoneNumber(fromNumber),
+                    to: new PhoneNumber(phoneNumber)
+                );
+                
+                Console.WriteLine($"SMS sent successfully. SID: {message.Sid}");
+            }
+            catch (Exception ex)
+            {
+                // Fallback to console logging if SMS sending fails
+                Console.WriteLine($"Failed to send SMS to {phoneNumber}: {ex.Message}");
+                Console.WriteLine($"SMS Code for {phoneNumber}: {code}");
+            }
         }
     }
 }

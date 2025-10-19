@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using RapidaQuickstart.DotNet.Enums;
 
 namespace RapidaQuickstart.DotNet.DTOs
 {
@@ -8,5 +9,11 @@ namespace RapidaQuickstart.DotNet.DTOs
         public string? Email { get; set; }
 
         public bool? IsEmailVerified { get; set; }
+
+        public UserRole? ActiveRole { get; set; }
+
+        public string? PasswordResetToken { get; set; }
+
+        public DateTime? PasswordResetExpires { get; set; }
     }
 }
