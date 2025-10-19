@@ -13,7 +13,7 @@ namespace RapidaQuickstart.DotNet.Controllers
     /// Authentication and authorization endpoints
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;

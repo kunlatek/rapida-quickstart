@@ -4,7 +4,7 @@ using Microsoft.Extensions.Localization;
 namespace RapidaQuickstart.DotNet.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/health")]
     public class RootController : ControllerBase
     {
         private readonly IStringLocalizer<RootController> _localizer;

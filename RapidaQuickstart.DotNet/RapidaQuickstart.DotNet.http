@@ -220,13 +220,7 @@ Authorization: Bearer {{token}}
   "expirationDays": 7
 }
 
-### 27. Get Invitation by Token
-GET {{baseUrl}}/api/invitations/token/invitation-token-here
-
-### 28. Accept Invitation
-POST {{baseUrl}}/api/invitations/accept/invitation-token-here
-
-### 29. Resend Invitation
+### 27. Resend Invitation
 POST {{baseUrl}}/api/invitations/64f8b1234567890abcdef123/resend
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -235,8 +229,8 @@ Authorization: Bearer {{token}}
   "message": "Reminder: You're invited to join our platform!"
 }
 
-### 30. Create SMS Code
-POST {{baseUrl}}/api/sms-codes
+### 28. Send SMS Code
+POST {{baseUrl}}/api/sms-code/send-sms
 Content-Type: application/json
 
 {
@@ -244,8 +238,8 @@ Content-Type: application/json
   "expirationMinutes": 5
 }
 
-### 31. Verify SMS Code
-POST {{baseUrl}}/api/sms-codes/verify
+### 29. Verify SMS Code
+POST {{baseUrl}}/api/sms-code/verify-sms
 Content-Type: application/json
 
 {
@@ -253,25 +247,6 @@ Content-Type: application/json
   "code": "123456"
 }
 
-### 32. Check Phone Verification
-GET {{baseUrl}}/api/sms-codes/check/+5511999999999
-
-### 33. Remove Test Users
-POST {{baseUrl}}/api/cleanup/test-users
-Authorization: Bearer {{token}}
-
-### 34. Remove Expired Invitations
-POST {{baseUrl}}/api/cleanup/expired-invitations
-Authorization: Bearer {{token}}
-
-### 35. Remove Expired SMS Codes
-POST {{baseUrl}}/api/cleanup/expired-sms-codes
-Authorization: Bearer {{token}}
-
-### 36. Perform Full Cleanup
-POST {{baseUrl}}/api/cleanup/full
-Authorization: Bearer {{token}}
-
-### 37. Get Cleanup Status
-GET {{baseUrl}}/api/cleanup/status
+### 30. Remove Test User
+POST {{baseUrl}}/api/cleanup/remove-test-user
 Authorization: Bearer {{token}}

@@ -109,30 +109,6 @@ namespace RapidaQuickstart.DotNet.Controllers
             }
         }
 
-        /// <summary>
-        /// Get invitation by token
-        /// </summary>
-        /// <param name="token">Invitation token</param>
-        /// <returns>Invitation</returns>
-        /// <response code="200">Returns invitation</response>
-        /// <response code="404">Invitation not found</response>
-        [HttpGet("token/{token}")]
-        public async Task<IActionResult> GetInvitationByToken(string token)
-        {
-            try
-            {
-                var invitation = await _invitationService.FindInvitationByTokenAsync(token);
-                if (invitation == null)
-                {
-                    return NotFound(new { message = "Invitation not found" });
-                }
-                return Ok(invitation);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
 
         /// <summary>
         /// Update invitation
@@ -144,7 +120,7 @@ namespace RapidaQuickstart.DotNet.Controllers
         /// <response code="404">Invitation not found</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="400">Invalid request data</response>
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateInvitation(string id, [FromBody] UpdateInvitationDto dto)
         {
@@ -190,32 +166,6 @@ namespace RapidaQuickstart.DotNet.Controllers
             }
         }
 
-        /// <summary>
-        /// Accept invitation
-        /// </summary>
-        /// <param name="token">Invitation token</param>
-        /// <returns>Accepted invitation</returns>
-        /// <response code="200">Invitation accepted successfully</response>
-        /// <response code="404">Invitation not found</response>
-        /// <response code="400">Invalid invitation</response>
-        [HttpPost("accept/{token}")]
-        public async Task<IActionResult> AcceptInvitation(string token)
-        {
-            try
-            {
-                var acceptedBy = User.FindFirst("userId")?.Value ?? "anonymous";
-                var invitation = await _invitationService.AcceptInvitationAsync(token, acceptedBy);
-                return Ok(invitation);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
 
         /// <summary>
         /// Resend invitation email
@@ -246,24 +196,5 @@ namespace RapidaQuickstart.DotNet.Controllers
             }
         }
 
-        /// <summary>
-        /// Check if email is invited
-        /// </summary>
-        /// <param name="email">Email to check</param>
-        /// <returns>Invitation status</returns>
-        /// <response code="200">Returns invitation status</response>
-        [HttpGet("check/{email}")]
-        public async Task<IActionResult> CheckEmailInvitation(string email)
-        {
-            try
-            {
-                var isInvited = await _invitationService.IsEmailInvitedAsync(email);
-                return Ok(new { email, isInvited });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
     }
 }

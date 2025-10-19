@@ -6,7 +6,7 @@ namespace RapidaQuickstart.DotNet.Services
 {
     public interface ICleanupService
     {
-        Task<int> RemoveTestUsersAsync();
+        Task<int> RemoveTestUserAsync();
         Task<int> RemoveExpiredInvitationsAsync();
         Task<int> RemoveExpiredSmsCodesAsync();
         Task<int> RemoveOldLogsAsync(int daysOld = 30);
@@ -28,17 +28,13 @@ namespace RapidaQuickstart.DotNet.Services
             _users = mongoDbService.GetCollection<User>("users");
         }
 
-        public async Task<int> RemoveTestUsersAsync()
+        public async Task<int> RemoveTestUserAsync()
         {
-            // Remove test users (users with email containing "test" or "example")
-            var filter = Builders<User>.Filter.Or(
-                Builders<User>.Filter.Regex(u => u.Email, new MongoDB.Bson.BsonRegularExpression("test", "i")),
-                Builders<User>.Filter.Regex(u => u.Email, new MongoDB.Bson.BsonRegularExpression("example", "i")),
-                Builders<User>.Filter.Regex(u => u.Email, new MongoDB.Bson.BsonRegularExpression("@test\\.", "i")),
-                Builders<User>.Filter.Regex(u => u.Email, new MongoDB.Bson.BsonRegularExpression("@example\\.", "i"))
-            );
+            // Remove specific test user as in NestJS
+            var testEmail = "zeninguem@email.com";
+            var filter = Builders<User>.Filter.Eq(u => u.Email, testEmail);
 
-            var result = await _users.DeleteManyAsync(filter);
+            var result = await _users.DeleteOneAsync(filter);
             return (int)result.DeletedCount;
         }
 
@@ -84,7 +80,7 @@ namespace RapidaQuickstart.DotNet.Services
 
             try
             {
-                summary.TestUsersRemoved = await RemoveTestUsersAsync();
+                summary.TestUsersRemoved = await RemoveTestUserAsync();
                 summary.ExpiredInvitationsRemoved = await RemoveExpiredInvitationsAsync();
                 summary.ExpiredSmsCodesRemoved = await RemoveExpiredSmsCodesAsync();
                 summary.OldLogsRemoved = await RemoveOldLogsAsync();
